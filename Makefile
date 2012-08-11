@@ -1,4 +1,4 @@
 test:
-	node t/test-scanner.js
+	./node_modules/.bin/tap t
 
 .PHONY: test
