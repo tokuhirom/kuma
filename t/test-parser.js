@@ -7,7 +7,7 @@ tap.test('ok', function (t) {
     var ast = parser.parse();
     t.equivalent(ast, 
         [
-            Parser.NODE_FUNCALL,
+            Parser.NODE_BUILTIN_FUNCALL,
             1,
             [
                 [Parser.NODE_IDENT,1,"say"], // function object
@@ -25,7 +25,7 @@ tap.test('say(3)', function (t) {
     var ast = parser.parse();
     t.equivalent(ast, 
         [
-            Parser.NODE_FUNCALL,
+            Parser.NODE_BUILTIN_FUNCALL,
             1,
             [
                 [Parser.NODE_IDENT,1,"say"], // function object

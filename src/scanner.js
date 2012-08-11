@@ -1,4 +1,6 @@
 (function (global) {
+    "use strict";
+
     if (!global.Kuma) { global.Kuma = {} }
 
     function Scanner(src) {
@@ -20,6 +22,20 @@
     };
 
     Scanner.prototype.get = function () {
+        // skip white spaces
+        LOOP: while (1) {
+            switch (this.src.charAt(0)) {
+            case "\n":
+                this.src = this.src.substr(1);
+                this.lineno++;
+                continue LOOP;
+            case " ":
+                this.src = this.src.substr(1);
+                continue LOOP;
+            }
+            break;
+        }
+
         if (this.src.length == 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
         }
@@ -46,7 +62,7 @@
             }
         }
 
-        return ["ERROR"];
+        throw "An error occured in tokenize: " + this.src.substr(0,20);
     };
     global.Kuma.Scanner = Scanner;
 

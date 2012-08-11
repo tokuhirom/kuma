@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+"use strict";
+
+var Translator = require("./src/translator.js").Kuma.Translator,
+    Parser = require("./src/parser.js").Kuma.Parser,
+    Scanner = require("./src/parser.js").Kuma.Scanner,
+    Core = require("./src/runtime.js").Kuma.Core,
+    fs = require('fs'),
+    Kuma = {
+        "Core": Core
+    };
+
+var fname = process.argv[2];
+var src = fs.readFileSync(fname, 'utf-8');
+
+var parser = new Parser(src);
+var ast = parser.parse();
+var translator = new Translator();
+var js = translator.translate(ast);
+eval(js);
+

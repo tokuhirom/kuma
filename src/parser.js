@@ -1,4 +1,5 @@
 (function (global) {
+    "use strict";
     if (!global.Kuma) { global.Kuma = {} }
 
     var Scanner = require('./scanner.js').Kuma.Scanner;
@@ -7,6 +8,15 @@
     var TK_TAG    = 0;
     var TK_VALUE  = 1;
     var TK_LINENO = 2;
+
+    // index for ast node
+    var ND_TYPE   = 0;
+    var ND_LINENO = 1;
+    var ND_DATAS  = 2;
+
+    var BUILTIN_FUNCTIONS = [
+        'say', 'open'
+    ];
 
     function Parser(src) {
         // scan all tokens...
@@ -26,6 +36,7 @@
 
     Parser.NODE_FUNCALL = 1;
     Parser.NODE_IDENT = 2;
+    Parser.NODE_BUILTIN_FUNCALL = 3;
 
     Parser.prototype.trace = function () {
         if (this.TRACE_ON) {
@@ -46,6 +57,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function (src) {
+        this.trace("Start");
         var mark = this.getMark();
 
         var primary = this.takePrimary();
@@ -56,16 +68,19 @@
         }
 
         var token = this.getToken();
-        if (token[0] == Scanner.TOKEN_LPAREN) {
+        if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
             // say(3)
             this.trace("Parsing funcall");
             this.ungetToken();
 
             var args = this.takeArguments();
             if (args) {
+                var node_type = primary[0] == Parser.NODE_IDENT && primary[2] in BUILTIN_FUNCTIONS
+                    ? Parser.NODE_FUNCALL
+                    : Parser.NODE_BUILTIN_FUNCALL;
                 return this.makeNode( 
-                    Parser.NODE_FUNCALL,
-                    primary[1], // lineno
+                    node_type,
+                    primary[ND_LINENO], // lineno
                     [primary, args]
                 );
             } else {
@@ -82,7 +97,7 @@
         var mark = this.getMark();
 
         var token = this.getToken();
-        if (token[0] !== Scanner.TOKEN_LPAREN) {
+        if (token[TK_TAG] !== Scanner.TOKEN_LPAREN) {
             this.restoreMark(mark);
             return;
         }
