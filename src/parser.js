@@ -3,6 +3,11 @@
 
     var Scanner = require('./scanner.js').Kuma.Scanner;
 
+    // index for each token
+    var TK_TAG    = 0;
+    var TK_VALUE  = 1;
+    var TK_LINENO = 2;
+
     function Parser(src) {
         // scan all tokens...
         // ugly but works. performance tuning needed.
@@ -58,12 +63,11 @@
 
             var args = this.takeArguments();
             if (args) {
-                return [
+                return this.makeNode( 
                     Parser.NODE_FUNCALL,
-                    primary[2], // lineno
-                    primary,
-                    args
-                ];
+                    primary[1], // lineno
+                    [primary, args]
+                );
             } else {
                 this.trace("no args");
                 this.restoreMark(mark);
@@ -84,21 +88,60 @@
         }
 
         var args = [];
+        while (1) {
+            var exp = this.takeAssignExpression();
+            if (exp) {
+                this.trace("Found exp");
+                args.push(exp);
+                var commaMark = this.getMark();
+                var commaToken = this.getToken();
+                if (commaToken[TK_TAG] === Scanner.TOKEN_COMMA) {
+                    // nop
+                } else {
+                    this.restoreMark(commaMark);
+                    break;
+                }
+            } else {
+                this.trace("exp not found");
+                break;
+            }
+        }
         // TODO: take args
 
         var token = this.getToken();
-        if (token[0] !== Scanner.TOKEN_RPAREN) {
+        if (token[TK_TAG] !== Scanner.TOKEN_RPAREN) {
             this.restoreMark(mark);
             return;
         }
         return args;
     };
+    Parser.prototype.makeNode = function (type, lineno, datas) {
+        return [
+            type,
+            lineno,
+            datas
+        ];
+    };
+    Parser.prototype.takeAssignExpression = function () {
+        // TODO
+        return this.takePrimary();
+    };
     Parser.prototype.takePrimary = function () {
         var mark = this.getMark();
 
         var token = this.getToken();
-        if (token[0] == Scanner.TOKEN_IDENT) {
-            return [Parser.NODE_IDENT, token[1], token[2]];
+        if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
+            return this.makeNode( 
+                Parser.NODE_IDENT,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_NUMBER) {
+            return this.makeNode(
+                Parser.NODE_NUMBER,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
         } else {
             this.restoreMark(mark);
             return;
