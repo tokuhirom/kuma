@@ -100,6 +100,7 @@
             if (!meth) { return; }
 
             var token = this.lookToken();
+            this.trace("TOKEN: " + JSON.stringify(token));
             if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
                 // i++
                 return this.makeNode(
@@ -124,8 +125,7 @@
         // TODO: handle method call at here
         return this.parseFuncall(src);
     };
-    Parser.prototype.parseFuncall = function (src) {
-        this.trace("Start");
+    Parser.prototype.parseFuncall = function () {
         var mark = this.getMark();
 
         var primary = this.takePrimary();
@@ -135,11 +135,10 @@
             return;
         }
 
-        var token = this.getToken();
+        var token = this.lookToken();
         if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
             // say(3)
             this.trace("Parsing funcall");
-            this.ungetToken();
 
             var args = this.takeArguments();
             if (args) {
