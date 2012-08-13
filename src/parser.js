@@ -57,6 +57,13 @@
         this.idx = i;
     };
     Parser.prototype.parse = function (src) {
+        return this.parseMethodCall();
+    };
+    Parser.prototype.parseMethodCall = function (src) {
+        // TODO: handle method call at here
+        return this.parseFuncall(src);
+    };
+    Parser.prototype.parseFuncall = function (src) {
         this.trace("Start");
         var mark = this.getMark();
 
@@ -89,8 +96,8 @@
                 return;
             }
         } else {
-            this.restoreMark(mark);
-            return;
+            // It's primary token
+            return primary;
         }
     };
     Parser.prototype.takeArguments = function () {
@@ -138,6 +145,34 @@
         ];
     };
     Parser.prototype.takeAssignExpression = function () {
+        /*
+        ($c, my $rhs) = three_expression($c)
+            or return;
+        my ($used, $token_id) = _token_op($c);
+        my $op = +{
+            TOKEN_ASSIGN()        => NODE_ASSIGN,
+            TOKEN_MUL_ASSIGN()    => NODE_MUL_ASSIGN,
+            TOKEN_PLUS_ASSIGN()   => NODE_PLUS_ASSIGN,
+            TOKEN_DIV_ASSIGN()    => NODE_DIV_ASSIGN,
+            TOKEN_MOD_ASSIGN()    => NODE_MOD_ASSIGN,
+            TOKEN_MINUS_ASSIGN()  => NODE_MINUS_ASSIGN,
+            TOKEN_LSHIFT_ASSIGN() => NODE_LSHIFT_ASSIGN,
+            TOKEN_RSHIFT_ASSIGN() => NODE_RSHIFT_ASSIGN,
+            TOKEN_POW_ASSIGN()    => NODE_POW_ASSIGN,
+            TOKEN_AND_ASSIGN()    => NODE_AND_ASSIGN,
+            TOKEN_OR_ASSIGN()     => NODE_OR_ASSIGN,
+            TOKEN_XOR_ASSIGN()    => NODE_XOR_ASSIGN,
+            TOKEN_OROR_ASSIGN()   => NODE_OROR_ASSIGN,
+        }->{$token_id};
+        if ($op) {
+            $c = substr($c, $used);
+            ($c, my $lhs) = expression($c)
+                or _err "Cannot get expression after $op";
+            return ($c, _node($op, $rhs, $lhs));
+        } else {
+            return ($c, $rhs);
+        }
+        */
         // TODO
         return this.takePrimary();
     };

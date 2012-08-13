@@ -1,11 +1,13 @@
-- scanner supports strings
-- scanner supports haredoc
 - normal if(parser)
 - normal if(translator)
 - can implement fib()
 
 scanner
 -------
+
+    * comment support
+    * scanner supports strings
+    * scanner supports haredoc
 
 parser
 ------
