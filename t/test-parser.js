@@ -1,6 +1,7 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+if (0) {
 tap.test('ok', function (t) {
     var parser = new Parser("say()");
     parser.TRACE_ON = true;
@@ -18,6 +19,7 @@ tap.test('ok', function (t) {
 
     t.end();
 });
+}
 
 tap.test('say(3)', function (t) {
     var parser = new Parser("say(3)");

@@ -10,12 +10,17 @@ tap.test("empty", function (t) {
 });
 
 tap.test("say(3)", function (t) {
-    var s = new Scanner("say(3)");
-    t.equivalent(s.get(), [Scanner.TOKEN_IDENT, "say", 1]);
-    t.equivalent(s.get(), [Scanner.TOKEN_LPAREN, undefined, 1]);
-    t.equivalent(s.get(), [Scanner.TOKEN_INTEGER, 3, 1]);
-    t.equivalent(s.get(), [Scanner.TOKEN_RPAREN, undefined, 1]);
-    t.equivalent(s.get(), [Scanner.TOKEN_EOF,    undefined, 1]);
+    try {
+        var s = new Scanner("say(3)");
+        t.equivalent(s.get(), [Scanner.TOKEN_IDENT, "say", 1]);
+        t.equivalent(s.get(), [Scanner.TOKEN_LPAREN, undefined, 1]);
+        t.equivalent(s.get(), [Scanner.TOKEN_INTEGER, 3, 1]);
+        t.equivalent(s.get(), [Scanner.TOKEN_RPAREN, undefined, 1]);
+        t.equivalent(s.get(), [Scanner.TOKEN_EOF,    undefined, 1]);
+    } catch (e) {
+        console.log(e);
+        t.fail(''+e);
+    };
     t.end();
 });
 

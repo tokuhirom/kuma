@@ -30,6 +30,7 @@
                 break;
             }
         }
+        console.log(tokens);
         this.tokens = tokens;
         this.idx = 0;
     }
@@ -151,9 +152,9 @@
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_NUMBER) {
+        } else if (token[TK_TAG] == Scanner.TOKEN_INTEGER) {
             return this.makeNode(
-                Parser.NODE_NUMBER,
+                Parser.NODE_INTEGER,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
