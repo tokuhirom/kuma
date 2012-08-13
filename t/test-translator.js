@@ -20,3 +20,15 @@ tap.test('ok', function (t) {
     t.end();
 });
 
+tap.test('pow', function (t) {
+    console.log(testit('2**10'));
+    t.equivalent(testit('2**10'), '"use strict";' + "\n" + '2**10');
+    t.end();
+});
+
+function testit(src) {
+    var parser = new Parser(src);
+    var ast = parser.parse();
+    var tra = new Translator();
+    return tra.translate(ast);
+}

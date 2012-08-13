@@ -21,6 +21,7 @@
     function Parser(src) {
         // scan all tokens...
         // ugly but works. performance tuning needed.
+        if (!src) { throw "Missing mandatory parameter: src"; }
         var scanner = new Scanner(src);
         var tokens = []
         while (1) {
@@ -42,6 +43,8 @@
     Parser.NODE_POST_INC = 6;
     Parser.NODE_PRE_DEC = 7;
     Parser.NODE_POST_DEC = 8;
+    Parser.NODE_POW = 9;
+    Parser.NODE_INTEGER = 10;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -65,7 +68,45 @@
         this.idx = i;
     };
     Parser.prototype.parse = function (src) {
-        return this.parseIncDec();
+        return this.parsePow();
+    };
+    Parser.prototype.parsePow = function () {
+        /*
+        my $c = shift;
+        ($c, my $lhs) = incdec($c)
+            or return;
+        my ($len, $token) = _token_op($c);
+        if ($token && $token == TOKEN_POW) {
+            $c = substr($c, $len);
+            ($c, my $rhs) = pow($c)
+                or die "Missing expression after '**'";
+            return ($c, _node(NODE_POW, $lhs, $rhs));
+        } else {
+            return ($c, $lhs);
+        }
+        */
+        var lhs = this.parseIncDec();
+        if (!lhs) { return; }
+
+        var token = this.lookToken();
+        if (token[TK_TAG] == Scanner.TOKEN_POW) {
+            this.getToken(); // move head
+            var rhs = this.parsePow();
+            if (rhs) {
+                return this.makeNode(
+                    Parser.NODE_POW,
+                    token[TK_LINENO],
+                    [
+                        lhs,
+                        rhs
+                    ]
+                );
+            } else {
+                throw "Missing right side value for ** at line " + token[TK_LINENO];
+            }
+        } else {
+            return lhs;
+        }
     };
     Parser.prototype.parseIncDec = function () {
         var token = this.lookToken();

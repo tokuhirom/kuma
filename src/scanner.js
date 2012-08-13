@@ -4,6 +4,7 @@
     if (!global.Kuma) { global.Kuma = {} }
 
     function Scanner(src) {
+        if (!src) { throw "Missing mandatory parameter: src"; }
         this.src = src;
         this.lineno = 1;
     }
@@ -203,6 +204,7 @@
         '-=': Scanner.TOKEN_MINUS_ASSIGN,
         '-': Scanner.TOKEN_MINUS,
     };
+    var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length });
 
     Scanner.prototype.get = function () {
         // ------------------------------------------------------------------------- 
@@ -293,7 +295,8 @@
         // ------------------------------------------------------------------------- 
         // handle operators
         // ------------------------------------------------------------------------- 
-        for (var op in ops) {
+        for (var i=0; i<OPS_KEYS.length; i++) {
+            var op = OPS_KEYS[i];
             if (this.src.substr(0, op.length) == op) {
                 this.src = this.src.substr(op.length);
                 return [ops[op], undefined, this.lineno];

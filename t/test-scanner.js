@@ -64,6 +64,16 @@ tap.test("keywords", function (t) {
     t.end();
 });
 
+tap.test("**", function (t) {
+    t.equivalent(scanIt('2**10'), [
+        [Scanner.TOKEN_INTEGER, 2, 1],
+        [Scanner.TOKEN_POW, undefined, 1],
+        [Scanner.TOKEN_INTEGER, 10, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

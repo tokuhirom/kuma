@@ -40,12 +40,14 @@
                 var args = ast[ND_DATAS][1];
                 return translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
-        case Parser.NODE_NUMBER:
+        case Parser.NODE_INTEGER:
             return ast[ND_DATAS];
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
+        case Parser.NODE_POW:
+            return 'Math.pow(('+translator._translate(ast[ND_DATAS][0]) + "), (" + this._translate(ast[ND_DATAS][1]) + "))";
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + ast[ND_TYPE];

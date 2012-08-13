@@ -17,13 +17,13 @@ parser
     * parse if
     * postfix if
     * normal if(parser)
-    * parse preinc/postinc/predec/postdec
 
 translator
 ----------
 
     * run if
     * normal if(translator)
+    * run preinc/postinc/predec/postdec
 
 runtime
 -------
@@ -39,4 +39,8 @@ END
 
 done
 ----
+
+    * parse preinc/postinc/predec/postdec
+    * run pow
+    * parse pow
 
