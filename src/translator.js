@@ -17,25 +17,28 @@
     Translator.prototype.translateArgs = function (args) {
         var src = '';
         for (var i=0, argLen = args.length; i<argLen; i++) {
-            src += this.translate(args[i]);
+            src += this._translate(args[i]);
             if (i >= argLen) { src += ","; }
         }
         return src;
     };
     Translator.prototype.translate = function (ast) {
+        return '"use strict";' + "\n" + this._translate(ast);
+    };
+    Translator.prototype._translate = function (ast) {
         var translator = this;
         switch (ast[ND_TYPE]) {
         case Parser.NODE_BUILTIN_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
-                return "Kuma.Core." + translator.translate(func) + "(" + translator.translateArgs(args) + ")";
+                return "Kuma.Core." + translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
         case Parser.NODE_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
-                return translator.translate(func) + "(" + translator.translateArgs(args) + ")";
+                return translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
         case Parser.NODE_NUMBER:
             return ast[ND_DATAS];

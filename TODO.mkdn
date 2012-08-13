@@ -1,0 +1,36 @@
+- scanner supports strings
+- scanner supports haredoc
+- normal if(parser)
+- normal if(translator)
+- can implement fib()
+
+scanner
+-------
+
+parser
+------
+
+    * parse fib
+    * parse if
+    * postfix if
+
+translator
+----------
+
+    * run if
+
+runtime
+-------
+
+milestone
+---------
+
+    * fib
+    * class
+
+END
+===
+
+done
+----
+

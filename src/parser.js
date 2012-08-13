@@ -30,7 +30,6 @@
                 break;
             }
         }
-        console.log(tokens);
         this.tokens = tokens;
         this.idx = 0;
     }

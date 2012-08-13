@@ -247,7 +247,7 @@
         var matched = this.src.match(/^[1-9][0-9]*/);
         if (matched) {
             this.src = this.src.substr(matched[0].length);
-            return [Scanner.TOKEN_INTEGER, 0+matched[0], this.lineno];
+            return [Scanner.TOKEN_INTEGER, parseInt(matched[0], 10), this.lineno];
         }
         var hexmatched = this.src.match(/^0x[0-9a-fA-F]+/);
         if (hexmatched) {
