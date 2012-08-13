@@ -1,6 +1,5 @@
-- normal if(parser)
-- normal if(translator)
-- can implement fib()
+TODO list
+=========
 
 scanner
 -------
@@ -8,6 +7,8 @@ scanner
     * comment support
     * scanner supports strings
     * scanner supports haredoc
+    * tune up
+    * support #{} style
 
 parser
 ------
@@ -15,11 +16,14 @@ parser
     * parse fib
     * parse if
     * postfix if
+    * normal if(parser)
+    * parse preinc/postinc/predec/postdec
 
 translator
 ----------
 
     * run if
+    * normal if(translator)
 
 runtime
 -------

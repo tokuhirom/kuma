@@ -37,14 +37,22 @@
     Parser.NODE_FUNCALL = 1;
     Parser.NODE_IDENT = 2;
     Parser.NODE_BUILTIN_FUNCALL = 3;
+    Parser.NODE_STRING = 4;
+    Parser.NODE_PRE_INC = 5;
+    Parser.NODE_POST_INC = 6;
+    Parser.NODE_PRE_DEC = 7;
+    Parser.NODE_POST_DEC = 8;
 
-    Parser.prototype.trace = function () {
+    Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
-            console.log.apply(null, Array.prototype.slice.call(arguments));
+            console.log("### " + msg);
         }
     };
     Parser.prototype.getToken = function () {
         return this.tokens[this.idx++];
+    };
+    Parser.prototype.lookToken = function () {
+        return this.tokens[this.idx];
     };
     Parser.prototype.ungetToken = function () {
         if (this.idx == 0) { throw "Invalid index" }
@@ -57,7 +65,60 @@
         this.idx = i;
     };
     Parser.prototype.parse = function (src) {
-        return this.parseMethodCall();
+        return this.parseIncDec();
+    };
+    Parser.prototype.parseIncDec = function () {
+        var token = this.lookToken();
+        if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
+            // ++i
+            this.getToken(); // remove ++
+            var meth = this.parseMethodCall();
+            if (meth) {
+                return this.makeNode(
+                    Parser.NODE_PRE_INC,
+                    token[TK_LINENO],
+                    meth
+                );
+            } else {
+                throw "Cannot process ++ operator at line " + token[TK_LINENO];
+            }
+        } else if (token[TK_TAG] == Scanner.TOKEN_MINUSMINUS) {
+            // --i
+            this.getToken(); // remove --
+            var meth = this.parseMethodCall();
+            if (meth) {
+                return this.makeNode(
+                    Parser.NODE_PRE_DEC,
+                    token[TK_LINENO],
+                    meth
+                );
+            } else {
+                throw "Cannot process -- operator at line " + token[TK_LINENO];
+            }
+        } else {
+            var meth = this.parseMethodCall();
+            if (!meth) { return; }
+
+            var token = this.lookToken();
+            if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
+                // i++
+                return this.makeNode(
+                    Parser.NODE_POST_INC,
+                    token[TK_LINENO],
+                    meth
+                );
+            } else if (token[TK_TAG] == Scanner.TOKEN_MINUSMINUS) {
+                // i--
+                return this.makeNode(
+                    Parser.NODE_POST_DEC,
+                    token[TK_LINENO],
+                    meth
+                );
+            } else {
+                // normal method call
+                return meth;
+            }
+        }
     };
     Parser.prototype.parseMethodCall = function (src) {
         // TODO: handle method call at here
@@ -189,6 +250,12 @@
         } else if (token[TK_TAG] == Scanner.TOKEN_INTEGER) {
             return this.makeNode(
                 Parser.NODE_INTEGER,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_STRING) {
+            return this.makeNode(
+                Parser.NODE_STRING,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );

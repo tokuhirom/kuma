@@ -1,1 +1,1 @@
-say(3)
+say("Hello, world")

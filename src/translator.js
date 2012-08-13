@@ -44,6 +44,8 @@
             return ast[ND_DATAS];
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
+        case Parser.NODE_STRING:
+            return "'" + ast[ND_DATAS] + "'";
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + ast[ND_TYPE];

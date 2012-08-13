@@ -205,7 +205,9 @@
     };
 
     Scanner.prototype.get = function () {
+        // ------------------------------------------------------------------------- 
         // skip white spaces
+        // ------------------------------------------------------------------------- 
         LOOP: while (1) {
             switch (this.src.charAt(0)) {
             case "\n":
@@ -223,7 +225,9 @@
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
         }
 
+        // ------------------------------------------------------------------------- 
         // scan keywords
+        // ------------------------------------------------------------------------- 
         for (var keyword in KEYWORDS) {
             if (this.src.substr(0, keyword.length) == keyword) {
                 this.src = this.src.substr(keyword.length);
@@ -231,14 +235,18 @@
             }
         }
 
+        // ------------------------------------------------------------------------- 
         // handle ident.
+        // ------------------------------------------------------------------------- 
         var m = this.src.match(/^[$A-Za-z_][$A-Za-z0-9_]*/);
         if (m) {
             this.src = this.src.substr(m[0].length);
             return [Scanner.TOKEN_IDENT, m[0], this.lineno];
         }
 
+        // ------------------------------------------------------------------------- 
         // handle number
+        // ------------------------------------------------------------------------- 
         var doublematched = this.src.match(/^[1-9][0-9]*(\.[0-9]+)/);
         if (doublematched) {
             this.src = this.src.substr(doublematched[0].length);
@@ -259,7 +267,32 @@
             return [Scanner.TOKEN_INTEGER, 0, this.lineno];
         }
 
+        // ------------------------------------------------------------------------- 
+        // handle strings
+        // ------------------------------------------------------------------------- 
+        if (this.src.match(/^"/)) {
+            var ret = this.src.match(/^"((\\"|[^"]+)*)"/);
+            if (ret) {
+                this.src = this.src.substr(ret[0].length);
+                var lineno = this.lineno;
+                // count up lineno.
+                ret[1].replace(/\n/g, (function () {
+                    this.lineno++;
+                    return "\n";
+                }).bind(this));
+                return [
+                    Scanner.TOKEN_STRING,
+                    ret[1],
+                    lineno
+                ];
+            } else {
+                throw "Scanning error: Unexpected EOF in string.";
+            }
+        }
+
+        // ------------------------------------------------------------------------- 
         // handle operators
+        // ------------------------------------------------------------------------- 
         for (var op in ops) {
             if (this.src.substr(0, op.length) == op) {
                 this.src = this.src.substr(op.length);
