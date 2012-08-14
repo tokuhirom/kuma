@@ -22,6 +22,7 @@
         // scan all tokens...
         // ugly but works. performance tuning needed.
         if (!src) { throw "Missing mandatory parameter: src"; }
+        this.src = src;
         var scanner = new Scanner(src);
         var tokens = [];
         while (1) {
@@ -77,6 +78,7 @@
     Parser.NODE_THREE = 39;
     Parser.NODE_COMMA = 40;
     Parser.NODE_UNARY_NOT = 41;
+    Parser.NODE_LOGICAL_XOR = 44;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -100,7 +102,12 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        return this.parseCommaExpression();
+        var ret = this.parseStrOrExpression();
+        if (this.idx < this.tokens.length-1) {
+            console.log(this.src);
+            throw "Cannot parse. " + this.idx + "   " + this.tokens.length;
+        }
+        return ret;
     };
 
     // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
@@ -130,6 +137,19 @@
             );
         }
         return child;
+    };
+
+    var strOrMap = { };
+    strOrMap[Scanner.TOKEN_STR_OR] = Parser.NODE_LOGICAL_OR;
+    strOrMap[Scanner.TOKEN_STR_XOR] = Parser.NODE_LOGICAL_XOR;
+    Parser.prototype.parseStrOrExpression = function () {
+        return this.left_op(this.parseStringAndExpression, strOrMap);
+    };
+
+    var strAndMap = { };
+    strAndMap[Scanner.TOKEN_STR_AND] = Parser.NODE_LOGICAL_AND;
+    Parser.prototype.parseStringAndExpression = function() {
+        return this.left_op(this.parseNotExpression, strAndMap);
     };
 
     Parser.prototype.parseNotExpression = function () {
@@ -386,6 +406,7 @@
             var token = this.lookToken();
             this.trace("TOKEN: " + JSON.stringify(token));
             if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
+                this.getToken();
                 // i++
                 return this.makeNode(
                     Parser.NODE_POST_INC,
@@ -393,6 +414,7 @@
                     meth
                 );
             } else if (token[TK_TAG] == Scanner.TOKEN_MINUSMINUS) {
+                this.getToken();
                 // i--
                 return this.makeNode(
                     Parser.NODE_POST_DEC,

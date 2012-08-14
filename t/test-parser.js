@@ -3,6 +3,35 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('and/or/xor', function (t) {
+    try {
+        t.equivalent(parse("4 and 8"), [
+                Parser.NODE_LOGICAL_AND,
+                1,
+                [
+                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,8]
+                ]
+            ]);
+        t.equivalent(parse("4 or 8"), [
+                Parser.NODE_LOGICAL_OR,
+                1,
+                [
+                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,8]
+                ]
+            ]);
+        t.equivalent(parse("4 xor 8"), [
+                Parser.NODE_LOGICAL_XOR,
+                1,
+                [
+                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,8]
+                ]
+            ]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 tap.test('!', function (t) {
     try {
         t.equivalent(parse("!4"), [
@@ -286,26 +315,29 @@ tap.test('pow', function (t) {
 });
 
 tap.test('incdec', function (t) {
-    t.equivalent(parse("i++"), [
-        Parser.NODE_POST_INC,
-        1,
-        [Parser.NODE_IDENT,1,"i"]
-    ]);
-    t.equivalent(parse("++i"), [
-        Parser.NODE_PRE_INC,
-        1,
-        [Parser.NODE_IDENT,1,"i"]
-    ]);
-    t.equivalent(parse("--i"), [
-        Parser.NODE_PRE_DEC,
-        1,
-        [Parser.NODE_IDENT,1,"i"]
-    ]);
-    t.equivalent(parse("i--"), [
-        Parser.NODE_POST_DEC,
-        1,
-        [Parser.NODE_IDENT,1,"i"]
-    ]);
+    try {
+        console.log("YAY");
+        t.equivalent(parse("i++"), [
+            Parser.NODE_POST_INC,
+            1,
+            [Parser.NODE_IDENT,1,"i"]
+        ]);
+        t.equivalent(parse("++i"), [
+            Parser.NODE_PRE_INC,
+            1,
+            [Parser.NODE_IDENT,1,"i"]
+        ]);
+        t.equivalent(parse("--i"), [
+            Parser.NODE_PRE_DEC,
+            1,
+            [Parser.NODE_IDENT,1,"i"]
+        ]);
+        t.equivalent(parse("i--"), [
+            Parser.NODE_POST_DEC,
+            1,
+            [Parser.NODE_IDENT,1,"i"]
+        ]);
+    } catch (e) { t.fail(e); }
 
     t.end();
 });
