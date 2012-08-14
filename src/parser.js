@@ -93,6 +93,20 @@
     Parser.NODE_IF = 55;
     Parser.NODE_ELSIF = 56;
     Parser.NODE_ELSE = 57;
+    Parser.NODE_ASSIGN = 58;
+    Parser.NODE_MUL_ASSIGN = 59;
+    Parser.NODE_PLUS_ASSIGN = 60;
+    Parser.NODE_DIV_ASSIGN = 61;
+    Parser.NODE_MOD_ASSIGN = 62;
+    Parser.NODE_MINUS_ASSIGN = 63;
+    Parser.NODE_LSHIFT_ASSIGN = 64;
+    Parser.NODE_RSHIFT_ASSIGN = 65;
+    Parser.NODE_POW_ASSIGN = 66;
+    Parser.NODE_AND_ASSIGN = 67;
+    Parser.NODE_OR_ASSIGN = 68;
+    Parser.NODE_XOR_ASSIGN = 69;
+    Parser.NODE_OROR_ASSIGN = 70;
+    Parser.NODE_LET = 71;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -588,38 +602,38 @@ rule('expression', [
     };
 
     // %right
+    var assignMap = {};
+    assignMap[Scanner.TOKEN_ASSIGN] = Parser.NODE_ASSIGN;
+    assignMap[Scanner.TOKEN_MUL_ASSIGN] = Parser.NODE_MUL_ASSIGN;
+    assignMap[Scanner.TOKEN_PLUS_ASSIGN] = Parser.NODE_PLUS_ASSIGN;
+    assignMap[Scanner.TOKEN_DIV_ASSIGN] = Parser.NODE_DIV_ASSIGN;
+    assignMap[Scanner.TOKEN_MOD_ASSIGN] = Parser.NODE_MOD_ASSIGN;
+    assignMap[Scanner.TOKEN_MINUS_ASSIGN] = Parser.NODE_MINUS_ASSIGN;
+    assignMap[Scanner.TOKEN_LSHIFT_ASSIGN] = Parser.NODE_LSHIFT_ASSIGN;
+    assignMap[Scanner.TOKEN_RSHIFT_ASSIGN] = Parser.NODE_RSHIFT_ASSIGN;
+    assignMap[Scanner.TOKEN_POW_ASSIGN] = Parser.NODE_POW_ASSIGN;
+    assignMap[Scanner.TOKEN_AND_ASSIGN] = Parser.NODE_AND_ASSIGN;
+    assignMap[Scanner.TOKEN_OR_ASSIGN] = Parser.NODE_OR_ASSIGN;
+    assignMap[Scanner.TOKEN_XOR_ASSIGN] = Parser.NODE_XOR_ASSIGN;
+    assignMap[Scanner.TOKEN_OROR_ASSIGN] = Parser.NODE_OROR_ASSIGN;
     Parser.prototype.parseAssignExpression = function () {
-        /*
-        TODO
-        ($c, my $rhs) = three_expression($c)
-            or return;
-        my ($used, $token_id) = _token_op($c);
-        my $op = +{
-            TOKEN_ASSIGN()        => NODE_ASSIGN,
-            TOKEN_MUL_ASSIGN()    => NODE_MUL_ASSIGN,
-            TOKEN_PLUS_ASSIGN()   => NODE_PLUS_ASSIGN,
-            TOKEN_DIV_ASSIGN()    => NODE_DIV_ASSIGN,
-            TOKEN_MOD_ASSIGN()    => NODE_MOD_ASSIGN,
-            TOKEN_MINUS_ASSIGN()  => NODE_MINUS_ASSIGN,
-            TOKEN_LSHIFT_ASSIGN() => NODE_LSHIFT_ASSIGN,
-            TOKEN_RSHIFT_ASSIGN() => NODE_RSHIFT_ASSIGN,
-            TOKEN_POW_ASSIGN()    => NODE_POW_ASSIGN,
-            TOKEN_AND_ASSIGN()    => NODE_AND_ASSIGN,
-            TOKEN_OR_ASSIGN()     => NODE_OR_ASSIGN,
-            TOKEN_XOR_ASSIGN()    => NODE_XOR_ASSIGN,
-            TOKEN_OROR_ASSIGN()   => NODE_OROR_ASSIGN,
-        }->{$token_id};
-        if ($op) {
-            $c = substr($c, $used);
-            ($c, my $lhs) = expression($c)
-                or _err "Cannot get expression after $op";
-            return ($c, _node($op, $rhs, $lhs));
+        var rhs = this.parseThreeExpression();
+        var token = this.lookToken();
+        var node_type = assignMap[token[TK_TAG]];
+        if (node_type) {
+            this.getToken();
+            var lhs = this.parseExpression();
+            if (!lhs) {
+                throw "Cannot get expression after " + node_type;
+            }
+            return this.makeNode(
+                node_type,
+                token[TK_LINENO],
+                [rhs, lhs]
+            );
         } else {
-            return ($c, $rhs);
+            return rhs;
         }
-        */
-        // TODO
-        return this.parseThreeExpression();
     };
 
     // parse ? :
@@ -969,11 +983,177 @@ rule('expression', [
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
+        } else if (token[TK_TAG] == Scanner.TOKEN_LET) {
+            var lhs = this.lookToken();
+            if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
+                // TODO let (x,y) = 3;
+                this.getToken();
+                throw "Not implemented yet";
+            } else if (lhs[TK_TAG] == Scanner.TOKEN_IDENT) {
+                this.getToken();
+                return this.makeNode(
+                    Parser.NODE_LET,
+                    token[TK_LINENO],
+                    this.makeNode(Parser.NODE_IDENT, token[TK_LINENO], lhs[TK_VALUE])
+                );
+            } else  {
+                throw "This type of token is not allowed after let: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
+            }
         } else {
             this.restoreMark(mark);
             return;
         }
     };
+    /*
+        if ($token_id == TOKEN_LAMBDA) { # -> $x { }
+            $c = substr($c, $used);
+
+            my @params;
+            while ((my $c2, my $param) = variable($c)) {
+                push @params, $param;
+                $c = $c2;
+                my ($c3) = match($c, ',')
+                    or last;
+                $c = $c3;
+            }
+
+            ($c, my $block) = block($c)
+                or _err "expected block after ->";
+            return ($c, _node2(NODE_LAMBDA, $START, \@params, $block));
+        } elsif ($token_id == TOKEN_DEREF) {
+            $c = substr($c, $used);
+
+            ($c, my $ret) = expression($c)
+                or return;
+            ($c) = match($c, '}')
+                or _err "Closing brace is not found after \${ operator";
+            return ($c, _node(NODE_DEREF, $ret));
+        } elsif ($token_id == TOKEN_LBRACKET) {
+            # array creation
+            # [1, 2, 3]
+
+            $c = substr($c, $used);
+            my @body;
+            while (my ($c2, $part) = assign_expression($c)) {
+                $c = $c2;
+                push @body, $part;
+
+                my ($c3) = match($c, ',');
+                last unless defined $c3;
+                $c = $c3;
+            }
+            ($c) = match($c, "]")
+                or return;
+            return ($c, _node2(NODE_MAKE_ARRAY, $START, \@body));
+        } elsif ($token_id == TOKEN_STRING_SQ) { # '
+            return _sq_string(substr($c, $used), q{'});
+        } elsif ($token_id == TOKEN_STRING_Q_START) { # q{
+            return _sq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
+        } elsif ($token_id == TOKEN_STRING_DQ) { # "
+            return _dq_string(substr($c, $used), q{"});
+        } elsif ($token_id == TOKEN_STRING_QQ_START) { # qq{
+            return _dq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
+        } elsif ($token_id == TOKEN_DIV) { # /
+            return _regexp(substr($c, $used), q{/});
+        } elsif ($token_id == TOKEN_REGEXP_QR_START) { # qr{
+            return _regexp(substr($c, $used), _closechar(substr($c, $used-1, 1)));
+        } elsif ($token_id == TOKEN_QW_START) { # qw{
+            return _qw_literal(substr($c, $used), _closechar(substr($c, $used-1, 1)));
+        } elsif ($token_id ==TOKEN_HEREDOC_SQ_START) { # <<'
+            $c = substr($c, $used);
+            $c =~ s/^([^, \t\n']+)//
+                or die "Parsing failed on heredoc LINE $LINENO";
+            my $marker = $1;
+            ($c) = match($c, q{'})
+                or die "Parsing failed on heredoc LINE $LINENO";
+            my $buf = '';
+            push @HEREDOC_BUFS, \$buf;
+            push @HEREDOC_MARKERS, $marker;
+            return ($c, _node2(NODE_HEREDOC, $START, \$buf));
+        } elsif ($token_id ==TOKEN_BYTES_SQ) { # b'
+            return _bytes_sq(substr($c, $used), 0);
+        } elsif ($token_id ==TOKEN_BYTES_DQ) { # b"
+            return _bytes_dq(substr($c, $used), 0);
+        } elsif ($token_id == TOKEN_LPAREN) { # (
+            $c = substr($c, $used);
+            ($c, my $body) = expression($c)
+                or return;
+            ($c) = match($c, ")")
+                or return;
+            return ($c, $body);
+        } elsif ($token_id == TOKEN_LBRACE) { # {
+            # hash creation
+            $c = substr($c, $used);
+            my @content;
+            while (my ($c2, $lhs) = assign_expression($c)) {
+                $lhs->[0] = NODE_IDENT if $lhs->[0] eq NODE_PRIMARY_IDENT;
+                push @content, $lhs;
+                $c = $c2;
+                ($c2) = match($c, '=>')
+                    or return;
+                    # or die "Missing => in hash creation '@{[ substr($c, 10) ]}...' line $LINENO\n";
+                $c = $c2;
+                ($c, my $rhs) = assign_expression($c)
+                    or _err "Missing expression after =>";
+                push @content, $rhs;
+
+                my ($c3) = match($c, ',');
+                last unless defined $c3;
+                $c = $c3;
+            }
+            ($c) = match($c, "}")
+                or return;
+                # or die "} not found on hash at line $LINENO";
+            return ($c, _node2(NODE_MAKE_HASH, $START, \@content));
+        } elsif ($token_id == TOKEN_INTEGER) {
+            return (substr($c, $used), _node(NODE_INT, $val));
+        } elsif ($token_id == TOKEN_DOUBLE) {
+            return (substr($c, $used), _node(NODE_DOUBLE, $val));
+        } elsif ($token_id == TOKEN_SELF) {
+            $c = substr($c, $used);
+            return ($c, _node(NODE_SELF, $LINENO));
+        } elsif ($token_id == TOKEN_FILE) {
+            $c = substr($c, $used);
+            return ($c, _node(NODE___FILE__, $LINENO));
+        } elsif ($token_id == TOKEN_LINE) {
+            $c = substr($c, $used);
+            return ($c, _node(NODE_INT, $LINENOS->[length $c]));
+        } elsif ($token_id == TOKEN_IDENT) {
+            return (substr($c, $used), _node(NODE_PRIMARY_IDENT, $val));
+        } elsif ($token_id == TOKEN_CLASS_NAME) {
+            return (substr($c, $used), _node(NODE_PRIMARY_IDENT, $val));
+        } elsif ($token_id == TOKEN_VARIABLE) {
+            return (substr($c, $used), _node(NODE_VARIABLE, $val));
+        } elsif ($token_id == TOKEN_MY) {
+            $c = substr($c, $used);
+            ($c, my @body) = any(
+                $c,
+                sub {
+                    my $c = shift;
+                    ($c, my $body) = variable($c)
+                        or return;
+                    return ($c, $body);
+                },
+                sub {
+                    my $c = shift;
+                    ($c) = match($c, '(')
+                        or return;
+                    my @body;
+                    while ((my $c2, my $body) = variable($c)) {
+                        $c = $c2;
+                        push @body, $body;
+                        (my $c3) = match($c, ',')
+                            or last;
+                        $c = $c3;
+                    }
+                    ($c) = match($c, ')')
+                        or die "Missing ')' in my expression.";
+                    return ($c, @body);
+                }
+            );
+            return unless defined $c;
+            return ($c, _node2(NODE_MY, $START, \@body));
+            */
 
     global.Kuma.Parser = Parser;
 

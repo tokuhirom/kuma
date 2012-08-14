@@ -35,7 +35,7 @@
     Scanner.TOKEN_ELSE        = 216;
     Scanner.TOKEN_WHILE       = 217;
     Scanner.TOKEN_FOR         = 218;
-    Scanner.TOKEN_MY          = 219;
+    Scanner.TOKEN_LET         = 219;
     Scanner.TOKEN_UNDEF       = 220;
     Scanner.TOKEN_TRUE        = 221;
     Scanner.TOKEN_FALSE       = 222;
@@ -136,7 +136,7 @@
         "else" : Scanner.TOKEN_ELSE,
         "while" : Scanner.TOKEN_WHILE,
         "for" : Scanner.TOKEN_FOR,
-        "my" : Scanner.TOKEN_MY,
+        "let" : Scanner.TOKEN_LET,
         "undef" : Scanner.TOKEN_UNDEF,
         "true" : Scanner.TOKEN_TRUE,
         "false" : Scanner.TOKEN_FALSE,

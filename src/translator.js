@@ -48,12 +48,21 @@
                 var args = ast[ND_DATAS][1];
                 return "Kuma.Core." + translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
+        case Parser.NODE_LET:
+            // TODO: check the variable scope, etc...
+            return (function () {
+                var func = ast[ND_DATAS];
+                console.log(func);
+                return "var " + this._translate(func);
+            }).call(this);
         case Parser.NODE_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
                 return translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
+        case Parser.NODE_ASSIGN:
+            return translator._translate(ast[ND_DATAS][0]) + " = " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_UNARY_NOT:
             return "!(" + translator._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_UNARY_TILDE:

@@ -72,12 +72,20 @@ tap.test('binary ops', function (t) {
     t.end();
 });
 
+tap.test('assign', function (t) {
+    try {
+        t.equivalent(testit("let i=8; i"), 8);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+
 function testit(src) {
     var parser = new Parser(src);
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
-    // console.log(jssrc);
+    console.log(jssrc);
     var ret = eval(jssrc);
     return ret;
 }
