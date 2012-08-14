@@ -16,6 +16,11 @@ tap.test('break', function (t) {
                      1,
                      undefined
                      ]);
+        t.equivalent(parse("return 3"), [
+                     Parser.NODE_RETURN,
+                     1,
+                        [Parser.NODE_INTEGER,1,3]
+                     ]);
     }catch (e) { t.fail(e); }
     t.end();
 });

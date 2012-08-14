@@ -417,6 +417,7 @@ rule('statement', [
     Parser.prototype.parseJumpStatement = function () {
         var token = this.lookToken();
         if (token[TK_TAG] === Scanner.TOKEN_RETURN) {
+            this.getToken();
             var body = this.parseExpression();
             return this.makeNode(
                                  Parser.NODE_RETURN,
