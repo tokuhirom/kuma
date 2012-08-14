@@ -90,6 +90,9 @@
     Parser.NODE_THROW = 52;
     Parser.NODE_STMTS = 53;
     Parser.NODE_UNDEF = 54;
+    Parser.NODE_IF = 55;
+    Parser.NODE_ELSIF = 56;
+    Parser.NODE_ELSE = 57;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -227,7 +230,22 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_UNLESS) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_IF) {
-            // TODO
+            // TODO test
+            this.getToken();
+            var cond = this.parseExpression();
+            if (!cond) {
+                throw "Expression is required after 'if' keyword line " + token[TK_LINENO];
+            }
+            var block = this.parseBlock();
+            if (!block) {
+                throw "Block is required after if " + token[TK_LINENO];
+            }
+            var $else = this.parseElseClause();
+            return this.makeNode(
+                                 Parser.NODE_IF,
+                                 token[TK_LINENO],
+                                 [cond, block, $else]
+                                 );
         } else if (token[TK_TAG] === Scanner.TOKEN_WHILE) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
@@ -299,16 +317,6 @@ rule('statement', [
                 or _err "block is required after unless keyword.";
             return ($c, _node2(NODE_IF, $START, _node2(NODE_UNARY_NOT, $START, $expression), $block));
         } elsif ($token_id == TOKEN_IF) {
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression is required after 'if' keyword line $LINENO";
-            ($c, my $block) = block($c)
-                or die "block is required after if keyword line $LINENO.";
-            my $else;
-            if ((my $c2, $else) = else_clause($c)) { # optional
-                $c = $c2;
-            }
-            return ($c, _node2(NODE_IF, $START, $expression, $block, $else));
         } elsif ($token_id == TOKEN_WHILE) {
             $c = substr($c, $used);
             ($c, my $expression) = expression($c)
@@ -415,6 +423,37 @@ rule('statement', [
     },
 ]);
 */
+    };
+
+    Parser.prototype.parseElseClause = function () {
+        var token = this.lookToken(),
+               block;
+        if (token[TK_TAG] === Scanner.TOKEN_ELSIF) {
+            this.getToken();
+            var expression = this.parseExpression();
+            if (!expression) {
+                throw "expression is required after elsif keyword at line " + token[TK_LINENO];
+            }
+            block = this.parseBlock();
+            if (!block) {
+                throw "block is required after elsif keyword at line " + token[TK_LINENO];
+            }
+            var $else = this.parseElseClause();
+            return this.makeNode(
+                                 Parser.NODE_ELSIF,
+                                 token[TK_LINENO],
+                                 [expression, block, $else]);
+        } else if (token[TK_TAG] === Scanner.TOKEN_ELSE) {
+            this.getToken();
+            block = this.parseBlock();
+            if (!block) {
+                throw "block is required after else keyword at line " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                                 Parser.NODE_ELSE,
+                                 token[TK_LINENO],
+                                 block);
+        }
     };
 
     Parser.prototype.parseJumpStatement = function () {

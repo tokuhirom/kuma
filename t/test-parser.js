@@ -4,6 +4,63 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('if', function (t) {
+    try {
+        t.equivalent(parse("if 8 { }"), [
+                     Parser.NODE_IF,
+                     1,
+                     [
+                     [Parser.NODE_INTEGER,1,8],
+                     [Parser.NODE_BLOCK, 1, [Parser.NODE_STMTS, 1, []]],
+                     undefined
+                     ]
+                     ]);
+        t.equivalent(parse("if 8 { } else { }"), [
+                     Parser.NODE_IF,
+                     1,
+                     [
+                     [Parser.NODE_INTEGER,1,8],
+                     [Parser.NODE_BLOCK, 1, [Parser.NODE_STMTS, 1, []]],
+                     [Parser.NODE_ELSE, 1,
+                         [Parser.NODE_BLOCK, 1,
+                              [Parser.NODE_STMTS, 1, []]]],
+                     ]
+                     ]);
+        t.equivalent(parse("if 8 { } elsif 9 { }"), [
+                     Parser.NODE_IF,
+                     1,
+                     [
+                     [Parser.NODE_INTEGER,1,8],
+                     [Parser.NODE_BLOCK, 1, [Parser.NODE_STMTS, 1, []]],
+                     [Parser.NODE_ELSIF, 1,
+                         [
+                                      [Parser.NODE_INTEGER,1,9],
+                                        [Parser.NODE_BLOCK, 1,[Parser.NODE_STMTS, 1, []]],
+                                        undefined
+                            ],
+                                ],
+                     ]
+                     ]);
+        t.equivalent(parse("if 8 { } elsif 9 { } else { }"), [
+                     Parser.NODE_IF,
+                     1,
+                     [
+                     [Parser.NODE_INTEGER,1,8],
+                     [Parser.NODE_BLOCK, 1, [Parser.NODE_STMTS, 1, []]],
+                     [Parser.NODE_ELSIF, 1,
+                         [
+                                      [Parser.NODE_INTEGER,1,9],
+                                        [Parser.NODE_BLOCK, 1,[Parser.NODE_STMTS, 1, []]],
+                                        [Parser.NODE_ELSE, 1, [Parser.NODE_BLOCK,1,[Parser.NODE_STMTS,1,[]]]]
+                            ],
+                                ],
+                     ]
+                     ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+
 tap.test('break', function (t) {
     try {
         t.equivalent(parse("break"), [

@@ -114,6 +114,7 @@
     Scanner.TOKEN_COLON = 369;
     Scanner.TOKEN_END = 370;
     Scanner.TOKEN_SEMICOLON = 371;
+    Scanner.TOKEN_RBRACE              = 372;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -203,6 +204,7 @@
         '"': Scanner.TOKEN_STRING_DQ,
         "'": Scanner.TOKEN_STRING_SQ,
         '[': Scanner.TOKEN_LBRACKET,
+        '}': Scanner.TOKEN_RBRACE,
         '--': Scanner.TOKEN_MINUSMINUS,
         '->': Scanner.TOKEN_LAMBDA,
         '-=': Scanner.TOKEN_MINUS_ASSIGN,
