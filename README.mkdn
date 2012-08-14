@@ -1,0 +1,9 @@
+Kuma Script
+===========
+
+Kuma script is a programming language for fun.
+
+alternatives
+------------
+
+see http://altjs.org/
