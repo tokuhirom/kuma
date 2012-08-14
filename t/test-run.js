@@ -4,6 +4,14 @@ var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('unless', function (t) {
+    try {
+        t.equivalent(testit("8;unless 1 { 3 }"), 8);
+        t.equivalent(testit("unless 0 { 3 }"), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('if', function (t) {
     try {
         t.equivalent(testit("if 1 { 3 }"), 3);

@@ -228,9 +228,25 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_USE) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_UNLESS) {
-            // TODO
+            this.getToken();
+            var cond = this.parseExpression();
+            if (!cond) {
+                throw "Expression is required after 'unless' keyword line " + token[TK_LINENO];
+            }
+            var block = this.parseBlock();
+            if (!block) {
+                throw "Block is required after unless " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_IF,
+                token[TK_LINENO],
+                [
+                    this.makeNode(Parser.NODE_UNARY_NOT, cond[ND_LINENO], cond),
+                    block,
+                    undefined
+                ]
+            );
         } else if (token[TK_TAG] === Scanner.TOKEN_IF) {
-            // TODO test
             this.getToken();
             var cond = this.parseExpression();
             if (!cond) {
@@ -301,14 +317,6 @@ rule('statement', [
                 $type = _node(NODE_UNDEF);
             }
             return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
-        } elsif ($token_id == TOKEN_UNLESS) {
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or _err "expression is required after 'unless' keyword";
-            ($c, my $block) = block($c)
-                or _err "block is required after unless keyword.";
-            return ($c, _node2(NODE_IF, $START, _node2(NODE_UNARY_NOT, $START, $expression), $block));
-        } elsif ($token_id == TOKEN_IF) {
         } elsif ($token_id == TOKEN_WHILE) {
             $c = substr($c, $used);
             ($c, my $expression) = expression($c)
@@ -321,8 +329,6 @@ rule('statement', [
             ($c, my $block) = block($c)
                 or die "block is required after 'do' keyword.";
             return ($c, _node2(NODE_DO, $START, $block));
-        } elsif ($token_id == TOKEN_LBRACE) {
-            return block($c);
         } elsif ($token_id == TOKEN_FOR) {
             any(
                 substr($c, $used),
