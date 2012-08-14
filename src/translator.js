@@ -50,6 +50,10 @@
             return "-(" + translator._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_INTEGER:
             return ast[ND_DATAS];
+        case Parser.NODE_TRUE:
+            return "true";
+        case Parser.NODE_FALSE:
+            return "false";
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
         case Parser.NODE_STRING:

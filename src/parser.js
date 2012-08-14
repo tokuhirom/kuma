@@ -51,6 +51,8 @@
     Parser.NODE_UNARY_PLUS = 14;
     Parser.NODE_UNARY_MINUS = 15;
     Parser.NODE_UNARY_MUL = 15;
+    Parser.NODE_TRUE = 16;
+    Parser.NODE_FALSE = 17;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -94,7 +96,7 @@
         } else if (token[TK_TAG] in UNARY_OPS) {
             this.getToken();
 
-            var lhs = this.parsePow();
+            var lhs = this.parseUnary();
             // TODO: show token name
             if (!lhs) { throw "Missing lhs for token number " + token[TK_TAG]; }
             return this.makeNode(
@@ -103,7 +105,6 @@
                 lhs
             );
         } else {
-            console.log("hmm!! " + token[TK_TAG]);
             return this.parsePow();
         }
     };
@@ -310,6 +311,16 @@
                 Parser.NODE_IDENT,
                 token[TK_LINENO],
                 token[TK_VALUE]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_TRUE) {
+            return this.makeNode( 
+                Parser.NODE_TRUE,
+                token[TK_LINENO]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_FALSE) {
+            return this.makeNode( 
+                Parser.NODE_FALSE,
+                token[TK_LINENO]
             );
         } else if (token[TK_TAG] == Scanner.TOKEN_INTEGER) {
             return this.makeNode(

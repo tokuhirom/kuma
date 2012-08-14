@@ -6,7 +6,7 @@ scanner
 
     * comment support
     * scanner supports strings
-    * scanner supports haredoc
+    * scanner supports heredoc or """
     * tune up
     * support #{} style
     * scan range object
@@ -20,7 +20,6 @@ parser
     * normal if(parser)
     * parse unary ops
     * parse fileteest ops
-    * parse true/false
     * parse range object
 
 translator
@@ -31,7 +30,6 @@ translator
     * run preinc/postinc/predec/postdec
     * run unary ops
     * run fileteest ops
-    * run true/false
     * run range object
 
 runtime
@@ -52,4 +50,6 @@ done
     * parse preinc/postinc/predec/postdec
     * run pow
     * parse pow
+    * parse true/false
+    * run true/false
 

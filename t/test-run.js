@@ -9,10 +9,21 @@ tap.test('ok', function (t) {
     t.end();
 });
 
+tap.test('literals', function (t) {
+    try {
+        t.equivalent(testit("true"), true);
+        t.equivalent(testit("false"), false);
+    } catch (e) {
+        t.fail(e);
+    }
+    t.end();
+});
+
 tap.test('unary ops', function (t) {
     try {
         t.equivalent(testit("~4"), -5);
         t.equivalent(testit("!4"), false);
+        t.equivalent(testit("!!4"), true);
         t.equivalent(testit("+4"), +4);
         t.equivalent(testit("-4"), -4);
     } catch (e) {

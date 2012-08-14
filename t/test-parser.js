@@ -3,6 +3,29 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('literals', function (t) {
+    try {
+        t.equivalent(parse('true'),
+            [
+                Parser.NODE_TRUE,
+                1,
+                undefined
+            ]
+        );
+        t.equivalent(parse('false'),
+            [
+                Parser.NODE_FALSE,
+                1,
+                undefined
+            ]
+        );
+    } catch (e) {
+        console.log(e);
+    }
+
+    t.end();
+});
+
 tap.test('unary ops', function (t) {
     try {
         t.equivalent(parse('!4'),
@@ -39,8 +62,6 @@ tap.test('unary ops', function (t) {
 
     t.end();
 });
-
-/*
 
 tap.test('pow', function (t) {
     t.equivalent(parse('2**10'),
@@ -128,7 +149,6 @@ tap.test('say(3)', function (t) {
 
     t.end();
 });
-*/
 
 function parse(src) {
     console.log("Start:: " + src);
