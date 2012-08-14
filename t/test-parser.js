@@ -1,7 +1,24 @@
+/*jslint node: true, es5: true */
 "use strict";
 
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
+
+tap.test('break', function (t) {
+    try {
+        t.equivalent(parse("break"), [
+                     Parser.NODE_BREAK,
+                     1,
+                     undefined
+                     ]);
+        t.equivalent(parse("continue"), [
+                     Parser.NODE_CONTINUE,
+                     1,
+                     undefined
+                     ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
 
 tap.test('and/or/xor', function (t) {
     try {
@@ -264,25 +281,25 @@ tap.test('unary ops', function (t) {
             [
                 Parser.NODE_UNARY_TILDE,
                 1,
-                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,4]
             ]
         );
         t.equivalent(parse('+4'),
             [
                 Parser.NODE_UNARY_PLUS,
                 1,
-                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,4]
             ]
         );
         t.equivalent(parse('-4'),
             [
                 Parser.NODE_UNARY_MINUS,
                 1,
-                [Parser.NODE_INTEGER,1,4],
+                [Parser.NODE_INTEGER,1,4]
             ]
         );
     } catch (e) {
-        console.log(e);
+        t.fail(e);
     }
 
     t.end();
@@ -316,7 +333,6 @@ tap.test('pow', function (t) {
 
 tap.test('incdec', function (t) {
     try {
-        console.log("YAY");
         t.equivalent(parse("i++"), [
             Parser.NODE_POST_INC,
             1,
@@ -345,7 +361,8 @@ tap.test('incdec', function (t) {
 tap.test('ok', function (t) {
     var parser = new Parser("say()");
     var ast = parser.parse();
-    t.equivalent(ast, 
+    t.equivalent(ast[2][0], 
+
         [
             Parser.NODE_BUILTIN_FUNCALL,
             1,
@@ -360,10 +377,7 @@ tap.test('ok', function (t) {
 });
 
 tap.test('say(3)', function (t) {
-    var parser = new Parser("say(3)");
-    var ast = parser.parse();
-    t.equivalent(ast, 
-        [
+    t.equivalent(parse("say(3)"), [
             Parser.NODE_BUILTIN_FUNCALL,
             1,
             [
@@ -372,8 +386,7 @@ tap.test('say(3)', function (t) {
                     [Parser.NODE_INTEGER,1,3]
                 ] // args
             ]
-        ]
-    );
+                 ]);
 
     t.end();
 });
@@ -383,6 +396,6 @@ function parse(src) {
     var parser = new Parser(src);
     parser.TRACE_ON = true;
     var ast = parser.parse();
-    return ast;
+    return ast[2][0];
 }
 

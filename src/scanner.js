@@ -30,8 +30,8 @@
     Scanner.TOKEN_STR_XOR     = 211;
     Scanner.TOKEN_STR_AND     = 212;
     Scanner.TOKEN_ELSIF       = 213;
-    Scanner.TOKEN_LAST        = 214;
-    Scanner.TOKEN_NEXT        = 215;
+    Scanner.TOKEN_BREAK        = 214;
+    Scanner.TOKEN_CONTINUE        = 215;
     Scanner.TOKEN_ELSE        = 216;
     Scanner.TOKEN_WHILE       = 217;
     Scanner.TOKEN_FOR         = 218;
@@ -112,6 +112,7 @@
     Scanner.TOKEN_MINUS               = 367;
     Scanner.TOKEN_RPAREN              = 368;
     Scanner.TOKEN_COLON = 369;
+    Scanner.TOKEN_END = 370;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -128,8 +129,8 @@
         "xor" : Scanner.TOKEN_STR_XOR,
         "and" : Scanner.TOKEN_STR_AND,
         "elsif" : Scanner.TOKEN_ELSIF,
-        "last" : Scanner.TOKEN_LAST,
-        "next" : Scanner.TOKEN_NEXT,
+        "break" : Scanner.TOKEN_BREAK,
+        "continue" : Scanner.TOKEN_CONTINUE,
         "else" : Scanner.TOKEN_ELSE,
         "while" : Scanner.TOKEN_WHILE,
         "for" : Scanner.TOKEN_FOR,
@@ -140,6 +141,7 @@
         "self" : Scanner.TOKEN_SELF,
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
+        "__END__\n" : Scanner.TOKEN_END
     };
 
     var ops = {

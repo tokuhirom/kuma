@@ -31,8 +31,6 @@ parser
     * "rule('else-clause', ["
     * "rule('expression', ["
     * "rule('block', ["
-    * "rule('str-or-expression', ["
-    * "rule('str-and-expression', ["
     * "rule('assign-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
@@ -59,6 +57,8 @@ translator
     rule('dotdot_expression', [
         left_op2(\&oror_expression, +{ TOKEN_DOTDOT() => NODE_DOTDOT, TOKEN_DOTDOTDOT() => NODE_DOTDOTDOT})
     ]);
+    * "rule('str-or-expression', ["
+    * "rule('str-and-expression', ["
 
     rule('oror_expression', [
         left_op2(\&andand_expression, +{ TOKEN_OROR() => NODE_LOGICAL_OR })

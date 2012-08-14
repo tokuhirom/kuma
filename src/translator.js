@@ -27,7 +27,16 @@
     };
     Translator.prototype._translate = function (ast) {
         var translator = this;
+        var self = this;
         switch (ast[ND_TYPE]) {
+        case Parser.NODE_STMTS:
+            return (function () {
+                var ret= [];
+                for (var i=0, len=ast[ND_DATAS].length; i<len; i++) {
+                    ret.push(self._translate(ast[ND_DATAS][i]));
+                }
+                return ret.join(";\n");
+            })();
         case Parser.NODE_BUILTIN_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];

@@ -1,3 +1,4 @@
+/*jslint node: true, es5: true */
 (function (global) {
     "use strict";
     if (!global.Kuma) { global.Kuma = {}; }
@@ -28,7 +29,7 @@
         while (1) {
             var token = scanner.get();
             tokens.push(token);
-            if (token[0] === Scanner.TOKEN_EOF) {
+            if (token[0] === Scanner.TOKEN_EOF || token[0] === Scanner.TOKEN_END) {
                 break;
             }
         }
@@ -79,6 +80,16 @@
     Parser.NODE_COMMA = 40;
     Parser.NODE_UNARY_NOT = 41;
     Parser.NODE_LOGICAL_XOR = 44;
+    Parser.NODE_NOP = 45;
+    Parser.NODE_BLOCK = 46;
+    Parser.NODE_RETURN = 47;
+    Parser.NODE_UNDEF = 47;
+    Parser.NODE_BREAK = 48;
+    Parser.NODE_CONTINUE = 49;
+    Parser.NODE_SUB = 50;
+    Parser.NODE_TRY = 51;
+    Parser.NODE_THROW = 52;
+    Parser.NODE_STMTS = 53;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -102,7 +113,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        var ret = this.parseStrOrExpression();
+        var ret = this.parseStatementList();
         if (this.idx < this.tokens.length-1) {
             console.log(this.src);
             throw "Cannot parse. " + this.idx + "   " + this.tokens.length;
@@ -137,6 +148,369 @@
             );
         }
         return child;
+    };
+
+    Parser.prototype.parseStatementList = function () {
+        var ret = [];
+        var lineno = this.lookToken()[TK_LINENO];
+
+        LOOP:
+        while (1) {
+            var stmt = this.parseStatement();
+            if (!stmt) {
+                return this.makeNode(
+                                     Parser.NODE_STMTS,
+                                     lineno,
+                                     ret);
+            }
+            ret.push(stmt);
+        }
+        /*
+        my ($src, $got_end) = skip_ws(shift);
+        return if $got_end;
+
+        my $ret = [];
+        LOOP: while (1) {
+            my ($tmp, $stmt) = statement($src)
+                or do {
+                    return ($src, _node2(NODE_STMTS, $START, $ret), $got_end)
+                };
+            $src = $tmp;
+            push @$ret, $stmt;
+
+            # skip spaces.
+            $src =~ s/^[ \t\f]* //s;
+            my $have_next_stmt;
+            # read next statement if found ';' or '\n'
+            $src =~ s/^;//s
+                and $have_next_stmt++;
+            $src =~ s/^\n//s
+                and do {
+                    ++$LINENO;
+                    $have_next_stmt++;
+                START:
+                    if (defined(my $marker = shift @HEREDOC_MARKERS)) {
+                        while ($src =~ s/^(([^\n]*)(\n|$))//) {
+                            if ($2 eq $marker) {
+                                shift @HEREDOC_BUFS;
+                                goto START;
+                            } else {
+                                ${$HEREDOC_BUFS[0]} .= $1;
+                            }
+                        }
+                    } else {
+                        if ($src =~ s/\A__END__\n.+//s) {
+                            $got_end++;
+                            last LOOP;
+                        }
+                        next LOOP;
+                    }
+                };
+            next if $have_next_stmt;
+            # there is no more statements, just return!
+            return ($src, _node(NODE_STMTS, $ret), $got_end);
+        }
+        return ($src, _node(NODE_STMTS, $ret), $got_end);
+*/
+    };
+
+    Parser.prototype.parseStatement = function () {
+        // class Name extends Parent { }
+        var token = this.lookToken();
+        if (token[TK_TAG] === Scanner.TOKEN_CLASS) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_USE) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_UNLESS) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_IF) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_WHILE) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
+            return this.parseBlock();
+        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            // TODO
+        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            // TODO
+        } else {
+            // normal statement
+            var stmt = this.parseJumpStatement();
+            // TODO: support postifx if, for, unless, while
+            return stmt;
+        }
+        /*
+rule('statement', [
+    sub {
+        my $c = shift;
+        # class Name [isa Parent] {}
+        my ($used, $token_id) = _token_op($c);
+        if ($token_id == TOKEN_CLASS) {
+            $c = substr($c, $used);
+            ($c, my $name) = class_name($c)
+                or die "class name expected after 'class' keyword";
+            my $base;
+            if ((my $c2) = match($c, 'is')) {
+                $c = $c2;
+                ($c, $base) = class_name($c)
+                    or die "class name expected after 'is' keyword";
+                $base->[0] = NODE_PRIMARY_IDENT;
+            }
+            ($c, my $block) = block($c)
+                or _err "Expected block after 'class' but not matched";
+            return ($c, _node2(NODE_CLASS, $START, $name, $base, $block));
+        } elsif ($token_id == TOKEN_USE) {
+            $c = substr($c, $used);
+            my ($used, $token_id, $klass) = _token_op($c);
+            my $op = +{
+                TOKEN_CLASS_NAME() => NODE_IDENT,
+                TOKEN_IDENT()      => NODE_IDENT,
+            }->{$token_id};
+            _err "class name is required after 'use' keyword"
+                unless $op;
+            $c = substr($c, $used);
+            my $type;
+            if ((my $c2) = match($c, '*')) {
+                $c = $c2;
+                $type = '*';
+            } elsif (my ($c3, $primary) = primary($c)) {
+                $c = $c3;
+                $type = $primary;
+            } else {
+                $type = _node(NODE_UNDEF);
+            }
+            return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
+        } elsif ($token_id == TOKEN_UNLESS) {
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or _err "expression is required after 'unless' keyword";
+            ($c, my $block) = block($c)
+                or _err "block is required after unless keyword.";
+            return ($c, _node2(NODE_IF, $START, _node2(NODE_UNARY_NOT, $START, $expression), $block));
+        } elsif ($token_id == TOKEN_IF) {
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression is required after 'if' keyword line $LINENO";
+            ($c, my $block) = block($c)
+                or die "block is required after if keyword line $LINENO.";
+            my $else;
+            if ((my $c2, $else) = else_clause($c)) { # optional
+                $c = $c2;
+            }
+            return ($c, _node2(NODE_IF, $START, $expression, $block, $else));
+        } elsif ($token_id == TOKEN_WHILE) {
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression is required after 'while' keyword";
+            ($c, my $block) = block($c)
+                or die "block is required after while keyword.";
+            return ($c, _node2(NODE_WHILE, $START, $expression, $block));
+        } elsif ($token_id == TOKEN_DO) {
+            $c = substr($c, $used);
+            ($c, my $block) = block($c)
+                or die "block is required after 'do' keyword.";
+            return ($c, _node2(NODE_DO, $START, $block));
+        } elsif ($token_id == TOKEN_LBRACE) {
+            return block($c);
+        } elsif ($token_id == TOKEN_FOR) {
+            any(
+                substr($c, $used),
+                sub { # foreach
+                    my $c = shift;
+                    ($c, my $expression) = expression($c)
+                        or return;
+                    (my $c2) = match($c, '->')
+                        or _err "'->' missing after for keyword '" . substr($c, 0, 15) . "..'";
+                    $c = $c2;
+                    my @vars;
+                    while (my ($c2, $var) = variable($c)) {
+                        push @vars, $var;
+                        $c = $c2;
+                        (my $c3) = match($c, ',')
+                            or last;
+                        $c = $c3;
+                    }
+                    ($c, my $block) = block($c)
+                        or die "block is required after 'for' keyword.";
+                    return ($c, _node2(NODE_FOREACH, $START, $expression, \@vars, $block));
+                },
+                sub { # C style for
+                    my $c = shift;
+                    ($c) = match($c, '(')
+                        or return;
+                    my ($e1, $e2, $e3);
+                    if ((my $c2, $e1) = expression($c)) { # optional
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ';')
+                        or return;
+                    if ((my $c2, $e2) = expression($c)) {
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ';')
+                        or return;
+                    if ((my $c2, $e3) = expression($c)) {
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ')')
+                        or die "closing paren is required after 'for' keyword.";;
+                    ($c, my $block) = block($c)
+                        or die "block is required after 'for' keyword.";
+                    return ($c, _node2(NODE_FOR, $START, $e1, $e2, $e3, $block));
+                }
+            );
+        } else {
+            return;
+        }
+    },
+    sub {
+        my $c = shift;
+        ($c, my $block) = jump_statement($c)
+            or return;
+        if ($c =~ /^(\s*|[^\n]+#[^\n]+)\n/) {
+            # say()
+            # if 1 {
+            # }
+            return ($c, $block);
+        }
+        my ($used, $token_id) = _token_op($c);
+        if ($token_id == TOKEN_IF) {
+            # foo if bar
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression required after postfix-if statement";
+            return ($c, _node2(NODE_IF, $START, $expression, _node(NODE_BLOCK, $block), undef));
+        } elsif ($token_id == TOKEN_UNLESS) {
+            # foo unless bar
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression required after postfix-unless statement";
+            return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
+        } elsif ($token_id == TOKEN_FOR) {
+            # foo for bar
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression required after postfix-for statement";
+            return ($c, _node2(NODE_FOREACH, $START, $expression, [], _node(NODE_BLOCK, $block)));
+        } elsif ($token_id == TOKEN_WHILE) {
+            # foo while bar
+            $c = substr($c, $used);
+            ($c, my $expression) = expression($c)
+                or die "expression required after postfix-if statement";
+            return ($c, _node2(NODE_WHILE, $START, $expression, _node(NODE_BLOCK, $block)));
+        } else {
+            return ($c, $block);
+        }
+    },
+]);
+*/
+    };
+
+    Parser.prototype.parseJumpStatement = function () {
+        var token = this.lookToken();
+        if (token[TK_TAG] === Scanner.TOKEN_RETURN) {
+            var body = this.parseExpression();
+            return this.makeNode(
+                                 Parser.NODE_RETURN,
+                                 token[TK_LINENO],
+                                 body ? body : this.makeNode(Parser.NODE_UNDEF));
+        } else {
+            return this.parseExpression();
+        }
+    };
+
+    Parser.prototype.parseExpression = function () {
+        var token = this.lookToken();
+        if (token[TK_TAG] === Scanner.TOKEN_BREAK) {
+            this.getToken();
+            return this.makeNode(
+                                 Parser.NODE_BREAK,
+                                 token[TK_LINENO]
+                                 );
+        } else if (token[TK_TAG] === Scanner.TOKEN_CONTINUE) {
+            this.getToken();
+            return this.makeNode(
+                                 Parser.NODE_CONTINUE,
+                                 token[TK_LINENO]
+                                 );
+        } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
+             // todo: test
+        } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
+             // todo: test
+        } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
+             // todo: test
+        } else {
+            return this.parseStrOrExpression();
+        }
+    };
+
+    /*
+rule('expression', [
+    sub {
+        my $c = shift;
+        my ($used, $token_id) = _token_op($c);
+        } elsif ($token_id == TOKEN_SUB) {
+            $c = substr($c, $used);
+            # name is optional thing.
+            # you can use anon sub.
+            my $name;
+            if ((my $c2, $name) = identifier($c)) {
+                $c = $c2;
+            }
+
+            my $params;
+            if ((my $c2, $params) = parameters($c)) {
+                # optional
+                $c = $c2;
+            }
+
+            ($c, my $block) = block($c)
+                or _err "expected block after sub" . ($name ? " in $name->[2]" : '');
+            return ($c, _node2(NODE_SUB, $START, $name, $params, $block));
+        } elsif ($token_id == TOKEN_TRY) {
+            $c = substr($c, $used);
+            ($c, my $block) = block($c)
+                or _err "expected block after try keyword";
+            return ($c, _node2(NODE_TRY, $START, $block));
+        } elsif ($token_id == TOKEN_DIE) {
+            $c = substr($c, $used);
+            ($c, my $block) = expression($c)
+                or die "expected expression after die keyword";
+            return ($c, _node2(NODE_DIE, $START, $block));
+        } else {
+            return str_or_expression($c);
+        }
+    },
+    */
+
+    Parser.prototype.parseBlock = function () {
+        var token = this.lookToken();
+        if (this.lookToken()[TK_TAG] == Scanner.TOKEN_LBRACE) {
+            this.getToken();
+            var body = this.parseStatementList();
+            var rbrace = this.getToken();
+            if (rbrace[TK_TAG] !== Scanner.TOKEN_RBRACE) {
+                throw "Missing right brace in block at line " + rbrace[TK_LINENO];
+            }
+
+            if (body) {
+                return this.makeNode(
+                                     Parser.NODE_BLOCK,
+                                     body[ND_LINENO],
+                                     body
+                                     );
+            } else {
+                return this.makeNode(Parser.NODE_NOP);
+            }
+        }
     };
 
     var strOrMap = { };
@@ -373,10 +747,11 @@
     };
     Parser.prototype.parseIncDec = function () {
         var token = this.lookToken();
+        var meth;
         if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
             // ++i
             this.getToken(); // remove ++
-            var meth = this.parseMethodCall();
+            meth = this.parseMethodCall();
             if (meth) {
                 return this.makeNode(
                     Parser.NODE_PRE_INC,
@@ -389,7 +764,7 @@
         } else if (token[TK_TAG] == Scanner.TOKEN_MINUSMINUS) {
             // --i
             this.getToken(); // remove --
-            var meth = this.parseMethodCall();
+            meth = this.parseMethodCall();
             if (meth) {
                 return this.makeNode(
                     Parser.NODE_PRE_DEC,
@@ -400,10 +775,10 @@
                 throw "Cannot process -- operator at line " + token[TK_LINENO];
             }
         } else {
-            var meth = this.parseMethodCall();
+            meth = this.parseMethodCall();
             if (!meth) { return; }
 
-            var token = this.lookToken();
+            token = this.lookToken();
             this.trace("TOKEN: " + JSON.stringify(token));
             if (token[TK_TAG] == Scanner.TOKEN_PLUSPLUS) {
                 this.getToken();
@@ -448,9 +823,10 @@
 
             var args = this.takeArguments();
             if (args) {
-                var node_type = primary[0] == Parser.NODE_IDENT && primary[2] in BUILTIN_FUNCTIONS
-                    ? Parser.NODE_FUNCALL
-                    : Parser.NODE_BUILTIN_FUNCALL;
+                var node_type = (
+                                 (primary[0] == Parser.NODE_IDENT && primary[2] in BUILTIN_FUNCTIONS)
+                                        ? Parser.NODE_FUNCALL
+                                        : Parser.NODE_BUILTIN_FUNCALL);
                 return this.makeNode( 
                     node_type,
                     primary[ND_LINENO], // lineno
