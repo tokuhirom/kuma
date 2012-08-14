@@ -138,6 +138,23 @@
             return "(" + this._translate(ast[ND_DATAS][0]) + ")/(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_MOD:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")%(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_SUB:
+            return (function () {
+                // [name, params, block]
+                // name can be null
+                // params can be null
+                var ret  = 'function ';
+                if (ast[ND_DATAS][0]) {
+                    ret += this._translate(ast[ND_DATAS][0]);
+                }
+                if (ast[ND_DATAS][1]) {
+                    ret += this._translate(ast[ND_DATAS][1]);
+                } else {
+                    ret += '()';
+                }
+                    ret += this._translate(ast[ND_DATAS][2]);
+                return ret;
+            }).call(this);
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
         case Parser.NODE_POW:

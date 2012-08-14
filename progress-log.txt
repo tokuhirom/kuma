@@ -22,3 +22,7 @@ TRANSLATOR: total: 89, remains: 57(64.04%)
 2012-08-14T22:56:11
 Parser: 27
 TRANSLATOR: total: 84, remains: 52(61.90%)
+----
+2012-08-14T23:11:14
+Parser: 28
+TRANSLATOR: total: 83, remains: 50(60.24%)

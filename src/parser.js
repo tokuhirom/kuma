@@ -498,14 +498,78 @@ rule('statement', [
                                  token[TK_LINENO]
                                  );
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
-             // todo: test
+            this.getToken();
+            // name is optional thing.
+            // you can use anon sub.
+            var name = this.parseIdentifier();
+            // and parameters are optional
+            var params = this.parseParameters();
+            var block = this.parseBlock();
+            if (!block) {
+                throw "Expected block after sub at line " + token[TK_LINENO];
+            }
+
+            return this.makeNode(
+                                 Parser.NODE_SUB,
+                                 token[TK_LINENO],
+                                 [name, params, block]
+                                 );
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
-             // todo: test
+             // TODO: test
         } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
-             // todo: test
+             // TODO: test
         } else {
             return this.parseStrOrExpression();
         }
+    };
+
+    Parser.prototype.parseIdentifier = function () {
+        var token = this.lookToken();
+        if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
+            return this.makeNode(
+                Parser.NODE_IDENT,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        } else {
+            return;
+        }
+    };
+
+    Parser.prototype.parseParameters = function () {
+        if (this.lookToken()[TK_TAG] !== Parser.TOKEN_LPAREN) {
+            return;
+        }
+        this.getToken();
+
+        var ret = this.parseParameterList();
+
+        if (this.lookToken()[TK_TAG] !== Parser.TOKEN_RPAREN) {
+            return;
+        }
+        this.getToken();
+
+        return ret;
+    };
+
+    Parser.prototype.parseParameterList = function () {
+        var ret = [];
+
+        while (1) {
+            var variable = this.parseIdentifier();
+            // TODO: default value support
+            if (!variable) {
+                break;
+            }
+            ret.push(variable);
+
+            if (this.lookToken()[TK_TYPE] == TOKEN_COMMA) {
+                this.getToken();
+            } else {
+                break;
+            }
+        }
+        return ret;
     };
 
     /*
@@ -754,12 +818,9 @@ rule('expression', [
     UNARY_OPS[Scanner.TOKEN_MINUS] = Parser.NODE_UNARY_MINUS;
     Parser.prototype.parseUnary = function (src) {
         var token = this.lookToken();
-        // file test operator
-        /*
-        };
-        */
         if (token[TK_TAG] === Scanner.NODE_FILETEST) {
             this.getToken();
+            // TODO:
             throw 'not implemented';
         } else if (token[TK_TAG] in UNARY_OPS) {
             this.getToken();
@@ -879,10 +940,16 @@ rule('expression', [
 
             var args = this.takeArguments();
             if (args) {
-                var node_type = (
-                                 (primary[0] == Parser.NODE_IDENT && primary[2] in BUILTIN_FUNCTIONS)
-                                        ? Parser.NODE_FUNCALL
-                                        : Parser.NODE_BUILTIN_FUNCALL);
+                var node_type = (function () { // Note: you can optimize here.
+                    if (primary[ND_TYPE] == Parser.NODE_IDENT) {
+                        for (var i=0, len=BUILTIN_FUNCTIONS.length; i<len; i++) {
+                            if (BUILTIN_FUNCTIONS[i] === primary[ND_DATAS]) {
+                                return Parser.NODE_BUILTIN_FUNCALL;
+                            }
+                        }
+                    }
+                    return Parser.NODE_FUNCALL;
+                })();
                 return this.makeNode( 
                     node_type,
                     primary[ND_LINENO], // lineno
@@ -1126,12 +1193,6 @@ rule('expression', [
         TODO
             $c = substr($c, $used);
             return ($c, _node(NODE_SELF, $LINENO));
-        } elsif ($token_id == TOKEN_IDENT) {
-        TODO
-            return (substr($c, $used), _node(NODE_PRIMARY_IDENT, $val));
-        } elsif ($token_id == TOKEN_VARIABLE) {
-        TODO
-            return (substr($c, $used), _node(NODE_VARIABLE, $val));
             */
 
     global.Kuma.Parser = Parser;

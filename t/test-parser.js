@@ -453,6 +453,30 @@ tap.test('say(3)', function (t) {
     t.end();
 });
 
+tap.test('funcall', function (t) {
+    try {
+        t.equivalent(parse("x()"), [
+            Parser.NODE_FUNCALL,
+            1,
+            [
+                [Parser.NODE_IDENT,1,"x"],
+                []
+            ]
+        ]);
+        t.equivalent(parse("say()"), [
+            Parser.NODE_BUILTIN_FUNCALL,
+            1,
+            [
+                [Parser.NODE_IDENT,1,"say"],
+                []
+            ]
+        ]);
+    } catch (e) { t.fail(e); }
+
+    t.end();
+});
+
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

@@ -88,6 +88,13 @@ tap.test('assign', function (t) {
     t.end();
 });
 
+tap.test('func', function (t) {
+    try {
+        t.equivalent(testit("let x = sub { return 3; }; x()"), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 
 function testit(src) {
     var parser = new Parser(src);
