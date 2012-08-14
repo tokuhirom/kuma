@@ -56,6 +56,12 @@
             return "false";
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
+        case Parser.NODE_MUL:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")*(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_DIV:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")/(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_MOD:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")%(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
         case Parser.NODE_POW:

@@ -3,6 +3,25 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('term', function (t) {
+    try {
+        t.equivalent(parse('4*8'),
+            [
+                Parser.NODE_MUL,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+    } catch (e) {
+        t.fail(e);
+    }
+
+    t.end();
+});
+
 tap.test('literals', function (t) {
     try {
         t.equivalent(parse('true'),

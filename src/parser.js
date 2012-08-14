@@ -53,6 +53,9 @@
     Parser.NODE_UNARY_MUL = 15;
     Parser.NODE_TRUE = 16;
     Parser.NODE_FALSE = 17;
+    Parser.NODE_MUL = 18;
+    Parser.NODE_DIV = 19;
+    Parser.NODE_MOD = 20;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -75,7 +78,50 @@
     Parser.prototype.restoreMark = function (i) {
         this.idx = i;
     };
-    Parser.prototype.parse = function (src) {
+    Parser.prototype.parse = function () {
+        return this.parseTerm();
+    };
+
+    // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
+    // %left operator.
+    Parser.prototype.left_op = function (upper, ops)  {
+        var child = upper.call(this);
+        if (!child) { return; }
+
+        while (1) {
+            var token = this.lookToken();
+            if (!token) { break; }
+
+            this.getToken();
+
+            var node_type = ops[token[TK_TAG]];
+            if (!node_type) { break; }
+
+            var rhs = upper.call(this);
+            if (!rhs) {
+                // TODO better diag
+                throw "Syntax error after " + node_type + " at line " + this.lineno;
+            }
+
+            child = this.makeNode(
+                node_type,
+                token[TK_LINENO],
+                [child, rhs]
+            );
+        }
+        return child;
+    }
+
+    var termMap = { };
+    termMap[Scanner.TOKEN_MUL] = Parser.NODE_MUL;
+    termMap[Scanner.TOKEN_DIV] = Parser.NODE_DIV;
+    termMap[Scanner.TOKEN_MOD] = Parser.NODE_MOD;
+    Parser.prototype.parseTerm = function () {
+        return this.left_op(this.parseRegexpMatch, termMap);
+    };
+
+    Parser.prototype.parseRegexpMatch = function () {
+        // TODO: support =~, !~
         return this.parseUnary();
     };
 

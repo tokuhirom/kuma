@@ -32,6 +32,17 @@ tap.test('unary ops', function (t) {
     t.end();
 });
 
+tap.test('binary ops', function (t) {
+    try {
+        t.equivalent(testit("3*2"), 6);
+        t.equivalent(testit("10/2"), 5);
+        t.equivalent(testit("10%3"), 1);
+    } catch (e) {
+        console.log(e);
+    }
+    t.end();
+});
+
 function testit(src) {
     var parser = new Parser(src);
     var ast = parser.parse();

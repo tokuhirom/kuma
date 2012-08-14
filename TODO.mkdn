@@ -10,6 +10,7 @@ scanner
     * tune up
     * support #{} style
     * scan range object
+    * scan regexp literal
 
 parser
 ------
@@ -21,6 +22,40 @@ parser
     * parse unary ops
     * parse fileteest ops
     * parse range object
+    * parse regexp literal
+
+
+    * "rule('program', ["
+    * "rule('statement-list', ["
+    * "rule('statement', ["
+    * "rule('jump-statement', ["
+    * "rule('else-clause', ["
+    * "rule('expression', ["
+    * "rule('block', ["
+    * "rule('str-or-expression', ["
+    * "rule('str-and-expression', ["
+    * "rule('not-expression', ["
+    * "rule('comma-expression', ["
+    * "rule('assign-expression', ["
+    * "rule('three-expression', ["
+    * "rule('dotdot-expression', ["
+    * "rule('oror-expression', ["
+    * "rule('andand-expression', ["
+    * "rule('or-expression', ["
+    * "rule('and-expression', ["
+    * "rule('equality-expression', ["
+    * "rule('cmp-expression', ["
+    * "rule('shift-expression', ["
+    * "rule('additive-expression', ["
+    * "rule('regexp-match', ["
+    * "rule('unary', ["
+    * "rule('method-call', ["
+    * "rule('parameters', ["
+    * "rule('parameter-list', ["
+    * "rule('identifier', ["
+    * "rule('class-name', ["
+    * "rule('variable', ["
+    * "rule('primary', ["
 
 translator
 ----------
@@ -31,6 +66,7 @@ translator
     * run unary ops
     * run fileteest ops
     * run range object
+    * run regexp literal
 
 runtime
 -------
@@ -52,4 +88,5 @@ done
     * parse pow
     * parse true/false
     * run true/false
+    * "rule('term', ["
 

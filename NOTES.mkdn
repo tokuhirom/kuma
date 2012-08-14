@@ -4,4 +4,7 @@ JS' bad
     * there's only function scope
     * no '**' operator
     * no heredoc
+    * no m{} expression
+    * no =~ operator
+    * no $1
 
