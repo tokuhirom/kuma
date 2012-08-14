@@ -43,7 +43,6 @@ parser
     * "rule('or-expression', ["
     * "rule('and-expression', ["
     * "rule('equality-expression', ["
-    * "rule('cmp-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
     * "rule('method-call', ["
@@ -94,4 +93,6 @@ done
     * run additive-expression
     * "rule('shift-expression', ["
     * run "rule('shift-expression', ["
+    * run "rule('cmp-expression', ["
+    * parse "rule('cmp-expression', ["
 

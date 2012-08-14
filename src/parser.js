@@ -56,10 +56,14 @@
     Parser.NODE_MUL = 18;
     Parser.NODE_DIV = 19;
     Parser.NODE_MOD = 20;
-    Parser.NODE_PLUS = 21;
-    Parser.NODE_MINUS = 22;
+    Parser.NODE_ADD = 21;
+    Parser.NODE_SUBTRACT = 22;
     Parser.NODE_LSHIFT = 23;
     Parser.NODE_RSHIFT = 24;
+    Parser.NODE_GT = 25;
+    Parser.NODE_GE = 26;
+    Parser.NODE_LT = 27;
+    Parser.NODE_LE = 28;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -83,7 +87,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        return this.parseAdditiveExpression();
+        return this.parseCmpExpression();
     };
 
     // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
@@ -115,16 +119,25 @@
         return child;
     }
 
+    var cmpMap = { };
+    cmpMap[Scanner.TOKEN_GT] = Parser.NODE_GT;
+    cmpMap[Scanner.TOKEN_GE] = Parser.NODE_GE;
+    cmpMap[Scanner.TOKEN_LT] = Parser.NODE_LT;
+    cmpMap[Scanner.TOKEN_LE] = Parser.NODE_LE;
+    Parser.prototype.parseCmpExpression = function () {
+        return this.left_op(this.parseShiftExpression, cmpMap);
+    };
+
     var shiftMap = { };
     shiftMap[Scanner.TOKEN_LSHIFT] = Parser.NODE_LSHIFT;
     shiftMap[Scanner.TOKEN_RSHIFT] = Parser.NODE_RSHIFT;
     Parser.prototype.parseShiftExpression = function () {
-        return this.left_op(this.parseAdditiveExpression, additiveMap);
+        return this.left_op(this.parseAdditiveExpression, shiftMap);
     };
 
     var additiveMap = { };
-    additiveMap[Scanner.TOKEN_MINUS] = Parser.NODE_MINUS;
-    additiveMap[Scanner.TOKEN_PLUS]  = Parser.NODE_PLUS;
+    additiveMap[Scanner.TOKEN_MINUS] = Parser.NODE_SUBTRACT;
+    additiveMap[Scanner.TOKEN_PLUS]  = Parser.NODE_ADD;
     Parser.prototype.parseAdditiveExpression = function () {
         return this.left_op(this.parseTerm, additiveMap);
     };

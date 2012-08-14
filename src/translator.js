@@ -56,13 +56,21 @@
             return "false";
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
+        case Parser.NODE_LT:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")<(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_LE:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")<=(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_GT:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")>(" + this._translate(ast[ND_DATAS][1]) + ")";
+        case Parser.NODE_GE:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")>=(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_LSHIFT:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")<<(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_RSHIFT:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")>>(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_ADD:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")+(" + this._translate(ast[ND_DATAS][1]) + ")";
-        case Parser.NODE_SUB:
+        case Parser.NODE_SUBTRACT:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")-(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_MUL:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")*(" + this._translate(ast[ND_DATAS][1]) + ")";

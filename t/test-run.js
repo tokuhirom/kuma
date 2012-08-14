@@ -27,7 +27,7 @@ tap.test('unary ops', function (t) {
         t.equivalent(testit("+4"), +4);
         t.equivalent(testit("-4"), -4);
     } catch (e) {
-        console.log(e);
+        t.fail(e);
     }
     t.end();
 });
@@ -39,10 +39,14 @@ tap.test('binary ops', function (t) {
         t.equivalent(testit("10%3"), 1);
         t.equivalent(testit("3+2"), 5);
         t.equivalent(testit("3-2"), 1);
-        t.equivalent(testit("3<<2"), 12);
+        t.equivalent(testit("3<<2"), 12, "3<<2");
         t.equivalent(testit("24>>2"), 6);
+        t.equivalent(testit("24>2"), true);
+        t.equivalent(testit("24>=2"), true);
+        t.equivalent(testit("24<2"), false);
+        t.equivalent(testit("24<=2"), false);
     } catch (e) {
-        console.log(e);
+        t.fail(e);
     }
     t.end();
 });

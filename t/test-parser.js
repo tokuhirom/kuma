@@ -3,11 +3,99 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('shift', function (t) {
+    try {
+        t.equivalent(parse('4<<8'),
+            [
+                Parser.NODE_LSHIFT,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ],
+            '4<<8'
+        );
+        t.equivalent(parse('4>>8'),
+            [
+                Parser.NODE_RSHIFT,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ],
+            '4<<8'
+        );
+    } catch (e) { t.fail(e) }
+    t.end();
+});
+
+tap.test('binop', function (t) {
+    try {
+        t.ok(Parser.NODE_LSHIFT);
+        t.equivalent(parse('4<8'),
+            [
+                Parser.NODE_LT,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+        t.equivalent(parse('4>8'),
+            [
+                Parser.NODE_GT,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+        t.equivalent(parse('4>=8'),
+            [
+                Parser.NODE_GE,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+        t.equivalent(parse('4<=8'),
+            [
+                Parser.NODE_LE,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+    } catch (e) {
+        t.fail(e);
+    }
+
+    t.end();
+});
+
 tap.test('additive', function (t) {
     try {
         t.equivalent(parse('4+8'),
             [
-                Parser.NODE_PLUS,
+                Parser.NODE_ADD,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]
+        );
+        t.equivalent(parse('4-8'),
+            [
+                Parser.NODE_SUBTRACT,
                 1,
                 [
                     [Parser.NODE_INTEGER,1,4],
