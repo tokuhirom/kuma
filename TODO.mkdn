@@ -17,6 +17,8 @@ parser
     * parse if
     * postfix if
     * normal if(parser)
+    * parse unary ops
+    * parse fileteest ops
 
 translator
 ----------
@@ -24,6 +26,8 @@ translator
     * run if
     * normal if(translator)
     * run preinc/postinc/predec/postdec
+    * run unary ops
+    * run fileteest ops
 
 runtime
 -------

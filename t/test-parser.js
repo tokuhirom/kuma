@@ -3,6 +3,59 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('unary ops', function (t) {
+    try {
+        t.equivalent(parse('!4'),
+            [
+                Parser.NODE_UNARY_NOT,
+                1,
+                [Parser.NODE_INTEGER,1,4],
+            ]
+        );
+        t.equivalent(parse('~4'),
+            [
+                Parser.NODE_UNARY_TILDE,
+                1,
+                [Parser.NODE_INTEGER,1,4],
+            ]
+        );
+        t.equivalent(parse('+4'),
+            [
+                Parser.NODE_UNARY_PLUS,
+                1,
+                [Parser.NODE_INTEGER,1,4],
+            ]
+        );
+        t.equivalent(parse('-4'),
+            [
+                Parser.NODE_UNARY_MINUS,
+                1,
+                [Parser.NODE_INTEGER,1,4],
+            ]
+        );
+    } catch (e) {
+        console.log(e);
+    }
+
+    t.end();
+});
+
+/*
+
+tap.test('pow', function (t) {
+    t.equivalent(parse('2**10'),
+        [
+            Parser.NODE_POW,
+            1,
+            [
+                [Parser.NODE_INTEGER,1,2],
+                [Parser.NODE_INTEGER,1,10]
+            ]
+        ]
+    );
+
+    t.end();
+});
 tap.test('pow', function (t) {
     t.equivalent(parse("8**16"), [
         Parser.NODE_POW,
@@ -75,21 +128,7 @@ tap.test('say(3)', function (t) {
 
     t.end();
 });
-
-tap.test('ops', function (t) {
-    t.equivalent(parse('2**10'),
-        [
-            Parser.NODE_POW,
-            1,
-            [
-                [Parser.NODE_INTEGER,1,2],
-                [Parser.NODE_INTEGER,1,10]
-            ]
-        ]
-    );
-
-    t.end();
-});
+*/
 
 function parse(src) {
     console.log("Start:: " + src);

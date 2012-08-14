@@ -20,7 +20,7 @@ tap.test("say(3)", function (t) {
     } catch (e) {
         console.log(e);
         t.fail(''+e);
-    };
+    }
     t.end();
 });
 

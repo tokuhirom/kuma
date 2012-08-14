@@ -1,6 +1,6 @@
 (function (global) {
     "use strict";
-    if (!global.Kuma) { global.Kuma = {} }
+    if (!global.Kuma) { global.Kuma = {}; }
     if (!global.Kuma.Parser) {
         global.Kuma.Parser = require('./parser.js').Kuma.Parser;
     }
@@ -40,6 +40,14 @@
                 var args = ast[ND_DATAS][1];
                 return translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
+        case Parser.NODE_UNARY_NOT:
+            return "!(" + translator._translate(ast[ND_DATAS]) + ")";
+        case Parser.NODE_UNARY_TILDE:
+            return "~(" + translator._translate(ast[ND_DATAS]) + ")";
+        case Parser.NODE_UNARY_PLUS:
+            return "+(" + translator._translate(ast[ND_DATAS]) + ")";
+        case Parser.NODE_UNARY_MINUS:
+            return "-(" + translator._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_INTEGER:
             return ast[ND_DATAS];
         case Parser.NODE_IDENT:

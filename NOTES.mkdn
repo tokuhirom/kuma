@@ -1,0 +1,7 @@
+JS' bad
+=======
+
+    * there's only function scope
+    * no '**' operator
+    * no heredoc
+

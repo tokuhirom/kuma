@@ -180,7 +180,6 @@
         '>>': Scanner.TOKEN_RSHIFT,
         '>=': Scanner.TOKEN_GE,
         '>': Scanner.TOKEN_GT,
-        '\\': Scanner.TOKEN_REF,
         '~': Scanner.TOKEN_TILDE,
         '${': Scanner.TOKEN_DEREF,
         '**=': Scanner.TOKEN_POW_ASSIGN,

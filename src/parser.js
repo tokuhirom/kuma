@@ -1,6 +1,6 @@
 (function (global) {
     "use strict";
-    if (!global.Kuma) { global.Kuma = {} }
+    if (!global.Kuma) { global.Kuma = {}; }
 
     var Scanner = require('./scanner.js').Kuma.Scanner;
 
@@ -23,7 +23,7 @@
         // ugly but works. performance tuning needed.
         if (!src) { throw "Missing mandatory parameter: src"; }
         var scanner = new Scanner(src);
-        var tokens = []
+        var tokens = [];
         while (1) {
             var token = scanner.get();
             tokens.push(token);
@@ -45,6 +45,12 @@
     Parser.NODE_POST_DEC = 8;
     Parser.NODE_POW = 9;
     Parser.NODE_INTEGER = 10;
+    Parser.NODE_UNARY_NOT = 11;
+    Parser.NODE_UNARY_TILDE = 12;
+    Parser.NODE_UNARY_REF = 13;
+    Parser.NODE_UNARY_PLUS = 14;
+    Parser.NODE_UNARY_MINUS = 15;
+    Parser.NODE_UNARY_MUL = 15;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -58,7 +64,7 @@
         return this.tokens[this.idx];
     };
     Parser.prototype.ungetToken = function () {
-        if (this.idx == 0) { throw "Invalid index" }
+        if (this.idx === 0) { throw "Invalid index"; }
         this.idx--;
     };
     Parser.prototype.getMark = function () {
@@ -68,23 +74,41 @@
         this.idx = i;
     };
     Parser.prototype.parse = function (src) {
-        return this.parsePow();
+        return this.parseUnary();
+    };
+
+    var UNARY_OPS = {};
+    UNARY_OPS[Scanner.TOKEN_NOT] = Parser.NODE_UNARY_NOT;
+    UNARY_OPS[Scanner.TOKEN_TILDE] = Parser.NODE_UNARY_TILDE;
+    UNARY_OPS[Scanner.TOKEN_PLUS] = Parser.NODE_UNARY_PLUS;
+    UNARY_OPS[Scanner.TOKEN_MINUS] = Parser.NODE_UNARY_MINUS;
+    Parser.prototype.parseUnary = function (src) {
+        var token = this.lookToken();
+        // file test operator
+        /*
+        };
+        */
+        if (token[TK_TAG] === Scanner.NODE_FILETEST) {
+            this.getToken();
+            throw 'not implemented';
+        } else if (token[TK_TAG] in UNARY_OPS) {
+            this.getToken();
+
+            var lhs = this.parsePow();
+            // TODO: show token name
+            if (!lhs) { throw "Missing lhs for token number " + token[TK_TAG]; }
+            return this.makeNode(
+                UNARY_OPS[token[TK_TAG]],
+                token[TK_LINENO],
+                lhs
+            );
+        } else {
+            console.log("hmm!! " + token[TK_TAG]);
+            return this.parsePow();
+        }
     };
     Parser.prototype.parsePow = function () {
-        /*
-        my $c = shift;
-        ($c, my $lhs) = incdec($c)
-            or return;
-        my ($len, $token) = _token_op($c);
-        if ($token && $token == TOKEN_POW) {
-            $c = substr($c, $len);
-            ($c, my $rhs) = pow($c)
-                or die "Missing expression after '**'";
-            return ($c, _node(NODE_POW, $lhs, $rhs));
-        } else {
-            return ($c, $lhs);
-        }
-        */
+        // x**y
         var lhs = this.parseIncDec();
         if (!lhs) { return; }
 
