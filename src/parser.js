@@ -58,6 +58,8 @@
     Parser.NODE_MOD = 20;
     Parser.NODE_PLUS = 21;
     Parser.NODE_MINUS = 22;
+    Parser.NODE_LSHIFT = 23;
+    Parser.NODE_RSHIFT = 24;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -112,6 +114,13 @@
         }
         return child;
     }
+
+    var shiftMap = { };
+    shiftMap[Scanner.TOKEN_LSHIFT] = Parser.NODE_LSHIFT;
+    shiftMap[Scanner.TOKEN_RSHIFT] = Parser.NODE_RSHIFT;
+    Parser.prototype.parseShiftExpression = function () {
+        return this.left_op(this.parseAdditiveExpression, additiveMap);
+    };
 
     var additiveMap = { };
     additiveMap[Scanner.TOKEN_MINUS] = Parser.NODE_MINUS;

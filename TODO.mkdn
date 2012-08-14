@@ -44,7 +44,6 @@ parser
     * "rule('and-expression', ["
     * "rule('equality-expression', ["
     * "rule('cmp-expression', ["
-    * "rule('shift-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
     * "rule('method-call', ["
@@ -65,7 +64,6 @@ translator
     * run fileteest ops
     * run range object
     * run regexp literal
-    * run additive-expression
 
 runtime
 -------
@@ -93,4 +91,7 @@ done
     * run true/false
     * "rule('term', ["
     * "rule('additive-expression', ["
+    * run additive-expression
+    * "rule('shift-expression', ["
+    * run "rule('shift-expression', ["
 
