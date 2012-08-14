@@ -9,6 +9,7 @@ scanner
     * scanner supports haredoc
     * tune up
     * support #{} style
+    * scan range object
 
 parser
 ------
@@ -19,6 +20,8 @@ parser
     * normal if(parser)
     * parse unary ops
     * parse fileteest ops
+    * parse true/false
+    * parse range object
 
 translator
 ----------
@@ -28,6 +31,8 @@ translator
     * run preinc/postinc/predec/postdec
     * run unary ops
     * run fileteest ops
+    * run true/false
+    * run range object
 
 runtime
 -------

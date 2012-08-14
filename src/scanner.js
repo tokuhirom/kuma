@@ -4,7 +4,7 @@
     if (!global.Kuma) { global.Kuma = {} }
 
     function Scanner(src) {
-        if (!src) { throw "Missing mandatory parameter: src"; }
+        if (typeof src == 'undefined') { throw "Missing mandatory parameter: src"; }
         this.src = src;
         this.lineno = 1;
     }

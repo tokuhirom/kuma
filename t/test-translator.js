@@ -22,7 +22,7 @@ tap.test('ok', function (t) {
 
 tap.test('pow', function (t) {
     console.log(testit('2**10'));
-    t.equivalent(testit('2**10'), '"use strict";' + "\n" + '2**10');
+    t.equivalent(testit('2**10'), '"use strict";' + "\n" + 'Math.pow((2), (10))');
     t.end();
 });
 
