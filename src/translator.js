@@ -181,6 +181,18 @@
             return "'" + ast[ND_DATAS] + "'";
         case Parser.NODE_POW:
             return 'Math.pow(('+translator._translate(ast[ND_DATAS][0]) + "), (" + this._translate(ast[ND_DATAS][1]) + "))";
+	    case Parser.NODE_PRE_INC:
+	    	return '++(' + this._translate(ast[ND_DATAS]) + ")";
+	    case Parser.NODE_POST_INC:
+	    	return '(' + this._translate(ast[ND_DATAS]) + ")++";
+	    case Parser.NODE_WHILE:
+	    	return (function () {
+	    		var ret = 'while (';
+	    			ret += this._translate(ast[ND_DATAS][0]);
+	    			ret += ')';
+	    			ret += this._translate(ast[ND_DATAS][1]);
+	    		return ret;
+	    	}).call(this);
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + ast[ND_TYPE];

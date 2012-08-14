@@ -122,6 +122,13 @@ tap.test('assignment', function (t) {
     t.end();
 });
 
+tap.test('kuma', function (t) {
+    try {
+    t.equivalent(testit("let i=0; let n= 0;while i<10 { n+=i; i++; }; n"), 45);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
 console.log("+++++++++++++++");
     console.log(src);

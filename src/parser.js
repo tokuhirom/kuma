@@ -108,6 +108,7 @@
     Parser.NODE_XOR_ASSIGN = 69;
     Parser.NODE_OROR_ASSIGN = 70;
     Parser.NODE_LET = 71;
+    Parser.NODE_WHILE = 72;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -278,7 +279,20 @@
                                  [cond, block, $else]
                                  );
         } else if (token[TK_TAG] === Scanner.TOKEN_WHILE) {
-            // TODO
+            this.getToken();
+            var body = this.parseExpression();
+            if (!body) {
+                throw "Expression is required after 'while' keyword at line " + token[TK_LINENO];
+            }
+            var block = this.parseBlock();
+            if (!block) {
+                throw "block is required after while keyword";
+            }
+            return this.makeNode(
+                Parser.NODE_WHILE,
+                token[TK_LINENO],
+                [body, block]
+                );
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
