@@ -68,6 +68,43 @@
             return "true";
         case Parser.NODE_FALSE:
             return "false";
+        case Parser.NODE_BLOCK:
+            return "{\n" + this._translate(ast[ND_DATAS]) + "}\n";
+        case Parser.NODE_STMTS:
+            return (function () {
+                var ret = "{\n";
+                for (var i=0, len=ast[ND_DATAS].length; i<len; i++) {
+                    console.log(ast[ND_DATAS]);
+                    ret += this._translate(ast[ND_DATAS][i]);
+                }
+                ret += "}\n";
+                return ret;
+            }).call(this);
+        case Parser.NODE_IF:
+            return (function () {
+                var ret = 'if (' + self._translate(ast[ND_DATAS][0]) + ")\n";
+                    ret += self._translate(ast[ND_DATAS][1]);
+                if (ast[ND_DATAS][2]) {
+                    ret += self._translate(ast[ND_DATAS][2]);
+                }
+                return ret;
+            })();
+        case Parser.NODE_ELSIF:
+            return (function () {
+                var ret = 'else if (' + self._translate(ast[ND_DATAS][0]) + ")\n";
+                    ret += self._translate(ast[ND_DATAS][1]);
+                if (ast[ND_DATAS][2]) {
+                    ret += self._translate(ast[ND_DATAS][2]);
+                }
+                return ret;
+            })();
+        case Parser.NODE_ELSE:
+            return (function () {
+                var ret = 'else {';
+                    ret += self._translate(ast[ND_DATAS]);
+                ret += "}\n";
+                return ret;
+            })();
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
         case Parser.NODE_LT:

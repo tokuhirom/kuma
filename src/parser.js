@@ -254,14 +254,6 @@
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
             // TODO
-        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            // TODO
-        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            // TODO
-        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            // TODO
-        } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            // TODO
         } else {
             // normal statement
             var stmt = this.parseJumpStatement();

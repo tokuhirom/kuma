@@ -4,6 +4,18 @@ var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('if', function (t) {
+    try {
+        t.equivalent(testit("if 1 { 3 }"), 3);
+        t.equivalent(testit("if 1 { 3 } else { 8 }"), 3);
+        t.equivalent(testit("if 0 { 3 } else { 8 }"), 8);
+        t.equivalent(testit("if 1 { 3 } elsif 1 { 8 }"), 3);
+        t.equivalent(testit("if 0 { 3 } elsif 1 { 8 }"), 8);
+        t.equivalent(testit("if 0 { 3 } elsif 0 { 8 } else { 9 }"), 9);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('ok', function (t) {
     t.equivalent(testit("2**10"), 1024);
     t.end();
@@ -57,6 +69,7 @@ function testit(src) {
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
+    // console.log(jssrc);
     var ret = eval(jssrc);
     return ret;
 }
