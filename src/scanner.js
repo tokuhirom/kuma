@@ -111,6 +111,7 @@
     Scanner.TOKEN_MINUS_ASSIGN        = 366;
     Scanner.TOKEN_MINUS               = 367;
     Scanner.TOKEN_RPAREN              = 368;
+    Scanner.TOKEN_COLON = 369;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -143,6 +144,7 @@
 
     var ops = {
         '?': Scanner.TOKEN_QUESTION,
+        ':': Scanner.TOKEN_COLON,
         '+=': Scanner.TOKEN_PLUS_ASSIGN,
         'b"': Scanner.TOKEN_BYTES_DQ,
         "b'": Scanner.TOKEN_BYTES_SQ,

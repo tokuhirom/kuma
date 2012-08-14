@@ -33,10 +33,7 @@ parser
     * "rule('block', ["
     * "rule('str-or-expression', ["
     * "rule('str-and-expression', ["
-    * "rule('not-expression', ["
-    * "rule('comma-expression', ["
     * "rule('assign-expression', ["
-    * "rule('three-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
     * "rule('method-call', ["
@@ -57,6 +54,8 @@ translator
     * run fileteest ops
     * run range object
     * run regexp literal
+    * "rule('comma-expression', ["
+    * "rule('not-expression', ["
     rule('dotdot_expression', [
         left_op2(\&oror_expression, +{ TOKEN_DOTDOT() => NODE_DOTDOT, TOKEN_DOTDOTDOT() => NODE_DOTDOTDOT})
     ]);
@@ -80,6 +79,7 @@ translator
     rule('equality_expression', [
         nonassoc_op(\&cmp_expression, {TOKEN_EQUAL_EQUAL() => NODE_EQ, TOKEN_NOT_EQUAL() => NODE_NE, TOKEN_CMP() => NODE_CMP})
     ]);
+    * "rule('three-expression', ["
 
 runtime
 -------

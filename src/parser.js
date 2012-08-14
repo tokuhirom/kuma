@@ -74,6 +74,9 @@
     Parser.NODE_BITOR = 36;
     Parser.NODE_BITXOR = 37;
     Parser.NODE_BITAND = 38;
+    Parser.NODE_THREE = 39;
+    Parser.NODE_COMMA = 40;
+    Parser.NODE_UNARY_NOT = 41;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -97,7 +100,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        return this.parseDotdotExpression();
+        return this.parseCommaExpression();
     };
 
     // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
@@ -127,30 +130,97 @@
             );
         }
         return child;
-    }
-    /*
-# %right
-rule('three_expression', [
-    sub {
-        my $c = shift;
-        ($c, my $t1) = dotdot_expression($c)
+    };
+
+    Parser.prototype.parseNotExpression = function () {
+        if (this.lookToken()[0] == Scanner.TOKEN_STR_NOT) {
+            var head = this.getToken();
+            var body = this.parseNotExpression();
+            return this.makeNode(
+                                 Parser.NODE_UNARY_NOT,
+                                 head[TK_LINENO],
+                                 body
+                                 );
+        } else {
+            return this.parseCommaExpression();
+        }
+    };
+
+    var commaMap = {};
+    commaMap[Scanner.TOKEN_COMMA] = Parser.NODE_COMMA;
+    Parser.prototype.parseCommaExpression = function () {
+        return this.left_op(this.parseAssignExpression, commaMap);
+    };
+
+    // %right
+    Parser.prototype.parseAssignExpression = function () {
+        /*
+        TODO
+        ($c, my $rhs) = three_expression($c)
             or return;
         my ($used, $token_id) = _token_op($c);
-        if ($token_id == TOKEN_QUESTION) {
+        my $op = +{
+            TOKEN_ASSIGN()        => NODE_ASSIGN,
+            TOKEN_MUL_ASSIGN()    => NODE_MUL_ASSIGN,
+            TOKEN_PLUS_ASSIGN()   => NODE_PLUS_ASSIGN,
+            TOKEN_DIV_ASSIGN()    => NODE_DIV_ASSIGN,
+            TOKEN_MOD_ASSIGN()    => NODE_MOD_ASSIGN,
+            TOKEN_MINUS_ASSIGN()  => NODE_MINUS_ASSIGN,
+            TOKEN_LSHIFT_ASSIGN() => NODE_LSHIFT_ASSIGN,
+            TOKEN_RSHIFT_ASSIGN() => NODE_RSHIFT_ASSIGN,
+            TOKEN_POW_ASSIGN()    => NODE_POW_ASSIGN,
+            TOKEN_AND_ASSIGN()    => NODE_AND_ASSIGN,
+            TOKEN_OR_ASSIGN()     => NODE_OR_ASSIGN,
+            TOKEN_XOR_ASSIGN()    => NODE_XOR_ASSIGN,
+            TOKEN_OROR_ASSIGN()   => NODE_OROR_ASSIGN,
+        }->{$token_id};
+        if ($op) {
             $c = substr($c, $used);
-            ($c, my $t2) = three_expression($c)
-                or return;
-            ($c) = match($c, ':')
-                or return;
-            ($c, my $t3) = three_expression($c)
-                or return;
-            return ($c, _node(NODE_THREE, $t1, $t2, $t3));
+            ($c, my $lhs) = expression($c)
+                or _err "Cannot get expression after $op";
+            return ($c, _node($op, $rhs, $lhs));
         } else {
-            return ($c, $t1);
+            return ($c, $rhs);
         }
-    },
-]);
-*/
+        */
+        // TODO
+        return this.parseThreeExpression();
+    };
+
+    // parse ? :
+    // %right
+    Parser.prototype.parseThreeExpression = function() {
+        var cond =this.parseDotdotExpression();
+        if (!cond) { return; }
+
+        var op = this.lookToken();
+        if (op[TK_TAG] === Scanner.TOKEN_QUESTION) {
+            this.trace("COME ON");
+            this.getToken();
+            var if_ = this.parseDotdotExpression();
+            if (!if_) { return; }
+
+            var colon = this.lookToken();
+            if (colon[TK_TAG] !== Scanner.TOKEN_COLON) {
+                return;
+            }
+            this.getToken();
+
+            var else_ = this.parseDotdotExpression();
+            if (!else_) { return; }
+            return this.makeNode(
+                                 Parser.NODE_THREE,
+                                 cond[ND_LINENO],
+                                 [
+                                     cond,
+                                     if_,
+                                     else_
+                                 ]
+                                 );
+        } else {
+            return cond;
+        }
+    };
 
     var dotdotMap = {};
     dotdotMap[Scanner.TOKEN_DOTDOT] = Parser.NODE_DOTDOT;
@@ -385,7 +455,7 @@ rule('three_expression', [
 
         var args = [];
         while (1) {
-            var exp = this.takeAssignExpression();
+            var exp = this.parseAssignExpression();
             if (exp) {
                 this.trace("Found exp");
                 args.push(exp);
@@ -404,7 +474,7 @@ rule('three_expression', [
         }
         // TODO: take args
 
-        var token = this.getToken();
+        token = this.getToken();
         if (token[TK_TAG] !== Scanner.TOKEN_RPAREN) {
             this.restoreMark(mark);
             return;
@@ -417,38 +487,6 @@ rule('three_expression', [
             lineno,
             datas
         ];
-    };
-    Parser.prototype.takeAssignExpression = function () {
-        /*
-        ($c, my $rhs) = three_expression($c)
-            or return;
-        my ($used, $token_id) = _token_op($c);
-        my $op = +{
-            TOKEN_ASSIGN()        => NODE_ASSIGN,
-            TOKEN_MUL_ASSIGN()    => NODE_MUL_ASSIGN,
-            TOKEN_PLUS_ASSIGN()   => NODE_PLUS_ASSIGN,
-            TOKEN_DIV_ASSIGN()    => NODE_DIV_ASSIGN,
-            TOKEN_MOD_ASSIGN()    => NODE_MOD_ASSIGN,
-            TOKEN_MINUS_ASSIGN()  => NODE_MINUS_ASSIGN,
-            TOKEN_LSHIFT_ASSIGN() => NODE_LSHIFT_ASSIGN,
-            TOKEN_RSHIFT_ASSIGN() => NODE_RSHIFT_ASSIGN,
-            TOKEN_POW_ASSIGN()    => NODE_POW_ASSIGN,
-            TOKEN_AND_ASSIGN()    => NODE_AND_ASSIGN,
-            TOKEN_OR_ASSIGN()     => NODE_OR_ASSIGN,
-            TOKEN_XOR_ASSIGN()    => NODE_XOR_ASSIGN,
-            TOKEN_OROR_ASSIGN()   => NODE_OROR_ASSIGN,
-        }->{$token_id};
-        if ($op) {
-            $c = substr($c, $used);
-            ($c, my $lhs) = expression($c)
-                or _err "Cannot get expression after $op";
-            return ($c, _node($op, $rhs, $lhs));
-        } else {
-            return ($c, $rhs);
-        }
-        */
-        // TODO
-        return this.takePrimary();
     };
     Parser.prototype.takePrimary = function () {
         var mark = this.getMark();

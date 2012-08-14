@@ -3,29 +3,51 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
-/*
-    left_op2(\&oror_expression, +{ TOKEN_DOTDOT() => NODE_DOTDOT, TOKEN_DOTDOTDOT() => NODE_DOTDOTDOT})
-]);
+tap.test('!', function (t) {
+    try {
+        t.equivalent(parse("!4"), [
+                Parser.NODE_UNARY_NOT,
+                1,
+                [Parser.NODE_INTEGER,1,4]
+            ]);
+        t.equivalent(parse("!!4"), [
+                Parser.NODE_UNARY_NOT,
+                1,
+                [Parser.NODE_UNARY_NOT, 1, [Parser.NODE_INTEGER,1,4]]
+            ]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
-rule('oror_expression', [
-    left_op2(\&andand_expression, +{ TOKEN_OROR() => NODE_LOGICAL_OR })
-]);
+tap.test('comma', function (t) {
+    try {
+        t.equivalent(parse("4,5"), [
+                Parser.NODE_COMMA,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,5]
+                ]
+            ]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
-rule('andand_expression', [
-    left_op2(\&or_expression, {TOKEN_ANDAND() => NODE_LOGICAL_AND})
-]);
+tap.test('three', function (t) {
+    try {
+        t.equivalent(parse("4?8:5"), [
+                Parser.NODE_THREE,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8],
+                    [Parser.NODE_INTEGER,1,5]
+                ]
+            ]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
-rule('or_expression', [
-    left_op2(\&and_expression, +{TOKEN_OR() => NODE_BITOR, TOKEN_XOR() => NODE_BITXOR})
-]);
-
-rule('and_expression', [
-    left_op2(\&equality_expression, {TOKEN_AND() => NODE_BITAND})
-]);
-
-rule('equality_expression', [
-    nonassoc_op(\&cmp_expression, {TOKEN_EQUAL_EQUAL() => NODE_EQ, TOKEN_NOT_EQUAL() => NODE_NE, TOKEN_CMP() => NODE_CMP})
-*/
 tap.test('binop', function (t) {
     try {
         t.equivalent(parse("4==8"), [
@@ -327,7 +349,7 @@ tap.test('say(3)', function (t) {
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
-    // parser.TRACE_ON = true;
+    parser.TRACE_ON = true;
     var ast = parser.parse();
     return ast;
 }
