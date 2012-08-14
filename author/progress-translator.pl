@@ -9,6 +9,7 @@ printf("----\n");
 printf("%s", `date +%Y-%m-%dT%H:%M:%S`);
 printf("Parser: %d\n", `grep TODO src/parser.js | wc -l`);
 printf("TRANSLATOR: total: %d, remains: %d(%.2f%%)\n", 0+@tokens, $remains, 100.0*($remains/@tokens));
+system("wc -l src/*.js");
 
 sub check_tokens {
 	my %tokens = map { $_ => 1 } @_;
