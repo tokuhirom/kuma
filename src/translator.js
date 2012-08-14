@@ -1,3 +1,4 @@
+/*jslint node: true, es5: true */
 (function (global) {
     "use strict";
     if (!global.Kuma) { global.Kuma = {}; }
@@ -37,6 +38,10 @@
                 }
                 return ret.join(";\n");
             })();
+        case Parser.NODE_UNDEF:
+            return "undefined";
+        case Parser.NODE_RETURN:
+            return "return (" + self._translate(ast[ND_DATAS]) + ")" ;
         case Parser.NODE_BUILTIN_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];

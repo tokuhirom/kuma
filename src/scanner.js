@@ -113,6 +113,7 @@
     Scanner.TOKEN_RPAREN              = 368;
     Scanner.TOKEN_COLON = 369;
     Scanner.TOKEN_END = 370;
+    Scanner.TOKEN_SEMICOLON = 371;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -206,6 +207,7 @@
         '->': Scanner.TOKEN_LAMBDA,
         '-=': Scanner.TOKEN_MINUS_ASSIGN,
         '-': Scanner.TOKEN_MINUS,
+        ';' : Scanner.TOKEN_SEMICOLON
     };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length });
 

@@ -83,13 +83,13 @@
     Parser.NODE_NOP = 45;
     Parser.NODE_BLOCK = 46;
     Parser.NODE_RETURN = 47;
-    Parser.NODE_UNDEF = 47;
     Parser.NODE_BREAK = 48;
     Parser.NODE_CONTINUE = 49;
     Parser.NODE_SUB = 50;
     Parser.NODE_TRY = 51;
     Parser.NODE_THROW = 52;
     Parser.NODE_STMTS = 53;
+    Parser.NODE_UNDEF = 54;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -164,6 +164,9 @@
                                      ret);
             }
             ret.push(stmt);
+            if (this.lookToken()[TK_TAG] === Scanner.TOKEN_SEMICOLON) {
+                this.getToken();
+            }
         }
         /*
         my ($src, $got_end) = skip_ws(shift);

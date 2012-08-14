@@ -11,6 +11,7 @@ scanner
     * support #{} style
     * scan range object
     * scan regexp literal
+    * split statements by \n
 
 parser
 ------
