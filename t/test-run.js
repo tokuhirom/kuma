@@ -13,6 +13,7 @@ tap.test('literals', function (t) {
     try {
         t.equivalent(testit("true"), true);
         t.equivalent(testit("false"), false);
+        t.equivalent(testit("undef"), undefined);
     } catch (e) {
         t.fail(e);
     }

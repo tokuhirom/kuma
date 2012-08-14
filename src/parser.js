@@ -906,6 +906,11 @@ rule('expression', [
                 Parser.NODE_FALSE,
                 token[TK_LINENO]
             );
+        } else if (token[TK_TAG] == Scanner.TOKEN_UNDEF) {
+            return this.makeNode(
+                Parser.NODE_UNDEF,
+                token[TK_LINENO]
+            );
         } else if (token[TK_TAG] == Scanner.TOKEN_INTEGER) {
             return this.makeNode(
                 Parser.NODE_INTEGER,
