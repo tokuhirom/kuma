@@ -102,6 +102,25 @@ tap.test('func', function (t) {
     t.end();
 });
 
+tap.test('assignment', function (t) {
+    try {
+        t.equivalent(testit("let x = 5; x += 3; x"), 8);
+        t.equivalent(testit("let x = 5; x *= 3; x"), 15);
+        t.equivalent(testit("let x = 4; x /= 2; x"), 2);
+        t.equivalent(testit("let x = 4; x -= 2; x"), 2);
+        t.equivalent(testit("let x = 4; x %= 2; x"), 0);
+        t.equivalent(testit("let x = 4; x <<= 2; x"), 16);
+        t.equivalent(testit("let x = 4; x >>= 1; x"), 2);
+        t.equivalent(testit("let x = 255; x &= 3; x"), 3);
+        t.equivalent(testit("let x = 1; x |= 8; x"), 9);
+        t.equivalent(testit("let x = 1; x ^= 8; x"), 9);
+        /*
+    Parser.NODE_POW_ASSIGN = 66;
+    Parser.NODE_OROR_ASSIGN = 70;
+    */
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
 function testit(src) {
 console.log("+++++++++++++++");

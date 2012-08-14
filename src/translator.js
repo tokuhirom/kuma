@@ -157,6 +157,26 @@
                     ret += this._translate(ast[ND_DATAS][2]);
                 return ret;
             }).call(this);
+        case Parser.NODE_MUL_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " *= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_PLUS_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " += " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_MINUS_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " -= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_DIV_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " /= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_MOD_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " %= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_LSHIFT_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " <<= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_RSHIFT_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " >>= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_AND_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " &= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_OR_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " |= " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_XOR_ASSIGN:
+            return this._translate(ast[ND_DATAS][0]) + " ^= " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
         case Parser.NODE_POW:
