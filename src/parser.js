@@ -1066,6 +1066,18 @@ rule('expression', [
                 token[TK_LINENO],
                 token[TK_LINENO]
             );
+        } else if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
+            var body = this.parseExpression();
+            if (!body) {
+                this.restoreMark(mark);
+                return;
+            }
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
+                this.restoreMark(mark);
+                return;
+            }
+            this.getToken();
+            return body;
         } else if (token[TK_TAG] == Scanner.TOKEN_LET) {
             var lhs = this.lookToken();
             if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
@@ -1159,14 +1171,6 @@ rule('expression', [
             return _bytes_sq(substr($c, $used), 0);
         } elsif ($token_id ==TOKEN_BYTES_DQ) { # b"
             return _bytes_dq(substr($c, $used), 0);
-        } elsif ($token_id == TOKEN_LPAREN) { # (
-        TODO
-            $c = substr($c, $used);
-            ($c, my $body) = expression($c)
-                or return;
-            ($c) = match($c, ")")
-                or return;
-            return ($c, $body);
         } elsif ($token_id == TOKEN_LBRACE) { # {
         TODO
             # hash creation
