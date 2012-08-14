@@ -24,7 +24,6 @@ parser
     * parse range object
     * parse regexp literal
 
-
     * "rule('program', ["
     * "rule('statement-list', ["
     * "rule('statement', ["
@@ -46,7 +45,6 @@ parser
     * "rule('equality-expression', ["
     * "rule('cmp-expression', ["
     * "rule('shift-expression', ["
-    * "rule('additive-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
     * "rule('method-call', ["
@@ -67,6 +65,7 @@ translator
     * run fileteest ops
     * run range object
     * run regexp literal
+    * run additive-expression
 
 runtime
 -------
@@ -76,6 +75,10 @@ milestone
 
     * fib
     * class
+    * no paste site
+    * use node-js library
+    * publish node.js library
+    * self-hosting
 
 END
 ===
@@ -89,4 +92,5 @@ done
     * parse true/false
     * run true/false
     * "rule('term', ["
+    * "rule('additive-expression', ["
 

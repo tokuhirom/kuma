@@ -56,6 +56,8 @@
     Parser.NODE_MUL = 18;
     Parser.NODE_DIV = 19;
     Parser.NODE_MOD = 20;
+    Parser.NODE_PLUS = 21;
+    Parser.NODE_MINUS = 22;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -79,7 +81,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        return this.parseTerm();
+        return this.parseAdditiveExpression();
     };
 
     // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
@@ -92,10 +94,9 @@
             var token = this.lookToken();
             if (!token) { break; }
 
-            this.getToken();
-
             var node_type = ops[token[TK_TAG]];
             if (!node_type) { break; }
+            this.getToken();
 
             var rhs = upper.call(this);
             if (!rhs) {
@@ -111,6 +112,13 @@
         }
         return child;
     }
+
+    var additiveMap = { };
+    additiveMap[Scanner.TOKEN_MINUS] = Parser.NODE_MINUS;
+    additiveMap[Scanner.TOKEN_PLUS]  = Parser.NODE_PLUS;
+    Parser.prototype.parseAdditiveExpression = function () {
+        return this.left_op(this.parseTerm, additiveMap);
+    };
 
     var termMap = { };
     termMap[Scanner.TOKEN_MUL] = Parser.NODE_MUL;
