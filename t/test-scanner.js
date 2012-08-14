@@ -1,6 +1,14 @@
 var tap = require('tap'),
 Scanner = require("../src/scanner.js").Kuma.Scanner;
 
+tap.test("...", function (t) {
+    t.equivalent(scanIt('...'), [
+        [Scanner.TOKEN_DOTDOTDOT, undefined, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
 tap.test("shift operators", function (t) {
     t.equivalent(scanIt('2>>10'), [
         [Scanner.TOKEN_INTEGER, 2, 1],

@@ -64,6 +64,16 @@
     Parser.NODE_GE = 26;
     Parser.NODE_LT = 27;
     Parser.NODE_LE = 28;
+    Parser.NODE_EQ = 29;
+    Parser.NODE_NE = 30;
+    Parser.NODE_CMP = 31;
+    Parser.NODE_DOTDOT = 32;
+    Parser.NODE_DOTDOTDOT = 33;
+    Parser.NODE_LOGICAL_OR = 34;
+    Parser.NODE_LOGICAL_AND = 35;
+    Parser.NODE_BITOR = 36;
+    Parser.NODE_BITXOR = 37;
+    Parser.NODE_BITAND = 38;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -87,7 +97,7 @@
         this.idx = i;
     };
     Parser.prototype.parse = function () {
-        return this.parseCmpExpression();
+        return this.parseDotdotExpression();
     };
 
     // see http://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
@@ -118,6 +128,68 @@
         }
         return child;
     }
+    /*
+# %right
+rule('three_expression', [
+    sub {
+        my $c = shift;
+        ($c, my $t1) = dotdot_expression($c)
+            or return;
+        my ($used, $token_id) = _token_op($c);
+        if ($token_id == TOKEN_QUESTION) {
+            $c = substr($c, $used);
+            ($c, my $t2) = three_expression($c)
+                or return;
+            ($c) = match($c, ':')
+                or return;
+            ($c, my $t3) = three_expression($c)
+                or return;
+            return ($c, _node(NODE_THREE, $t1, $t2, $t3));
+        } else {
+            return ($c, $t1);
+        }
+    },
+]);
+*/
+
+    var dotdotMap = {};
+    dotdotMap[Scanner.TOKEN_DOTDOT] = Parser.NODE_DOTDOT;
+    Parser.prototype.parseDotdotExpression = function () {
+        return this.left_op(this.parseOrOrExpression, dotdotMap);
+    };
+
+    var ororMap = {};
+    ororMap[Scanner.TOKEN_OROR] = Parser.NODE_LOGICAL_OR;
+    Parser.prototype.parseOrOrExpression = function () {
+        return this.left_op(this.parseAndAndExpression, ororMap);
+    }
+
+    var andandMap = {};
+    andandMap[Scanner.TOKEN_ANDAND] = Parser.NODE_LOGICAL_AND;
+    Parser.prototype.parseAndAndExpression = function () {
+        return this.left_op(this.parseOrExpression, andandMap);
+    };
+
+    var orMap = {};
+    orMap[Scanner.TOKEN_OR] = Parser.NODE_BITOR;
+    orMap[Scanner.TOKEN_XOR] = Parser.NODE_BITXOR;
+    Parser.prototype.parseOrExpression = function() {
+        return this.left_op(this.parseAndExpression, orMap);
+    };
+
+    var andMap = {};
+    andMap[Scanner.TOKEN_AND] = Parser.NODE_BITAND;
+    Parser.prototype.parseAndExpression = function () {
+        return this.left_op(this.parseEqualityExpression, andMap);
+    };
+
+    var equalityMap = {};
+    equalityMap[Scanner.TOKEN_EQUAL_EQUAL] = Parser.NODE_EQ;
+    equalityMap[Scanner.TOKEN_NOT_EQUAL] = Parser.NODE_NE;
+    equalityMap[Scanner.TOKEN_CMP] = Parser.NODE_CMP;
+    Parser.prototype.parseEqualityExpression = function () {
+        return this.left_op(this.parseCmpExpression, equalityMap);
+    };
 
     var cmpMap = { };
     cmpMap[Scanner.TOKEN_GT] = Parser.NODE_GT;
@@ -403,6 +475,11 @@
                 Parser.NODE_INTEGER,
                 token[TK_LINENO],
                 token[TK_VALUE]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_DOTDOTDOT) {
+            return this.makeNode(
+                Parser.NODE_DOTDOTDOT,
+                token[TK_LINENO]
             );
         } else if (token[TK_TAG] == Scanner.TOKEN_STRING) {
             return this.makeNode(

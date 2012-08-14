@@ -37,12 +37,6 @@ parser
     * "rule('comma-expression', ["
     * "rule('assign-expression', ["
     * "rule('three-expression', ["
-    * "rule('dotdot-expression', ["
-    * "rule('oror-expression', ["
-    * "rule('andand-expression', ["
-    * "rule('or-expression', ["
-    * "rule('and-expression', ["
-    * "rule('equality-expression', ["
     * "rule('regexp-match', ["
     * "rule('unary', ["
     * "rule('method-call', ["
@@ -63,6 +57,29 @@ translator
     * run fileteest ops
     * run range object
     * run regexp literal
+    rule('dotdot_expression', [
+        left_op2(\&oror_expression, +{ TOKEN_DOTDOT() => NODE_DOTDOT, TOKEN_DOTDOTDOT() => NODE_DOTDOTDOT})
+    ]);
+
+    rule('oror_expression', [
+        left_op2(\&andand_expression, +{ TOKEN_OROR() => NODE_LOGICAL_OR })
+    ]);
+
+    rule('andand_expression', [
+        left_op2(\&or_expression, {TOKEN_ANDAND() => NODE_LOGICAL_AND})
+    ]);
+
+    rule('or_expression', [
+        left_op2(\&and_expression, +{TOKEN_OR() => NODE_BITOR, TOKEN_XOR() => NODE_BITXOR})
+    ]);
+
+    rule('and_expression', [
+        left_op2(\&equality_expression, {TOKEN_AND() => NODE_BITAND})
+    ]);
+
+    rule('equality_expression', [
+        nonassoc_op(\&cmp_expression, {TOKEN_EQUAL_EQUAL() => NODE_EQ, TOKEN_NOT_EQUAL() => NODE_NE, TOKEN_CMP() => NODE_CMP})
+    ]);
 
 runtime
 -------
@@ -95,4 +112,10 @@ done
     * run "rule('shift-expression', ["
     * run "rule('cmp-expression', ["
     * parse "rule('cmp-expression', ["
+    * "rule('dotdot-expression', ["
+    * "rule('oror-expression', ["
+    * "rule('andand-expression', ["
+    * "rule('or-expression', ["
+    * "rule('and-expression', ["
+    * "rule('equality-expression', ["
 

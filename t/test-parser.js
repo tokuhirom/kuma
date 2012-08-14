@@ -3,6 +3,54 @@
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser;
 
+/*
+    left_op2(\&oror_expression, +{ TOKEN_DOTDOT() => NODE_DOTDOT, TOKEN_DOTDOTDOT() => NODE_DOTDOTDOT})
+]);
+
+rule('oror_expression', [
+    left_op2(\&andand_expression, +{ TOKEN_OROR() => NODE_LOGICAL_OR })
+]);
+
+rule('andand_expression', [
+    left_op2(\&or_expression, {TOKEN_ANDAND() => NODE_LOGICAL_AND})
+]);
+
+rule('or_expression', [
+    left_op2(\&and_expression, +{TOKEN_OR() => NODE_BITOR, TOKEN_XOR() => NODE_BITXOR})
+]);
+
+rule('and_expression', [
+    left_op2(\&equality_expression, {TOKEN_AND() => NODE_BITAND})
+]);
+
+rule('equality_expression', [
+    nonassoc_op(\&cmp_expression, {TOKEN_EQUAL_EQUAL() => NODE_EQ, TOKEN_NOT_EQUAL() => NODE_NE, TOKEN_CMP() => NODE_CMP})
+*/
+tap.test('binop', function (t) {
+    try {
+        t.equivalent(parse("4==8"), [
+                Parser.NODE_EQ,
+                1,
+                [
+                    [Parser.NODE_INTEGER,1,4],
+                    [Parser.NODE_INTEGER,1,8]
+                ]
+            ]);
+        t.equivalent(parse("4==8")[0], Parser.NODE_EQ, "EQ");
+        t.equivalent(parse("4!=8")[0], Parser.NODE_NE);
+        t.equivalent(parse("4<=>8")[0], Parser.NODE_CMP);
+        t.equivalent(parse("4&8")[0], Parser.NODE_BITAND, "BITAND");
+        t.equivalent(parse("4|8")[0], Parser.NODE_BITOR);
+        t.equivalent(parse("4^8")[0], Parser.NODE_BITXOR);
+        t.equivalent(parse("4&&8")[0], Parser.NODE_LOGICAL_AND, "LOGICAL AND");
+        t.equivalent(parse("4||8")[0], Parser.NODE_LOGICAL_OR);
+        t.equivalent(parse("4..8")[0], Parser.NODE_DOTDOT, "DOTDOT");
+        t.equivalent(parse("...")[0], Parser.NODE_DOTDOTDOT, 'DOTDOTDOT');
+        console.log(parse("..."));
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('shift', function (t) {
     try {
         t.equivalent(parse('4<<8'),
