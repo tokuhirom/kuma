@@ -4,6 +4,7 @@ var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser;
 
+/*
 tap.test('__LINE__', function (t) {
     try {
         t.equivalent(testit("__LINE__"), 1);
@@ -88,15 +89,23 @@ tap.test('assign', function (t) {
     t.end();
 });
 
+*/
+
 tap.test('func', function (t) {
     try {
         t.equivalent(testit("let x = sub { return 3; }; x()"), 3);
+        t.equivalent(testit("sub y { return 8; }; y()"), 8);
+        t.equivalent(testit("sub y() { return 8; }; y()"), 8);
+        t.equivalent(testit("sub y(n) { return n*8; }; y(3)"), 24);
+        t.equivalent(testit("sub y(n) { return n**8; }; y(3)"), 6561);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 
 function testit(src) {
+console.log("+++++++++++++++");
+    console.log(src);
     var parser = new Parser(src);
     var ast = parser.parse();
     var tra = new Translator();

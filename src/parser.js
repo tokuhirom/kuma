@@ -505,6 +505,7 @@ rule('statement', [
             // and parameters are optional
             var params = this.parseParameters();
             var block = this.parseBlock();
+            console.log(this.lookToken());
             if (!block) {
                 throw "Expected block after sub at line " + token[TK_LINENO];
             }
@@ -526,6 +527,7 @@ rule('statement', [
     Parser.prototype.parseIdentifier = function () {
         var token = this.lookToken();
         if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
+            this.getToken();
             return this.makeNode(
                 Parser.NODE_IDENT,
                 token[TK_LINENO],
@@ -537,15 +539,16 @@ rule('statement', [
     };
 
     Parser.prototype.parseParameters = function () {
-        if (this.lookToken()[TK_TAG] !== Parser.TOKEN_LPAREN) {
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_LPAREN) {
             return;
         }
         this.getToken();
 
         var ret = this.parseParameterList();
+        console.log(ret);
 
-        if (this.lookToken()[TK_TAG] !== Parser.TOKEN_RPAREN) {
-            return;
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
+            throw "You dont close paren in subroutine arguments at line " + this.lookToken()[TK_LINENO];
         }
         this.getToken();
 
@@ -563,7 +566,7 @@ rule('statement', [
             }
             ret.push(variable);
 
-            if (this.lookToken()[TK_TYPE] == TOKEN_COMMA) {
+            if (this.lookToken()[TK_TAG] == Scanner.TOKEN_COMMA) {
                 this.getToken();
             } else {
                 break;

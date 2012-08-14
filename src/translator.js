@@ -147,11 +147,13 @@
                 if (ast[ND_DATAS][0]) {
                     ret += this._translate(ast[ND_DATAS][0]);
                 }
+                    ret += '(';
                 if (ast[ND_DATAS][1]) {
-                    ret += this._translate(ast[ND_DATAS][1]);
-                } else {
-                    ret += '()';
+                    for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
+                        ret += this._translate(ast[ND_DATAS][1][i]);
+                    }
                 }
+                    ret += ')';
                     ret += this._translate(ast[ND_DATAS][2]);
                 return ret;
             }).call(this);
