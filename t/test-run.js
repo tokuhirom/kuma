@@ -4,6 +4,15 @@ var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser;
 
+tap.test('__LINE__', function (t) {
+    try {
+        t.equivalent(testit("__LINE__"), 1);
+        t.equivalent(testit("\n\n__LINE__"), 3);
+        t.equivalent(testit("__FILE__"), '<eval>');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('unless', function (t) {
     try {
         t.equivalent(testit("8;unless 1 { 3 }"), 8);
