@@ -246,55 +246,11 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_USE) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_UNLESS) {
-            this.getToken();
-            var cond = this.parseExpression();
-            if (!cond) {
-                throw "Expression is required after 'unless' keyword line " + token[TK_LINENO];
-            }
-            var block = this.parseBlock();
-            if (!block) {
-                throw "Block is required after unless " + token[TK_LINENO];
-            }
-            return this.makeNode(
-                Parser.NODE_IF,
-                token[TK_LINENO],
-                [
-                    this.makeNode(Parser.NODE_UNARY_NOT, cond[ND_LINENO], cond),
-                    block,
-                    undefined
-                ]
-            );
+            return this.parseUnlessStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_IF) {
-            this.getToken();
-            var cond = this.parseExpression();
-            if (!cond) {
-                throw "Expression is required after 'if' keyword line " + token[TK_LINENO];
-            }
-            var block = this.parseBlock();
-            if (!block) {
-                throw "Block is required after if " + token[TK_LINENO];
-            }
-            var $else = this.parseElseClause();
-            return this.makeNode(
-                                 Parser.NODE_IF,
-                                 token[TK_LINENO],
-                                 [cond, block, $else]
-                                 );
+            return this.parseIfStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_WHILE) {
-            this.getToken();
-            var body = this.parseExpression();
-            if (!body) {
-                throw "Expression is required after 'while' keyword at line " + token[TK_LINENO];
-            }
-            var block = this.parseBlock();
-            if (!block) {
-                throw "block is required after while keyword";
-            }
-            return this.makeNode(
-                Parser.NODE_WHILE,
-                token[TK_LINENO],
-                [body, block]
-                );
+            return this.parseWhileStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
@@ -449,6 +405,59 @@ rule('statement', [
     },
 ]);
 */
+    };
+    Parser.prototype.parseIfStmt = function () {
+        var token = this.getToken();
+        var cond = this.parseExpression();
+        if (!cond) {
+            throw "Expression is required after 'if' keyword line " + token[TK_LINENO];
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            throw "Block is required after if " + token[TK_LINENO];
+        }
+        var $else = this.parseElseClause();
+        return this.makeNode(
+            Parser.NODE_IF,
+            token[TK_LINENO],
+            [cond, block, $else]
+        );
+    };
+    Parser.prototype.parseUnlessStmt = function () {
+        var token = this.getToken();
+        var cond = this.parseExpression();
+        if (!cond) {
+            throw "Expression is required after 'unless' keyword line " + token[TK_LINENO];
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            throw "Block is required after unless " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_IF,
+            token[TK_LINENO],
+            [
+                this.makeNode(Parser.NODE_UNARY_NOT, cond[ND_LINENO], cond),
+                block,
+                undefined
+            ]
+        );
+    };
+    Parser.prototype.parseWhileStmt = function () {
+        var token = this.getToken();
+        var body = this.parseExpression();
+        if (!body) {
+            throw "Expression is required after 'while' keyword at line " + token[TK_LINENO];
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            throw "block is required after while keyword";
+        }
+        return this.makeNode(
+            Parser.NODE_WHILE,
+            token[TK_LINENO],
+            [body, block]
+        );
     };
 
     Parser.prototype.parseElseClause = function () {
@@ -746,7 +755,7 @@ rule('expression', [
     ororMap[Scanner.TOKEN_OROR] = Parser.NODE_LOGICAL_OR;
     Parser.prototype.parseOrOrExpression = function () {
         return this.left_op(this.parseAndAndExpression, ororMap);
-    }
+    };
 
     var andandMap = {};
     andandMap[Scanner.TOKEN_ANDAND] = Parser.NODE_LOGICAL_AND;

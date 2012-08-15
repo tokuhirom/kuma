@@ -1,7 +1,7 @@
 /*jslint node: true, es5: true */
 (function (global) {
     "use strict";
-    if (!global.Kuma) { global.Kuma = {} }
+    if (!global.Kuma) { global.Kuma = {}; }
 
     global.Kuma.Core = {
         say: function () {

@@ -2,7 +2,7 @@
 (function (global) {
     "use strict";
 
-    if (!global.Kuma) { global.Kuma = {} }
+    if (!global.Kuma) { global.Kuma = {}; }
 
     function Scanner(src) {
         if (typeof src == 'undefined') { throw "Missing mandatory parameter: src"; }
@@ -214,7 +214,7 @@
         '-': Scanner.TOKEN_MINUS,
         ';' : Scanner.TOKEN_SEMICOLON
     };
-    var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length });
+    var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
 
     Scanner.prototype.get = function () {
         // ------------------------------------------------------------------------- 
@@ -233,7 +233,7 @@
             break;
         }
 
-        if (this.src.length == 0) {
+        if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
         }
 
