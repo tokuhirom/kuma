@@ -175,7 +175,7 @@ tap.test('binop', function (t) {
         t.equivalent(parse("4^8")[0], Parser.NODE_BITXOR);
         t.equivalent(parse("4&&8")[0], Parser.NODE_LOGICAL_AND, "LOGICAL AND");
         t.equivalent(parse("4||8")[0], Parser.NODE_LOGICAL_OR);
-        t.equivalent(parse("4..8")[0], Parser.NODE_DOTDOT, "DOTDOT");
+        t.equivalent(parse("4..8")[0], Parser.NODE_RANGE, "DOTDOT");
         t.equivalent(parse("...")[0], Parser.NODE_DOTDOTDOT, 'DOTDOTDOT');
         console.log(parse("..."));
     } catch (e) { t.fail(e); }
@@ -206,7 +206,7 @@ tap.test('shift', function (t) {
             ],
             '4<<8'
         );
-    } catch (e) { t.fail(e) }
+    } catch (e) { t.fail(e); }
     t.end();
 });
 

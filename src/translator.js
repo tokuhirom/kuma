@@ -216,6 +216,11 @@
             return '++(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_INC:
             return '(' + this._translate(ast[ND_DATAS]) + ")++";
+        case Parser.NODE_RANGE:
+            return (function () {
+                var ret = '(function () { var K$$results = []; for (var K$$i=(' + this._translate(ast[ND_DATAS][0]) + '); K$$i<=(' + this._translate(ast[ND_DATAS][1]) + '); ++K$$i) { K$$results.push(K$$i); } return K$$results; }).apply(this)';
+                return ret;
+            }).apply(this);
         case Parser.NODE_WHILE:
             return (function () {
                 var ret = 'while (';

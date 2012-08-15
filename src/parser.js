@@ -70,7 +70,7 @@
     Parser.NODE_EQ = 29;
     Parser.NODE_NE = 30;
     Parser.NODE_CMP = 31;
-    Parser.NODE_DOTDOT = 32;
+    Parser.NODE_RANGE = 32;
     Parser.NODE_DOTDOTDOT = 33;
     Parser.NODE_LOGICAL_OR = 34;
     Parser.NODE_LOGICAL_AND = 35;
@@ -746,7 +746,7 @@ rule('expression', [
     };
 
     var dotdotMap = {};
-    dotdotMap[Scanner.TOKEN_DOTDOT] = Parser.NODE_DOTDOT;
+    dotdotMap[Scanner.TOKEN_DOTDOT] = Parser.NODE_RANGE;
     Parser.prototype.parseDotdotExpression = function () {
         return this.left_op(this.parseOrOrExpression, dotdotMap);
     };

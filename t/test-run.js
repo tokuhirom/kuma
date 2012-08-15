@@ -143,6 +143,14 @@ tap.test('make hash', function (t) {
     t.end();
 });
 
+tap.test('range', function (t) {
+    try {
+        t.equivalent(testit("1..10"), [1,2,3,4,5,6,7,8,9,10]);
+        t.equivalent(testit("8..10"), [8,9,10]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");
