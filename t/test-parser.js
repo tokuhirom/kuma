@@ -559,7 +559,7 @@ tap.test('foreach', function (t) {
             1,
             [
                 [Parser.NODE_MAKE_ARRAY,1,[]],
-                [],
+                undefined,
                 [Parser.NODE_BLOCK,1,[
                     Parser.NODE_STMTS,
                     1,

@@ -24,7 +24,7 @@
         }
         return src;
     };
-    Translator.getID = function () {
+    Translator.prototype.getID = function () {
         return this.id++;
     };
     Translator.prototype.translate = function (ast) {
@@ -153,11 +153,11 @@
             // [expression, vars, block]
             return (function () {
                 // i=0
-                var i = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1]) : '$_';
+                var i = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1][0]) : '$_';
                 // for (i=0, len=exp.length; i<len; ++i) { }
-                var containerVar = 'K$$container' + this.getId();
-                var lenVar = 'K$$len' + this.getId();
-                var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]);
+                var containerVar = 'K$$container' + this.getID();
+                var lenVar = 'K$$len' + this.getID();
+                var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]) + ";\n";
                 ret += 'for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
                 ret += this._translate(ast[ND_DATAS][2]);
                 return ret;
