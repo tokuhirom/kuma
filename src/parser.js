@@ -445,7 +445,8 @@ rule('statement', [
         }
         var block = this.parseBlock();
         if (!block) {
-            throw "Block is required after if " + token[TK_LINENO];
+            console.log(this.lookToken());
+            throw "Block is required after if at line " + token[TK_LINENO];
         }
         var $else = this.parseElseClause();
         return this.makeNode(
