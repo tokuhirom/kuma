@@ -115,3 +115,12 @@ TRANSLATOR: total: 85, remains: 30(35.29%)
   321 src/scanner.js
   277 src/translator.js
  1923 total
+----
+2012-08-15T15:52:24
+Parser: 23
+TRANSLATOR: total: 85, remains: 30(35.29%)
+ 1313 src/parser.js
+   12 src/runtime.js
+  321 src/scanner.js
+  277 src/translator.js
+ 1923 total
