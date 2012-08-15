@@ -204,6 +204,13 @@ tap.test('bit ops', function (t) {
     t.end();
 });
 
+tap.test('qw', function (t) {
+    try {
+        t.equivalent(testit('qw/1 2 3/'), ['1','2','3']);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

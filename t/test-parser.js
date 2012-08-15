@@ -586,6 +586,21 @@ tap.test('foreach', function (t) {
     t.end();
 });
 
+tap.test('qw', function (t) {
+    try {
+        t.equivalent(parse('qw!a b c!'), [
+            Parser.NODE_MAKE_ARRAY,
+            1,
+            [
+                [Parser.NODE_STRING, 1, 'a'],
+                [Parser.NODE_STRING, 1, 'b'],
+                [Parser.NODE_STRING, 1, 'c']
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

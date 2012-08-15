@@ -101,7 +101,7 @@
     Scanner.TOKEN_BYTES_DQ            = 355;
     Scanner.TOKEN_STRING_QQ_START     = 356;
     Scanner.TOKEN_REGEXP_QR_START     = 357;
-    Scanner.TOKEN_QW_START            = 358;
+    Scanner.TOKEN_QW                  = 358;
     Scanner.TOKEN_STRING_Q_START      = 359;
     Scanner.TOKEN_STRING_DQ           = 360;
     Scanner.TOKEN_STRING_SQ           = 361;
@@ -201,7 +201,6 @@
         ')': Scanner.TOKEN_RPAREN,
         'qq': Scanner.TOKEN_STRING_QQ_START,
         'qr': Scanner.TOKEN_REGEXP_QR_START,
-        'qw': Scanner.TOKEN_QW_START,
         'q': Scanner.TOKEN_STRING_Q_START,
         '"': Scanner.TOKEN_STRING_DQ,
         "'": Scanner.TOKEN_STRING_SQ,
@@ -213,6 +212,15 @@
         '-=': Scanner.TOKEN_MINUS_ASSIGN,
         '-': Scanner.TOKEN_MINUS,
         ';' : Scanner.TOKEN_SEMICOLON
+    };
+    var QW_MAP = {
+        '@' : /^(\w+)|(\s+)|(@)/,
+        '(' : /^(\w+)|(\s+)|(\))/,
+        '{' : /^(\w+)|(\s+)|(})/,
+        '[' : /^(\w+)|(\s+)|(\])/,
+        '<' : /^(\w+)|(\s+)|(>)/,
+        '/' : /^(\w+)|(\s+)|(\/)/,
+        '!' : /^(\w+)|(\s+)|(!)/
     };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
 
@@ -235,6 +243,36 @@
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qw
+        // ------------------------------------------------------------------------- 
+        var qwMatch = this.src.match(/^qw([{[(!@</])/);
+        if (qwMatch) {
+            var re = QW_MAP[qwMatch[1]];
+            this.src = this.src.substr(qwMatch[0].length);
+            console.log(re);
+            var closed = false;
+            var words = [];
+            while (this.src.length!==0 && !closed) {
+                this.src = this.src.replace(
+                    re, function (all, word, space, close) {
+                        if (word) {
+                            words.push(word);
+                        } else if (close) {
+                            closed = true;
+                        }
+                        return '';
+                    }
+                );
+            }
+            console.log(words);
+            return [
+                Scanner.TOKEN_QW,
+                words,
+                this.lineno
+            ];
         }
 
         // ------------------------------------------------------------------------- 

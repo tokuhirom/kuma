@@ -2,6 +2,7 @@
 var tap = require('tap'),
 Scanner = require("../src/scanner.js").Kuma.Scanner;
 
+/*
 tap.test("...", function (t) {
     t.equivalent(scanIt('...'), [
         [Scanner.TOKEN_DOTDOTDOT, undefined, 1],
@@ -103,6 +104,31 @@ tap.test("[]", function (t) {
     t.equivalent(scanIt('[]'), [
         [Scanner.TOKEN_LBRACKET, undefined, 1],
         [Scanner.TOKEN_RBRACKET, undefined, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+
+*/
+
+console.log(scanIt('qw(a)'));
+
+tap.test("qw()", function (t) {
+    t.equivalent(scanIt('qw()'), [
+        [Scanner.TOKEN_QW, [], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qw(a b c)'), [
+        [Scanner.TOKEN_QW, ['a', 'b', 'c'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qw!a b c!'), [
+        [Scanner.TOKEN_QW, ['a', 'b', 'c'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qw/a b c/'), [
+        [Scanner.TOKEN_QW, ['a', 'b', 'c'], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.end();

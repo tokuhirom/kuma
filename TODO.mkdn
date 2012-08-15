@@ -9,7 +9,6 @@ scanner
     * scanner supports heredoc or """
     * tune up
     * support #{} style
-    * scan range object
     * scan regexp literal
     * split statements by \n
     * object iteration
@@ -96,7 +95,7 @@ milestone
     * use node-js library
     * publish node.js library
     * self-hosting
-    * fizzbuzz
+    * [done] fizzbuzz
 
 END
 ===

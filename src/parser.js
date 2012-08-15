@@ -1202,6 +1202,19 @@ rule('expression', [
                 throw "This type of token is not allowed after let: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
             }
             throw "Should not reach here.";
+        case Scanner.TOKEN_QW:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_MAKE_ARRAY,
+                token[TK_LINENO],
+                token[TK_VALUE].map((function (e) {
+                    return this.makeNode(
+                        Parser.NODE_STRING,
+                        token[TK_LINENO],
+                        e
+                    );
+                }).bind(this))
+            );
         default:
             return;
         }
@@ -1312,9 +1325,6 @@ rule('expression', [
         } elsif ($token_id == TOKEN_REGEXP_QR_START) { # qr{
         TODO
             return _regexp(substr($c, $used), _closechar(substr($c, $used-1, 1)));
-        } elsif ($token_id == TOKEN_QW_START) { # qw{
-        TODO
-            return _qw_literal(substr($c, $used), _closechar(substr($c, $used-1, 1)));
         } elsif ($token_id ==TOKEN_HEREDOC_SQ_START) { # <<'
             $c = substr($c, $used);
         TODO
