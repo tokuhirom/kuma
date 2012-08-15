@@ -91,6 +91,25 @@
                 ret += "]\n";
                 return ret;
             }).call(this);
+        case Parser.NODE_MAKE_HASH:
+            return (function () {
+                var ret = "{";
+                var len = ast[ND_DATAS].length;
+                if (len == 0) {
+                    ret += ' ';
+                } else {
+                    for (var i=0; i<len; i+=2) {
+                        ret += this._translate(ast[ND_DATAS][i]);
+                        ret += ":";
+                        ret += this._translate(ast[ND_DATAS][i+1]);
+                        if (i!==len-2) {
+                            ret += ",";
+                        }
+                    }
+                }
+                ret += "}\n";
+                return ret;
+            }).call(this);
         case Parser.NODE_STMTS:
             return (function () {
                 var ret = "{\n";

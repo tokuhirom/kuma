@@ -110,6 +110,7 @@
     Parser.NODE_LET = 71;
     Parser.NODE_WHILE = 72;
     Parser.NODE_MAKE_ARRAY = 73;
+    Parser.NODE_MAKE_HASH = 74;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -297,6 +298,10 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
             // TODO
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
+            var hash = this.parseHashCreation();
+            if (hash) {
+                return hash;
+            }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
             // TODO
@@ -493,6 +498,7 @@ rule('statement', [
 
     Parser.prototype.parseExpression = function () {
         var token = this.lookToken();
+        this.trace("Parsing expression : " + token[TK_TAG]);
         if (token[TK_TAG] === Scanner.TOKEN_BREAK) {
             this.getToken();
             return this.makeNode(
@@ -513,7 +519,6 @@ rule('statement', [
             // and parameters are optional
             var params = this.parseParameters();
             var block = this.parseBlock();
-            console.log(this.lookToken());
             if (!block) {
                 throw "Expected block after sub at line " + token[TK_LINENO];
             }
@@ -553,7 +558,6 @@ rule('statement', [
         this.getToken();
 
         var ret = this.parseParameterList();
-        console.log(ret);
 
         if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
             throw "You dont close paren in subroutine arguments at line " + this.lookToken()[TK_LINENO];
@@ -605,13 +609,16 @@ rule('expression', [
     */
 
     Parser.prototype.parseBlock = function () {
+        var mark = this.getMark();
         var token = this.lookToken();
         if (this.lookToken()[TK_TAG] == Scanner.TOKEN_LBRACE) {
             this.getToken();
             var body = this.parseStatementList();
             var rbrace = this.getToken();
             if (rbrace[TK_TAG] !== Scanner.TOKEN_RBRACE) {
-                throw "Missing right brace in block at line " + rbrace[TK_LINENO];
+                // throw "Missing right brace in block at line " + rbrace[TK_LINENO];
+                this.restoreMark(mark);
+                return;
             }
 
             if (body) {
@@ -1006,6 +1013,7 @@ rule('expression', [
         var mark = this.getMark();
 
         var token = this.getToken();
+        this.trace("Parsing primary : " + token[TK_TAG]);
         if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
             return this.makeNode( 
                 Parser.NODE_IDENT,
@@ -1090,6 +1098,9 @@ rule('expression', [
                 token[TK_LINENO],
                 body
             );
+        } else if (token[TK_TAG] == Scanner.TOKEN_LBRACE) {
+            this.restoreMark(mark);
+            return this.parseHashCreation();
         } else if (token[TK_TAG] == Scanner.TOKEN_LET) {
             var lhs = this.lookToken();
             if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
@@ -1110,6 +1121,45 @@ rule('expression', [
             this.restoreMark(mark);
             return;
         }
+    };
+    Parser.prototype.parseHashCreation = function () {
+        this.trace("Parsing hash creation");
+        var mark = this.getMark();
+        var token  = this.getToken();
+        // hash creation
+        var body = [];
+        while (1) {
+            var lhs = this.takePrimary();
+            if (!lhs) { break; }
+            body.push(lhs);
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COLON) {
+                this.trace("Not a colon: " + this.lookToken()[TK_TAG]);
+                this.restoreMark(mark);
+                return;
+            }
+            var colon = this.getToken();
+            var rhs = this.parseAssignExpression();
+            if (!rhs) {
+                throw "Missing expression after colon at line " + colon[TK_LINENO];
+            }
+            body.push(rhs);
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                break;
+            }
+            this.getToken();
+        }
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACE) {
+            this.trace("Not a right brace in hash: " + this.lookToken()[TK_TAG]);
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+        this.trace("Got a hash");
+        return this.makeNode(
+            Parser.NODE_MAKE_HASH,
+            token[TK_LINENO],
+            body
+        );
     };
     /*
         if ($token_id == TOKEN_LAMBDA) { # -> $x { }
@@ -1165,31 +1215,6 @@ rule('expression', [
             return _bytes_sq(substr($c, $used), 0);
         } elsif ($token_id ==TOKEN_BYTES_DQ) { # b"
             return _bytes_dq(substr($c, $used), 0);
-        } elsif ($token_id == TOKEN_LBRACE) { # {
-        TODO
-            # hash creation
-            $c = substr($c, $used);
-            my @content;
-            while (my ($c2, $lhs) = assign_expression($c)) {
-                $lhs->[0] = NODE_IDENT if $lhs->[0] eq NODE_PRIMARY_IDENT;
-                push @content, $lhs;
-                $c = $c2;
-                ($c2) = match($c, '=>')
-                    or return;
-                    # or die "Missing => in hash creation '@{[ substr($c, 10) ]}...' line $LINENO\n";
-                $c = $c2;
-                ($c, my $rhs) = assign_expression($c)
-                    or _err "Missing expression after =>";
-                push @content, $rhs;
-
-                my ($c3) = match($c, ',');
-                last unless defined $c3;
-                $c = $c3;
-            }
-            ($c) = match($c, "}")
-                or return;
-                # or die "} not found on hash at line $LINENO";
-            return ($c, _node2(NODE_MAKE_HASH, $START, \@content));
         } elsif ($token_id == TOKEN_SELF) {
         TODO
             $c = substr($c, $used);

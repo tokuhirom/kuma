@@ -3,7 +3,8 @@
 
 var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
-Parser = require("../src/parser.js").Kuma.Parser;
+Parser = require("../src/parser.js").Kuma.Parser,
+vm = require('vm');
 
 tap.test('__LINE__', function (t) {
     try {
@@ -134,15 +135,32 @@ tap.test('make array', function (t) {
     t.end();
 });
 
+tap.test('make hash', function (t) {
+    try {
+        t.equivalent(testit("let x = {1:2}; x"), {1:2});
+        t.equivalent(testit("let x = {}; x"), {});
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
-console.log("+++++++++++++++");
-    console.log(src);
+    if (0) {
+        console.log("+++++++++++++++");
+        console.log(src);
+    }
     var parser = new Parser(src);
+    if (0) {
+        parser.TRACE_ON = true;
+    }
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
-    console.log(jssrc);
-    var ret = eval(jssrc);
+    if (0) {
+        console.log("---");
+        console.log(jssrc);
+        console.log("---");
+    }
+    var ret = vm.runInThisContext(jssrc);
     return ret;
 }
 

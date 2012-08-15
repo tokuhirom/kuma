@@ -2,10 +2,16 @@
 "use strict";
 
 var tap = require('tap'),
-Parser = require("../src/parser.js").Kuma.Parser;
+Parser = require("../src/parser.js").Kuma.Parser,
+vm = require('vm');
 
 tap.test('array', function (t) {
     try {
+        t.equivalent(parse('[]'), [
+            Parser.NODE_MAKE_ARRAY,
+            1,
+            [ ]
+        ]);
         t.equivalent(parse('[1,2,3]'), [
             Parser.NODE_MAKE_ARRAY,
             1,
@@ -499,6 +505,26 @@ tap.test('funcall', function (t) {
 
     t.end();
 });
+
+tap.test('hash', function (t) {
+    try {
+        t.equivalent(parse('{}'), [
+            Parser.NODE_MAKE_HASH,
+            1,
+            []
+        ]);
+        t.equivalent(parse('{2:4}'), [
+            Parser.NODE_MAKE_HASH,
+            1,
+            [
+                [Parser.NODE_INTEGER,1,2],
+                [Parser.NODE_INTEGER,1,4],
+            ]
+        ], 'trailing comma');
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 
 function parse(src) {
     console.log("Start:: " + src);
