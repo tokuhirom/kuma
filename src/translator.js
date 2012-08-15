@@ -232,14 +232,18 @@
             return '(' + this._translate(ast[ND_DATAS]) + ")++";
         case Parser.NODE_LAMBDA:
             return (function () {
-                // TODO: support $_ / $a,$b
+                // TODO: support $a,$b
                 // [params, body]
                 var ret = "(function (";
-                for (var i=0, len=ast[ND_DATAS][0].length; i<len; i++) {
-                    ret += this._translate(ast[ND_DATAS][0][i]);
-                    if (i!==len-1) {
-                        ret += ",";
+                if (ast[ND_DATAS][0]) {
+                    for (var i=0, len=ast[ND_DATAS][0].length; i<len; i++) {
+                        ret += this._translate(ast[ND_DATAS][0][i]);
+                        if (i!==len-1) {
+                            ret += ",";
+                        }
                     }
+                } else {
+                    ret += '$_';
                 }
                 ret += ") " + this._translate(ast[ND_DATAS][1]) + ")\n";
                 return ret;

@@ -1179,10 +1179,11 @@ rule('expression', [
     };
     Parser.prototype.parseLambda = function () {
         var token = this.getToken(); // ->
-        var params = [];
+        var params;
         while (1) {
             var variable = this.parseIdentifier();
             if (!variable) { break; }
+            if (!params) { params = []; }
             params.push(variable);
             if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
                 break;
