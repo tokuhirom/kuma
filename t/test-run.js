@@ -211,6 +211,21 @@ tap.test('qw', function (t) {
     t.end();
 });
 
+tap.test('--/++', function (t) {
+    try {
+        t.equivalent(testit('let i=0; i++'), 0);
+        t.equivalent(testit('let i=0; i++; i'), 1);
+        t.equivalent(testit('let i=0; ++i'), 1);
+        t.equivalent(testit('let i=0; ++i; i'), 1);
+
+        t.equivalent(testit('let i=0; i--'), 0);
+        t.equivalent(testit('let i=0; i--; i'), -1);
+        t.equivalent(testit('let i=0; --i'), -1);
+        t.equivalent(testit('let i=0; --i; i'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

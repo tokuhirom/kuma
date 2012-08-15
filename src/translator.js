@@ -265,6 +265,10 @@
             return '++(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_INC:
             return '(' + this._translate(ast[ND_DATAS]) + ")++";
+        case Parser.NODE_PRE_DEC:
+            return '--(' + this._translate(ast[ND_DATAS]) + ")";
+        case Parser.NODE_POST_DEC:
+            return '(' + this._translate(ast[ND_DATAS]) + ")--";
         case Parser.NODE_LAMBDA:
             return (function () {
                 // TODO: support $a,$b
