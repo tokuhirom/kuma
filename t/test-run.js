@@ -187,6 +187,14 @@ tap.test('string', function (t) {
     t.end();
 });
 
+tap.test('?:', function (t) {
+    try {
+        t.equivalent(testit('1?2:3'), 2);
+        t.equivalent(testit('0?2:3'), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

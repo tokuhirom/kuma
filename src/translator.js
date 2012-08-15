@@ -237,6 +237,8 @@
             return this._translate(ast[ND_DATAS][0]) + " ^= " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
+        case Parser.NODE_THREE:
+            return '(' + this._translate(ast[ND_DATAS][0]) + ")?(" + this._translate(ast[ND_DATAS][1]) + '):(' + this._translate(ast[ND_DATAS][2]) + ')';
         case Parser.NODE_METHOD_CALL:
             return (function () {
                 var ret = "(" + this._translate(ast[ND_DATAS][0]) + ")." + this._translate(ast[ND_DATAS][1]) + "(";
