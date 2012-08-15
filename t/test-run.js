@@ -160,6 +160,18 @@ tap.test('lambda', function (t) {
     t.end();
 });
 
+tap.test('lambda', function (t) {
+    var ok = 0;
+    try {
+        testit("...");
+    } catch (e) {
+        t.equivalent(e, 'Unimplemented');
+        ok++;
+    }
+    t.ok(ok);
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

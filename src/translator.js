@@ -173,6 +173,8 @@
             return "((" + this._translate(ast[ND_DATAS][0]) + ")===(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_NE:
             return "((" + this._translate(ast[ND_DATAS][0]) + ")!==(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_DOTDOTDOT:
+            return 'throw "Unimplemented";';
         case Parser.NODE_SUB:
             return (function () {
                 // [name, params, block]
