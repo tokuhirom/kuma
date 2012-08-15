@@ -14,6 +14,7 @@
     var ND_DATAS  = 2;
 
     function Translator() {
+        this.id = 0;
     }
     Translator.prototype.translateArgs = function (args) {
         var src = '';
@@ -22,6 +23,9 @@
             if (i >= argLen) { src += ","; }
         }
         return src;
+    };
+    Translator.getID = function () {
+        return this.id++;
     };
     Translator.prototype.translate = function (ast) {
         return '"use strict";' + "\n" + this._translate(ast);
@@ -145,6 +149,19 @@
                 ret += "}\n";
                 return ret;
             })();
+        case Parser.NODE_FOREACH:
+            // [expression, vars, block]
+            return (function () {
+                // i=0
+                var i = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1]) : '$_';
+                // for (i=0, len=exp.length; i<len; ++i) { }
+                var containerVar = 'K$$container' + this.getId();
+                var lenVar = 'K$$len' + this.getId();
+                var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]);
+                ret += 'for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
+                ret += this._translate(ast[ND_DATAS][2]);
+                return ret;
+            }).call(this);
         case Parser.NODE_IDENT:
             return ast[ND_DATAS];
         case Parser.NODE_LT:

@@ -12,6 +12,7 @@ scanner
     * scan range object
     * scan regexp literal
     * split statements by \n
+    * object iteration
 
 parser
 ------

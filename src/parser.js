@@ -114,6 +114,7 @@
     Parser.NODE_GET_METHOD = 75;
     Parser.NODE_METHOD_CALL = 76;
     Parser.NODE_LAMBDA = 77;
+    Parser.NODE_FOREACH = 78;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -263,7 +264,7 @@
             }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            // TODO
+            return this.parseForStmt();
         } else {
             // normal statement
             var stmt = this.parseJumpStatement();
@@ -320,23 +321,6 @@ rule('statement', [
             any(
                 substr($c, $used),
                 sub { # foreach
-                    my $c = shift;
-                    ($c, my $expression) = expression($c)
-                        or return;
-                    (my $c2) = match($c, '->')
-                        or _err "'->' missing after for keyword '" . substr($c, 0, 15) . "..'";
-                    $c = $c2;
-                    my @vars;
-                    while (my ($c2, $var) = variable($c)) {
-                        push @vars, $var;
-                        $c = $c2;
-                        (my $c3) = match($c, ',')
-                            or last;
-                        $c = $c3;
-                    }
-                    ($c, my $block) = block($c)
-                        or die "block is required after 'for' keyword.";
-                    return ($c, _node2(NODE_FOREACH, $START, $expression, \@vars, $block));
                 },
                 sub { # C style for
                     my $c = shift;
@@ -408,6 +392,50 @@ rule('statement', [
     },
 ]);
 */
+    };
+    Parser.prototype.parseForStmt = function () {
+        var retval = this.parseForEachStmt();
+        if (!retval) {
+            // TODO
+            retval = this.parseCStyleForStmt();
+        }
+        return retval;
+    };
+    // for container -> { }
+    Parser.prototype.parseForEachStmt = function () {
+        var mark = this.getMark();
+        var token = this.getToken(); // 'for'
+        var expression = this.parseExpression();
+        if (!expression) {
+            this.restoreMark(mark);
+            return;
+        }
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_LAMBDA) {
+            throw "'->' missing after for keyword at line " + token[TK_LINENO];
+        }
+        this.getToken();
+
+        var vars;
+        while (1) {
+            var ident = this.parseIdentifier();
+            if (!ident) { break; }
+            if (!vars) { vars = []; }
+            vars.push(ident);
+
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                break;
+            }
+            this.getToken();
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            throw "block is required after 'for' keyword at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_FOREACH,
+            token[TK_LINENO],
+            [expression, vars, block]
+        );
     };
     Parser.prototype.parseIfStmt = function () {
         var token = this.getToken();

@@ -528,7 +528,7 @@ tap.test('array', function (t) {
 tap.test('parse', function (t) {
     try {
         t.equivalent(parse('1.bar'), [
-            Parser.NODE_METHOD,
+            Parser.NODE_GET_METHOD,
             1,
             [
                 [Parser.NODE_INTEGER,1,1],
@@ -536,16 +536,50 @@ tap.test('parse', function (t) {
             ]
         ]);
         t.equivalent(parse('1.bar.baz'), [
-            Parser.NODE_METHOD,
+            Parser.NODE_GET_METHOD,
             1,
             [
-                [Parser.NODE_METHOD, 1,
+                [Parser.NODE_GET_METHOD, 1,
                     [
                         [Parser.NODE_INTEGER,1,1],
                         [Parser.NODE_IDENT,1,"bar"]
                     ]
                 ],
                 [Parser.NODE_IDENT,1,"baz"]
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('foreach', function (t) {
+    try {
+        t.equivalent(parse('for [] -> { }'), [
+            Parser.NODE_FOREACH,
+            1,
+            [
+                [Parser.NODE_MAKE_ARRAY,1,[]],
+                [],
+                [Parser.NODE_BLOCK,1,[
+                    Parser.NODE_STMTS,
+                    1,
+                    []
+                ]]
+            ]
+        ]);
+        t.equivalent(parse('for [] -> x { }'), [
+            Parser.NODE_FOREACH,
+            1,
+            [
+                [Parser.NODE_MAKE_ARRAY,1,[]],
+                [
+                    [Parser.NODE_IDENT, 1, 'x']
+                ],
+                [Parser.NODE_BLOCK,1,[
+                    Parser.NODE_STMTS,
+                    1,
+                    []
+                ]]
             ]
         ]);
     }catch (e) { t.fail(e); }

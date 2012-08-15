@@ -160,7 +160,7 @@ tap.test('lambda', function (t) {
     t.end();
 });
 
-tap.test('lambda', function (t) {
+tap.test('...', function (t) {
     var ok = 0;
     try {
         testit("...");
@@ -169,6 +169,13 @@ tap.test('lambda', function (t) {
         ok++;
     }
     t.ok(ok);
+    t.end();
+});
+
+tap.test('foreach', function (t) {
+    try {
+        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
+    } catch (e) { t.fail(e); }
     t.end();
 });
 
