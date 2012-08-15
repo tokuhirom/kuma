@@ -1,3 +1,4 @@
+/*jslint node: true, es5: true */
 "use strict";
 
 var tap = require('tap'),

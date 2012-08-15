@@ -1,3 +1,4 @@
+/*jslint node: true, es5: true */
 (function (global) {
     "use strict";
 

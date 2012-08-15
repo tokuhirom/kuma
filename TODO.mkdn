@@ -24,6 +24,7 @@ parser
     * parse fileteest ops
     * parse range object
     * parse regexp literal
+    * parse list comprehention
 
     * "rule('program', ["
     * "rule('statement-list', ["
@@ -88,12 +89,13 @@ runtime
 milestone
 ---------
 
-    * fib
+    * [done] fib
     * class
     * no paste site
     * use node-js library
     * publish node.js library
     * self-hosting
+    * fizzbuzz
 
 END
 ===

@@ -1,3 +1,4 @@
+/*jslint node: true, es5: true */
 var tap = require('tap'),
 Scanner = require("../src/scanner.js").Kuma.Scanner;
 

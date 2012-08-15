@@ -346,13 +346,6 @@ rule('statement', [
                 $type = _node(NODE_UNDEF);
             }
             return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
-        } elsif ($token_id == TOKEN_WHILE) {
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression is required after 'while' keyword";
-            ($c, my $block) = block($c)
-                or die "block is required after while keyword.";
-            return ($c, _node2(NODE_WHILE, $START, $expression, $block));
         } elsif ($token_id == TOKEN_DO) {
             $c = substr($c, $used);
             ($c, my $block) = block($c)
@@ -594,24 +587,6 @@ rule('expression', [
     sub {
         my $c = shift;
         my ($used, $token_id) = _token_op($c);
-        } elsif ($token_id == TOKEN_SUB) {
-            $c = substr($c, $used);
-            # name is optional thing.
-            # you can use anon sub.
-            my $name;
-            if ((my $c2, $name) = identifier($c)) {
-                $c = $c2;
-            }
-
-            my $params;
-            if ((my $c2, $params) = parameters($c)) {
-                # optional
-                $c = $c2;
-            }
-
-            ($c, my $block) = block($c)
-                or _err "expected block after sub" . ($name ? " in $name->[2]" : '');
-            return ($c, _node2(NODE_SUB, $START, $name, $params, $block));
         } elsif ($token_id == TOKEN_TRY) {
             $c = substr($c, $used);
             ($c, my $block) = block($c)
