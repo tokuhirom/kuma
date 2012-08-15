@@ -926,7 +926,7 @@ rule('expression', [
     Parser.prototype.parseFuncall = function () {
         var mark = this.getMark();
 
-        var primary = this.takePrimary();
+        var primary = this.parsePrimary();
         if (!primary) {
             this.trace("not a primary");
             this.restoreMark(mark);
@@ -1009,62 +1009,67 @@ rule('expression', [
             datas
         ];
     };
-    Parser.prototype.takePrimary = function () {
-        var mark = this.getMark();
+    Parser.prototype.parsePrimary = function () {
+        var token;
 
-        var token = this.getToken();
-        this.trace("Parsing primary : " + token[TK_TAG]);
-        if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
-            return this.makeNode( 
-                Parser.NODE_IDENT,
-                token[TK_LINENO],
-                token[TK_VALUE]
-            );
-        } else if (token[TK_TAG] == Scanner.TOKEN_TRUE) {
-            return this.makeNode( 
+        switch (this.lookToken()[TK_TAG]) {
+        case Scanner.TOKEN_IDENT:
+            return this.parseIdentifier();
+        case Scanner.TOKEN_TRUE:
+            token = this.getToken();
+            return this.makeNode(
                 Parser.NODE_TRUE,
                 token[TK_LINENO]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_FALSE) {
-            return this.makeNode( 
+        case Scanner.TOKEN_FALSE:
+            token = this.getToken();
+            return this.makeNode(
                 Parser.NODE_FALSE,
                 token[TK_LINENO]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_UNDEF) {
+        case Scanner.TOKEN_UNDEF:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_UNDEF,
                 token[TK_LINENO]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_INTEGER) {
+        case Scanner.TOKEN_INTEGER:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_INTEGER,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_DOTDOTDOT) {
+        case Scanner.TOKEN_DOTDOTDOT:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_DOTDOTDOT,
                 token[TK_LINENO]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_STRING) {
+        case Scanner.TOKEN_STRING:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_STRING,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_FILE) {
+        case Scanner.TOKEN_FILE:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_STRING,
                 token[TK_LINENO],
                 this.filename
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_LINE) {
+        case Scanner.TOKEN_LINE:
+            token = this.getToken();
             return this.makeNode(
                 Parser.NODE_INTEGER,
                 token[TK_LINENO],
                 token[TK_LINENO]
             );
-        } else if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
+        case Scanner.TOKEN_LPAREN:
+            var mark = this.getMark();
+            this.getToken(); // (
             var body = this.parseExpression();
             if (!body) {
                 this.restoreMark(mark);
@@ -1076,32 +1081,12 @@ rule('expression', [
             }
             this.getToken();
             return body;
-        } else if (token[TK_TAG] == Scanner.TOKEN_LBRACKET) {
-            // array creation like [1,2,3]
-            var body = [];
-            while (1) {
-                var part = this.parseAssignExpression();
-                if (!part) { break; }
-                body.push(part);
-                if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
-                    break;
-                }
-                this.getToken();
-            }
-            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACKET) {
-                this.restoreMark(mark);
-                return;
-            }
-            this.getToken();
-            return this.makeNode(
-                Parser.NODE_MAKE_ARRAY,
-                token[TK_LINENO],
-                body
-            );
-        } else if (token[TK_TAG] == Scanner.TOKEN_LBRACE) {
-            this.restoreMark(mark);
+        case Scanner.TOKEN_LBRACKET:
+            return this.parseArray();
+        case Scanner.TOKEN_LBRACE:
             return this.parseHashCreation();
-        } else if (token[TK_TAG] == Scanner.TOKEN_LET) {
+        case Scanner.TOKEN_LET:
+            token = this.getToken(); // let
             var lhs = this.lookToken();
             if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
                 // TODO let (x,y) = 3;
@@ -1117,8 +1102,8 @@ rule('expression', [
             } else  {
                 throw "This type of token is not allowed after let: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
             }
-        } else {
-            this.restoreMark(mark);
+            throw "Should not reach here.";
+        default:
             return;
         }
     };
@@ -1129,7 +1114,7 @@ rule('expression', [
         // hash creation
         var body = [];
         while (1) {
-            var lhs = this.takePrimary();
+            var lhs = this.parsePrimary();
             if (!lhs) { break; }
             body.push(lhs);
             if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COLON) {
@@ -1157,6 +1142,31 @@ rule('expression', [
         this.trace("Got a hash");
         return this.makeNode(
             Parser.NODE_MAKE_HASH,
+            token[TK_LINENO],
+            body
+        );
+    };
+    Parser.prototype.parseArray = function () {
+        var mark = this.getMark();
+        var token = this.getToken(); // [
+        // array creation like [1,2,3]
+        var body = [];
+        while (1) {
+            var part = this.parseAssignExpression();
+            if (!part) { break; }
+            body.push(part);
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                break;
+            }
+            this.getToken();
+        }
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACKET) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+        return this.makeNode(
+            Parser.NODE_MAKE_ARRAY,
             token[TK_LINENO],
             body
         );

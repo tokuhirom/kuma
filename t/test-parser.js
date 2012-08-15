@@ -5,35 +5,6 @@ var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser,
 vm = require('vm');
 
-tap.test('array', function (t) {
-    try {
-        t.equivalent(parse('[]'), [
-            Parser.NODE_MAKE_ARRAY,
-            1,
-            [ ]
-        ]);
-        t.equivalent(parse('[1,2,3]'), [
-            Parser.NODE_MAKE_ARRAY,
-            1,
-            [
-                [Parser.NODE_INTEGER,1,1],
-                [Parser.NODE_INTEGER,1,2],
-                [Parser.NODE_INTEGER,1,3],
-            ]
-        ]);
-        t.equivalent(parse('[1,2,3,]'), [
-            Parser.NODE_MAKE_ARRAY,
-            1,
-            [
-                [Parser.NODE_INTEGER,1,1],
-                [Parser.NODE_INTEGER,1,2],
-                [Parser.NODE_INTEGER,1,3],
-            ]
-        ], 'trailing comma');
-    }catch (e) { t.fail(e); }
-    t.end();
-});
-
 tap.test('if', function (t) {
     try {
         t.equivalent(parse("if 8 { }"), [
@@ -519,6 +490,35 @@ tap.test('hash', function (t) {
             [
                 [Parser.NODE_INTEGER,1,2],
                 [Parser.NODE_INTEGER,1,4],
+            ]
+        ], 'trailing comma');
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('array', function (t) {
+    try {
+        t.equivalent(parse('[]'), [
+            Parser.NODE_MAKE_ARRAY,
+            1,
+            [ ]
+        ]);
+        t.equivalent(parse('[1,2,3]'), [
+            Parser.NODE_MAKE_ARRAY,
+            1,
+            [
+                [Parser.NODE_INTEGER,1,1],
+                [Parser.NODE_INTEGER,1,2],
+                [Parser.NODE_INTEGER,1,3],
+            ]
+        ]);
+        t.equivalent(parse('[1,2,3,]'), [
+            Parser.NODE_MAKE_ARRAY,
+            1,
+            [
+                [Parser.NODE_INTEGER,1,1],
+                [Parser.NODE_INTEGER,1,2],
+                [Parser.NODE_INTEGER,1,3],
             ]
         ], 'trailing comma');
     }catch (e) { t.fail(e); }
