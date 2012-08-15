@@ -252,7 +252,6 @@
         if (qwMatch) {
             var re = QW_MAP[qwMatch[1]];
             this.src = this.src.substr(qwMatch[0].length);
-            console.log(re);
             var closed = false;
             var words = [];
             while (this.src.length!==0 && !closed) {
@@ -267,7 +266,6 @@
                     }
                 );
             }
-            console.log(words);
             return [
                 Scanner.TOKEN_QW,
                 words,
