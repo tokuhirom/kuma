@@ -16,7 +16,7 @@
     var ND_DATAS  = 2;
 
     var BUILTIN_FUNCTIONS = [
-        'say', 'open'
+        'say', 'open', 'p'
     ];
 
     function Parser(src, filename) {
@@ -194,53 +194,6 @@
                 this.getToken();
             }
         }
-        /*
-        my ($src, $got_end) = skip_ws(shift);
-        return if $got_end;
-
-        my $ret = [];
-        LOOP: while (1) {
-            my ($tmp, $stmt) = statement($src)
-                or do {
-                    return ($src, _node2(NODE_STMTS, $START, $ret), $got_end)
-                };
-            $src = $tmp;
-            push @$ret, $stmt;
-
-            # skip spaces.
-            $src =~ s/^[ \t\f]* //s;
-            my $have_next_stmt;
-            # read next statement if found ';' or '\n'
-            $src =~ s/^;//s
-                and $have_next_stmt++;
-            $src =~ s/^\n//s
-                and do {
-                    ++$LINENO;
-                    $have_next_stmt++;
-                START:
-                    if (defined(my $marker = shift @HEREDOC_MARKERS)) {
-                        while ($src =~ s/^(([^\n]*)(\n|$))//) {
-                            if ($2 eq $marker) {
-                                shift @HEREDOC_BUFS;
-                                goto START;
-                            } else {
-                                ${$HEREDOC_BUFS[0]} .= $1;
-                            }
-                        }
-                    } else {
-                        if ($src =~ s/\A__END__\n.+//s) {
-                            $got_end++;
-                            last LOOP;
-                        }
-                        next LOOP;
-                    }
-                };
-            next if $have_next_stmt;
-            # there is no more statements, just return!
-            return ($src, _node(NODE_STMTS, $ret), $got_end);
-        }
-        return ($src, _node(NODE_STMTS, $ret), $got_end);
-*/
     };
 
     Parser.prototype.parseStatement = function () {

@@ -9,13 +9,33 @@ var Translator = require("./src/translator.js").Kuma.Translator,
     Kuma = {
         "Core": Core
     };
+var argv = require('optimist')
+    .usage('Usage: $0 -e eval')
+    .argv;
 
-var fname = process.argv[2];
-var src = fs.readFileSync(fname, 'utf-8');
+if (argv.e) {
+    // -e  means eval mode
+    var src = '' + argv.e;
+    evaluate(src);
+} else if (argv._.length > 0) {
+    var fname = argv._[0];
+    var src = fs.readFileSync(fname, 'utf-8');
+    evaluate(src);
+} else {
+    // TODO: readline?
+}
 
-var parser = new Parser(src);
-var ast = parser.parse();
-var translator = new Translator();
-var js = translator.translate(ast);
-eval(js);
+function evaluate() {
+    var parser = new Parser(src);
+    var ast = parser.parse();
+    if (argv.dump_ast) {
+        console.log(JSON.stringify(ast));
+    }
+    var translator = new Translator();
+    var js = translator.translate(ast);
+    if (argv.dump_js) {
+        console.log(js);
+    }
+    eval(js);
+}
 

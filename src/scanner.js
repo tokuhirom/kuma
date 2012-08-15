@@ -5,7 +5,8 @@
     if (!global.Kuma) { global.Kuma = {}; }
 
     function Scanner(src) {
-        if (typeof src == 'undefined') { throw "Missing mandatory parameter: src"; }
+        if (typeof src === 'undefined') { throw "Missing mandatory parameter: src"; }
+        if (!src.charAt) { throw "src must be string"; }
         this.src = src;
         this.lineno = 1;
     }
@@ -319,6 +320,7 @@
         // handle strings
         // ------------------------------------------------------------------------- 
         if (this.src.match(/^"/)) {
+            // TODO: is it correct?
             var ret = this.src.match(/^"((\\"|[^"]+)*)"/);
             if (ret) {
                 this.src = this.src.substr(ret[0].length);
@@ -338,6 +340,7 @@
             }
         }
         if (this.src.match(/^'/)) {
+            // TODO: is it correct?
             var ret = this.src.match(/^'((\\'|[^']+)*)'/);
             if (ret) {
                 this.src = this.src.substr(ret[0].length);

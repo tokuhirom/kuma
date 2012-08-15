@@ -20,11 +20,9 @@ parser
     * parse if
     * postfix if
     * normal if(parser)
-    * parse unary ops
     * parse fileteest ops
-    * parse range object
     * parse regexp literal
-    * parse list comprehention
+    * parse list comprehention(is needed?)
 
 translator
 ----------
