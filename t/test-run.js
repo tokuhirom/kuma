@@ -179,6 +179,14 @@ tap.test('foreach', function (t) {
     t.end();
 });
 
+tap.test('string', function (t) {
+    try {
+        t.equivalent(testit("'hoge'"), 'hoge');
+        t.equivalent(testit('"hoge"'), 'hoge');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

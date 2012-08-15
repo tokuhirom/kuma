@@ -301,6 +301,25 @@
                 throw "Scanning error: Unexpected EOF in string.";
             }
         }
+        if (this.src.match(/^'/)) {
+            var ret = this.src.match(/^'((\\'|[^']+)*)'/);
+            if (ret) {
+                this.src = this.src.substr(ret[0].length);
+                var lineno = this.lineno;
+                // count up lineno.
+                ret[1].replace(/\n/g, (function () {
+                    this.lineno++;
+                    return "\n";
+                }).bind(this));
+                return [
+                    Scanner.TOKEN_STRING,
+                    ret[1],
+                    lineno
+                ];
+            } else {
+                throw "Scanning error: Unexpected EOF in string.";
+            }
+        }
 
         // ------------------------------------------------------------------------- 
         // handle operators
