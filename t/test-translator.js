@@ -27,6 +27,18 @@ tap.test('pow', function (t) {
     t.end();
 });
 
+tap.test('method call', function (t) {
+    try {
+        console.log(testit('[].map'));
+        t.equivalent(testit('[].map'), '"use strict";' + "\n" + "([]\n).map");
+        t.equivalent(testit('[].map.map'), '"use strict";' + "\n" + "(([]\n).map).map");
+        t.equivalent(testit('[].map().map'), '"use strict";' + "\n" + "(([]\n).map()).map");
+        t.equivalent(testit('[].foo(1,2,3).map'), '"use strict";' + "\n" + "(([]\n).foo(1,2,3)).map");
+        t.equivalent(testit('-> { }'), '"use strict";' + "\n" + "(function () {\n}\n)\n");
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     var parser = new Parser(src);
     var ast = parser.parse();

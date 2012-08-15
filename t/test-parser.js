@@ -525,6 +525,32 @@ tap.test('array', function (t) {
     t.end();
 });
 
+tap.test('parse', function (t) {
+    try {
+        t.equivalent(parse('1.bar'), [
+            Parser.NODE_METHOD,
+            1,
+            [
+                [Parser.NODE_INTEGER,1,1],
+                [Parser.NODE_IDENT,1,"bar"]
+            ]
+        ]);
+        t.equivalent(parse('1.bar.baz'), [
+            Parser.NODE_METHOD,
+            1,
+            [
+                [Parser.NODE_METHOD, 1,
+                    [
+                        [Parser.NODE_INTEGER,1,1],
+                        [Parser.NODE_IDENT,1,"bar"]
+                    ]
+                ],
+                [Parser.NODE_IDENT,1,"baz"]
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
 
 function parse(src) {
     console.log("Start:: " + src);

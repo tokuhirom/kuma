@@ -210,12 +210,40 @@
             return this._translate(ast[ND_DATAS][0]) + " ^= " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_STRING:
             return "'" + ast[ND_DATAS] + "'";
+        case Parser.NODE_METHOD_CALL:
+            return (function () {
+                var ret = "(" + this._translate(ast[ND_DATAS][0]) + ")." + this._translate(ast[ND_DATAS][1]) + "(";
+                for (var i=0, len=ast[ND_DATAS][2].length; i<len; i++) {
+                    ret += this._translate(ast[ND_DATAS][2][i]);
+                    if (i!==len-1) {
+                        ret += ",";
+                    }
+                }
+                ret += ')';
+                return ret;
+            }).call(this);
+        case Parser.NODE_GET_METHOD:
+            return "(" + this._translate(ast[ND_DATAS][0]) + ")." + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_POW:
             return 'Math.pow(('+translator._translate(ast[ND_DATAS][0]) + "), (" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_PRE_INC:
             return '++(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_INC:
             return '(' + this._translate(ast[ND_DATAS]) + ")++";
+        case Parser.NODE_LAMBDA:
+            return (function () {
+                // TODO: support $_ / $a,$b
+                // [params, body]
+                var ret = "(function (";
+                for (var i=0, len=ast[ND_DATAS][0].length; i<len; i++) {
+                    ret += this._translate(ast[ND_DATAS][0][i]);
+                    if (i!==len-1) {
+                        ret += ",";
+                    }
+                }
+                ret += ") " + this._translate(ast[ND_DATAS][1]) + ")\n";
+                return ret;
+            }).call(this);
         case Parser.NODE_RANGE:
             return (function () {
                 var ret = '(function () { var K$$results = []; for (var K$$i=(' + this._translate(ast[ND_DATAS][0]) + '); K$$i<=(' + this._translate(ast[ND_DATAS][1]) + '); ++K$$i) { K$$results.push(K$$i); } return K$$results; }).apply(this)';

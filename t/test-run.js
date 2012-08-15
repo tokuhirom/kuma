@@ -151,6 +151,14 @@ tap.test('range', function (t) {
     t.end();
 });
 
+tap.test('lambda', function (t) {
+    try {
+        t.equivalent(typeof(testit("-> { }")), 'function');
+        t.equivalent(testit("(1..3).map(-> $_ { return $_ * 3 })"), [3,6,9]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

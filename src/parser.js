@@ -111,6 +111,9 @@
     Parser.NODE_WHILE = 72;
     Parser.NODE_MAKE_ARRAY = 73;
     Parser.NODE_MAKE_HASH = 74;
+    Parser.NODE_GET_METHOD = 75;
+    Parser.NODE_METHOD_CALL = 76;
+    Parser.NODE_LAMBDA = 77;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -137,7 +140,7 @@
         var ret = this.parseStatementList();
         if (this.idx < this.tokens.length-1) {
             console.log(this.src);
-            throw "Cannot parse. " + this.idx + "   " + this.tokens.length;
+            throw "Cannot parse. index:" + this.idx + "   token length:" + this.tokens.length;
         }
         return ret;
     };
@@ -928,10 +931,64 @@ rule('expression', [
             }
         }
     };
-    Parser.prototype.parseMethodCall = function (src) {
-        // TODO: handle method call at here
-        return this.parseFuncall(src);
+
+    Parser.prototype.parseMethodCall = function () {
+        var object = this.parseFuncall();
+        if (!object) { return; }
+        var ret = object;
+        while (1) {
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_DOT) {
+                break;
+            }
+            this.getToken();
+
+            var identifier = this.parseIdentifier();
+            if (!identifier) {
+                throw "There is no identifier after '.' operator in method call at line " + object[ND_LINENO];
+            }
+            var args = this.parseArguments();
+            if (args) {
+                ret = this.makeNode(
+                    Parser.NODE_METHOD_CALL,
+                    args[ND_LINENO],
+                    [ret, identifier, args]
+                );
+            } else {
+                ret = this.makeNode(
+                    Parser.NODE_GET_METHOD,
+                    object[ND_LINENO],
+                    [ret, identifier]
+                );
+            }
+        }
+        return ret;
     };
+
+    Parser.prototype.parseArguments = function () {
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_LPAREN) {
+            return;
+        }
+        var token = this.getToken();
+
+        var args = [];
+        while (1) {
+            var arg = this.parseAssignExpression();
+            if (!arg) { break; }
+            args.push(arg);
+
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                break;
+            }
+            this.getToken();
+        }
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
+            throw "Parse failed: missing ')' in arugment parsing at line " + token[TK_LINENO];
+        }
+        this.getToken();
+        return args;
+    };
+
     Parser.prototype.parseFuncall = function () {
         var mark = this.getMark();
 
@@ -974,6 +1031,8 @@ rule('expression', [
             return primary;
         }
     };
+
+
     Parser.prototype.takeArguments = function () {
         var mark = this.getMark();
 
@@ -1022,6 +1081,8 @@ rule('expression', [
         var token;
 
         switch (this.lookToken()[TK_TAG]) {
+        case Scanner.TOKEN_LAMBDA:
+            return this.parseLambda();
         case Scanner.TOKEN_IDENT:
             return this.parseIdentifier();
         case Scanner.TOKEN_TRUE:
@@ -1116,6 +1177,28 @@ rule('expression', [
             return;
         }
     };
+    Parser.prototype.parseLambda = function () {
+        var token = this.getToken(); // ->
+        var params = [];
+        while (1) {
+            var variable = this.parseIdentifier();
+            if (!variable) { break; }
+            params.push(variable);
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                break;
+            }
+            this.getToken();
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            throw "Missing block after -> at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_LAMBDA,
+            token[TK_LINENO],
+            [ params, block ]
+        );
+    };
     Parser.prototype.parseHashCreation = function () {
         this.trace("Parsing hash creation");
         var mark = this.getMark();
@@ -1181,22 +1264,6 @@ rule('expression', [
         );
     };
     /*
-        if ($token_id == TOKEN_LAMBDA) { # -> $x { }
-        TODO
-            $c = substr($c, $used);
-
-            my @params;
-            while ((my $c2, my $param) = variable($c)) {
-                push @params, $param;
-                $c = $c2;
-                my ($c3) = match($c, ',')
-                    or last;
-                $c = $c3;
-            }
-
-            ($c, my $block) = block($c)
-                or _err "expected block after ->";
-            return ($c, _node2(NODE_LAMBDA, $START, \@params, $block));
         } elsif ($token_id == TOKEN_STRING_SQ) { # '
         TODO
             return _sq_string(substr($c, $used), q{'});
