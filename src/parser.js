@@ -115,6 +115,7 @@
     Parser.NODE_METHOD_CALL = 76;
     Parser.NODE_LAMBDA = 77;
     Parser.NODE_FOREACH = 78;
+    Parser.NODE_DO = 79;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -256,7 +257,7 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_WHILE) {
             return this.parseWhileStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
-            // TODO
+            return this.parseDoStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
             var hash = this.parseHashCreation();
             if (hash) {
@@ -312,11 +313,6 @@ rule('statement', [
                 $type = _node(NODE_UNDEF);
             }
             return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
-        } elsif ($token_id == TOKEN_DO) {
-            $c = substr($c, $used);
-            ($c, my $block) = block($c)
-                or die "block is required after 'do' keyword.";
-            return ($c, _node2(NODE_DO, $START, $block));
         } elsif ($token_id == TOKEN_FOR) {
             any(
                 substr($c, $used),
@@ -392,6 +388,18 @@ rule('statement', [
     },
 ]);
 */
+    };
+    Parser.prototype.parseDoStmt = function () {
+        var token = this.getToken(); // 'do'
+        var block = this.parseBlock();
+        if (!block) {
+            throw "block is required after 'do' keyword at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_DO,
+            token[TK_LINENO],
+            block
+        );
     };
     Parser.prototype.parseForStmt = function () {
         var retval = this.parseForEachStmt();

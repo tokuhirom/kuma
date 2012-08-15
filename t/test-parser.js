@@ -601,6 +601,23 @@ tap.test('qw', function (t) {
     t.end();
 });
 
+tap.test('do', function (t) {
+    try {
+        t.equivalent(parse('do { 1; }'), [
+            Parser.NODE_DO,
+            1,
+            [
+                Parser.NODE_BLOCK,
+                1,
+                [Parser.NODE_STMTS, 1, [
+                    [Parser.NODE_INTEGER, 1, 1]
+                ]]
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
