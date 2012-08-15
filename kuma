@@ -6,6 +6,7 @@ var Translator = require("./src/translator.js").Kuma.Translator,
     Scanner = require("./src/parser.js").Kuma.Scanner,
     Core = require("./src/runtime.js").Kuma.Core,
     fs = require('fs'),
+    readline = require('readline'),
     Kuma = {
         "Core": Core
     };
@@ -23,9 +24,24 @@ if (argv.e) {
     evaluate(src);
 } else {
     // TODO: readline?
+    var rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.setPrompt('kuma~> ');
+    rl.prompt();
+    rl.on('line', function(src) {
+        try {
+            console.log(evaluate(''+src.trim()));
+        } catch (e) { console.log(e); }
+        rl.prompt();
+    }).on('close', function () {
+        process.exit(0);
+    });
 }
 
-function evaluate() {
+function evaluate(src) {
     var parser = new Parser(src);
     var ast = parser.parse();
     if (argv.dump_ast) {
@@ -36,6 +52,6 @@ function evaluate() {
     if (argv.dump_js) {
         console.log(js);
     }
-    eval(js);
+    return eval(js);
 }
 

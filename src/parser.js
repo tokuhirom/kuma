@@ -22,7 +22,8 @@
     function Parser(src, filename) {
         // scan all tokens...
         // ugly but works. performance tuning needed.
-        if (!src) { throw "Missing mandatory parameter: src"; }
+        if (typeof src === 'undefined') { throw "Missing mandatory parameter: src"; }
+        if (!src.charAt) { throw "src must be string"; }
         this.src = src;
         var scanner = new Scanner(src);
         var tokens = [];
