@@ -27,6 +27,14 @@ tap.test('pow', function (t) {
     t.end();
 });
 
+tap.test('eq', function (t) {
+    try {
+        t.equivalent(testit('2==10'), '"use strict";' + "\n" + '((2)===(10))');
+        t.equivalent(testit('2!=10'), '"use strict";' + "\n" + '((2)!==(10))');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('method call', function (t) {
     try {
         console.log(testit('[].map'));
@@ -34,7 +42,7 @@ tap.test('method call', function (t) {
         t.equivalent(testit('[].map.map'), '"use strict";' + "\n" + "(([]\n).map).map");
         t.equivalent(testit('[].map().map'), '"use strict";' + "\n" + "(([]\n).map()).map");
         t.equivalent(testit('[].foo(1,2,3).map'), '"use strict";' + "\n" + "(([]\n).foo(1,2,3)).map");
-        t.equivalent(testit('-> { }'), '"use strict";' + "\n" + "(function () {\n}\n)\n");
+        t.equivalent(testit('-> { }'), '"use strict";' + "\n" + "(function ($_) {\n}\n)\n");
     } catch (e) { t.fail(e); }
     t.end();
 });
