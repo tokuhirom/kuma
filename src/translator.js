@@ -194,6 +194,12 @@
             return "((" + this._translate(ast[ND_DATAS][0]) + ")&&(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_LOGICAL_OR:
             return "((" + this._translate(ast[ND_DATAS][0]) + ")||(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_BITXOR:
+            return "((" + this._translate(ast[ND_DATAS][0]) + ")^(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_BITAND:
+            return "((" + this._translate(ast[ND_DATAS][0]) + ")&(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_BITOR:
+            return "((" + this._translate(ast[ND_DATAS][0]) + ")|(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_DOTDOTDOT:
             return 'throw "Unimplemented";';
         case Parser.NODE_SUB:

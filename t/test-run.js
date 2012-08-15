@@ -195,6 +195,15 @@ tap.test('?:', function (t) {
     t.end();
 });
 
+tap.test('bit ops', function (t) {
+    try {
+        t.equivalent(testit('1^3'), 2);
+        t.equivalent(testit('1|3'), 3);
+        t.equivalent(testit('1&3'), 1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");
