@@ -109,6 +109,7 @@
     Parser.NODE_OROR_ASSIGN = 70;
     Parser.NODE_LET = 71;
     Parser.NODE_WHILE = 72;
+    Parser.NODE_MAKE_ARRAY = 73;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -1067,6 +1068,28 @@ rule('expression', [
             }
             this.getToken();
             return body;
+        } else if (token[TK_TAG] == Scanner.TOKEN_LBRACKET) {
+            // array creation like [1,2,3]
+            var body = [];
+            while (1) {
+                var part = this.parseAssignExpression();
+                if (!part) { break; }
+                body.push(part);
+                if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COMMA) {
+                    break;
+                }
+                this.getToken();
+            }
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACKET) {
+                this.restoreMark(mark);
+                return;
+            }
+            this.getToken();
+            return this.makeNode(
+                Parser.NODE_MAKE_ARRAY,
+                token[TK_LINENO],
+                body
+            );
         } else if (token[TK_TAG] == Scanner.TOKEN_LET) {
             var lhs = this.lookToken();
             if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
@@ -1105,24 +1128,6 @@ rule('expression', [
             ($c, my $block) = block($c)
                 or _err "expected block after ->";
             return ($c, _node2(NODE_LAMBDA, $START, \@params, $block));
-        } elsif ($token_id == TOKEN_LBRACKET) {
-        TODO
-            # array creation
-            # [1, 2, 3]
-
-            $c = substr($c, $used);
-            my @body;
-            while (my ($c2, $part) = assign_expression($c)) {
-                $c = $c2;
-                push @body, $part;
-
-                my ($c3) = match($c, ',');
-                last unless defined $c3;
-                $c = $c3;
-            }
-            ($c) = match($c, "]")
-                or return;
-            return ($c, _node2(NODE_MAKE_ARRAY, $START, \@body));
         } elsif ($token_id == TOKEN_STRING_SQ) { # '
         TODO
             return _sq_string(substr($c, $used), q{'});

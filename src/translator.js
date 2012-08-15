@@ -79,6 +79,18 @@
             return "false";
         case Parser.NODE_BLOCK:
             return "{\n" + this._translate(ast[ND_DATAS]) + "}\n";
+        case Parser.NODE_MAKE_ARRAY:
+            return (function () {
+                var ret = "[";
+                for (var i=0, len=ast[ND_DATAS].length; i<len; i++) {
+                    ret += this._translate(ast[ND_DATAS][i]);
+                    if (i!==len-1) {
+                        ret += ",";
+                    }
+                }
+                ret += "]\n";
+                return ret;
+            }).call(this);
         case Parser.NODE_STMTS:
             return (function () {
                 var ret = "{\n";

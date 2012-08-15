@@ -99,6 +99,16 @@ tap.test("**", function (t) {
     t.end();
 });
 
+tap.test("[]", function (t) {
+    t.equivalent(scanIt('[]'), [
+        [Scanner.TOKEN_LBRACKET, undefined, 1],
+        [Scanner.TOKEN_RBRACKET, undefined, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];
