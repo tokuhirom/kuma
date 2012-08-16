@@ -228,41 +228,6 @@
             return stmt;
         }
         /*
-        } elsif ($token_id == TOKEN_FOR) {
-            any(
-                substr($c, $used),
-                sub { # foreach
-                },
-                sub { # C style for
-                    my $c = shift;
-                    ($c) = match($c, '(')
-                        or return;
-                    my ($e1, $e2, $e3);
-                    if ((my $c2, $e1) = expression($c)) { # optional
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ';')
-                        or return;
-                    if ((my $c2, $e2) = expression($c)) {
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ';')
-                        or return;
-                    if ((my $c2, $e3) = expression($c)) {
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ')')
-                        or die "closing paren is required after 'for' keyword.";;
-                    ($c, my $block) = block($c)
-                        or die "block is required after 'for' keyword.";
-                    return ($c, _node2(NODE_FOR, $START, $e1, $e2, $e3, $block));
-                }
-            );
-        } else {
-            return;
-        }
-    },
-    sub {
         my $c = shift;
         ($c, my $block) = jump_statement($c)
             or return;
@@ -411,6 +376,41 @@
             token[TK_LINENO],
             [expression, vars, block]
         );
+    };
+    Parser.prototype.parseCStyleForStmt = function () {
+        // TODO
+        /*
+        } elsif ($token_id == TOKEN_FOR) {
+            any(
+                substr($c, $used),
+                sub { # foreach
+                },
+                sub { # C style for
+                    my $c = shift;
+                    ($c) = match($c, '(')
+                        or return;
+                    my ($e1, $e2, $e3);
+                    if ((my $c2, $e1) = expression($c)) { # optional
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ';')
+                        or return;
+                    if ((my $c2, $e2) = expression($c)) {
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ';')
+                        or return;
+                    if ((my $c2, $e3) = expression($c)) {
+                        $c = $c2;
+                    }
+                    ($c) = match($c, ')')
+                        or die "closing paren is required after 'for' keyword.";;
+                    ($c, my $block) = block($c)
+                        or die "block is required after 'for' keyword.";
+                    return ($c, _node2(NODE_FOR, $START, $e1, $e2, $e3, $block));
+                }
+            );
+            */
     };
     Parser.prototype.parseIfStmt = function () {
         var token = this.getToken();
