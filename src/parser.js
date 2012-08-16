@@ -410,8 +410,6 @@
         } elsif ($token_id == TOKEN_FOR) {
             any(
                 substr($c, $used),
-                sub { # foreach
-                },
                 sub { # C style for
                     my $c = shift;
                     ($c) = match($c, '(')

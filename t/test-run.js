@@ -226,6 +226,13 @@ tap.test('foreach', function (t) {
     t.end();
 });
 
+tap.test('square', function (t) {
+    try {
+        t.equivalent(testit("sub square(x) { return x**2 }; square(5)"), 25);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 
 function testit(src) {
     if (0) {
