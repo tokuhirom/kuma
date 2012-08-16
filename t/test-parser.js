@@ -705,6 +705,49 @@ tap.test('LF/;', function (t) {
     t.end();
 });
 
+tap.test('postfix if', function (t) {
+    try {
+        t.equivalent(parse2("1 if 3"), [[
+            Parser.NODE_IF,
+            1,
+            [
+                [
+                    Parser.NODE_INTEGER,
+                    1,
+                    3
+                ],
+                [
+                    Parser.NODE_INTEGER,
+                    1,
+                    1
+                ],
+                undefined
+            ]
+        ]]);
+        t.equivalent(parse2("1\nif 3 { }"), [
+            [
+                Parser.NODE_INTEGER,
+                1,
+                1
+            ],
+            [
+                Parser.NODE_IF,
+                2,
+                [
+                    [
+                        Parser.NODE_INTEGER,
+                        2,
+                        3
+                    ],
+                    [Parser.NODE_BLOCK,2, [Parser.NODE_STMTS, 2, []]],
+                    undefined
+                ]
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

@@ -239,51 +239,62 @@
             return this.parseForStmt();
         } else {
             // normal statement
-            var stmt = this.parseJumpStatement();
-            // TODO: support postifx if, for, unless, while
+            return this.parseNormalStatemnt();
+        }
+    };
+    Parser.prototype.parseNormalStatemnt = function () {
+        var stmt = this.parseJumpStatement();
+        var nextToken = this.lookToken(true);
+        switch (nextToken[TK_TAG]) {
+        case Scanner.TOKEN_EOF:
+        case Scanner.TOKEN_RBRACE:
             return stmt;
-        }
-        /*
-        my $c = shift;
-        ($c, my $block) = jump_statement($c)
-            or return;
-        if ($c =~ /^(\s*|[^\n]+#[^\n]+)\n/) {
-            # say()
-            # if 1 {
-            # }
-            return ($c, $block);
-        }
-        my ($used, $token_id) = _token_op($c);
-        if ($token_id == TOKEN_IF) {
-            # foo if bar
+        case Scanner.TOKEN_LF:
+        case Scanner.TOKEN_SEMICOLON:
+            this.getToken(true);
+            return stmt;
+        case Scanner.TOKEN_IF:
+            // foo if bar
+            this.getToken(); // if
+            var cond = this.parseExpression();
+            return this.makeNode(
+                Parser.NODE_IF,
+                nextToken[TK_LINENO],
+                [cond, stmt, undefined]
+            );
+        case Scanner.TOKEN_FOR:
+            // TODO
+            /*
+            // foo for bar
             $c = substr($c, $used);
             ($c, my $expression) = expression($c)
-                or die "expression required after postfix-if statement";
-            return ($c, _node2(NODE_IF, $START, $expression, _node(NODE_BLOCK, $block), undef));
-        } elsif ($token_id == TOKEN_UNLESS) {
+                or die "expression required after postfix-for statement";
+            return ($c, _node2(NODE_FOREACH, $START, $expression, [], _node(NODE_BLOCK, $block)));
+             */
+            break;
+        case Scanner.TOKEN_UNLESS:
+            // TODO
+            /*
             # foo unless bar
             $c = substr($c, $used);
             ($c, my $expression) = expression($c)
                 or die "expression required after postfix-unless statement";
             return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
-        } elsif ($token_id == TOKEN_FOR) {
-            # foo for bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-for statement";
-            return ($c, _node2(NODE_FOREACH, $START, $expression, [], _node(NODE_BLOCK, $block)));
-        } elsif ($token_id == TOKEN_WHILE) {
+             */
+            break;
+        case Scanner.TOKEN_WHILE:
+            // TODO
+            /*
             # foo while bar
             $c = substr($c, $used);
             ($c, my $expression) = expression($c)
                 or die "expression required after postfix-if statement";
             return ($c, _node2(NODE_WHILE, $START, $expression, _node(NODE_BLOCK, $block)));
-        } else {
-            return ($c, $block);
+             */
+            break;
+        default:
+            throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
         }
-    },
-]);
-*/
     };
     Parser.prototype.parseClassStmt = function () {
         var token = this.getToken(); // class
