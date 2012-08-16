@@ -1,8 +1,9 @@
 /*jslint node: true, es5: true */
+"use strict";
+
 var tap = require('tap'),
 Scanner = require("../src/scanner.js").Kuma.Scanner;
 
-/*
 tap.test("...", function (t) {
     t.equivalent(scanIt('...'), [
         [Scanner.TOKEN_DOTDOTDOT, undefined, 1],
@@ -108,9 +109,6 @@ tap.test("[]", function (t) {
     ]);
     t.end();
 });
-
-
-*/
 
 console.log(scanIt('qw(a)'));
 
