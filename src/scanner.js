@@ -102,7 +102,6 @@
     Scanner.TOKEN_BYTES_SQ            = 354;
     Scanner.TOKEN_BYTES_DQ            = 355;
     Scanner.TOKEN_STRING_QQ_START     = 356;
-    Scanner.TOKEN_REGEXP_QR_START     = 357;
     Scanner.TOKEN_QW                  = 358;
     Scanner.TOKEN_STRING_Q_START      = 359;
     Scanner.TOKEN_STRING_DQ           = 360;
@@ -119,6 +118,7 @@
     Scanner.TOKEN_SEMICOLON = 371;
     Scanner.TOKEN_RBRACE              = 372;
     Scanner.TOKEN_RBRACKET            = 373;
+    Scanner.TOKEN_REGEXP              = 374;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -203,7 +203,6 @@
         '(': Scanner.TOKEN_LPAREN,
         ')': Scanner.TOKEN_RPAREN,
         'qq': Scanner.TOKEN_STRING_QQ_START,
-        'qr': Scanner.TOKEN_REGEXP_QR_START,
         'q': Scanner.TOKEN_STRING_Q_START,
         '"': Scanner.TOKEN_STRING_DQ,
         "'": Scanner.TOKEN_STRING_SQ,
@@ -224,6 +223,15 @@
         '<' : /^(\w+)|(\s+)|(>)/,
         '/' : /^(\w+)|(\s+)|(\/)/,
         '!' : /^(\w+)|(\s+)|(!)/
+    };
+    var QR_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '!' : /^(!)|([^!]+)/
     };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
 
@@ -272,6 +280,34 @@
             return [
                 Scanner.TOKEN_QW,
                 words,
+                this.lineno
+            ];
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qr
+        // ------------------------------------------------------------------------- 
+        var qrMatch = this.src.match(/^qr([{[(!@</])/);
+        if (qrMatch) {
+            var re = QR_MAP[qrMatch[1]];
+            this.src = this.src.substr(qrMatch[0].length);
+            var closed = false;
+            var regex = '';
+            while (this.src.length!==0 && !closed) {
+                this.src = this.src.replace(
+                    re, function (all, close, word) {
+                        if (word) {
+                            regex += word;
+                        } else if (close) {
+                            closed = true;
+                        }
+                        return '';
+                    }
+                );
+            }
+            return [
+                Scanner.TOKEN_REGEXP,
+                regex,
                 this.lineno
             ];
         }

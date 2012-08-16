@@ -650,33 +650,12 @@ tap.test('class', function (t) {
     t.end();
 });
 
-tap.test('class', function (t) {
+tap.test('regexp', function (t) {
     try {
-        t.equivalent(parse('class Foo { }'), [
-            Parser.NODE_CLASS,
+        t.equivalent(parse('qr/a/'), [
+            Parser.NODE_REGEXP,
             1,
-            [
-                [Parser.NODE_IDENT, 1, 'Foo'],
-                undefined,
-                [
-                    Parser.NODE_BLOCK,
-                    1,
-                    [Parser.NODE_STMTS, 1, [ ]]
-                ]
-            ]
-        ]);
-        t.equivalent(parse('class Foo is Bar { }'), [
-            Parser.NODE_CLASS,
-            1,
-            [
-                [Parser.NODE_IDENT, 1, 'Foo'],
-                [Parser.NODE_IDENT, 1, 'Bar'],
-                [
-                    Parser.NODE_BLOCK,
-                    1,
-                    [Parser.NODE_STMTS, 1, [ ]]
-                ]
-            ]
+            'a'
         ]);
     }catch (e) { t.fail(e); }
     t.end();
