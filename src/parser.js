@@ -117,6 +117,7 @@
     Parser.NODE_LAMBDA = 77;
     Parser.NODE_FOREACH = 78;
     Parser.NODE_DO = 79;
+    Parser.NODE_CLASS = 80;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -201,9 +202,9 @@
         // class Name extends Parent { }
         var token = this.lookToken();
         if (token[TK_TAG] === Scanner.TOKEN_CLASS) {
-            // TODO
+            return this.parseClassStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_USE) {
-            // TODO
+            return this.parseUseStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_UNLESS) {
             return this.parseUnlessStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_IF) {
@@ -227,46 +228,6 @@
             return stmt;
         }
         /*
-rule('statement', [
-    sub {
-        my $c = shift;
-        # class Name [isa Parent] {}
-        my ($used, $token_id) = _token_op($c);
-        if ($token_id == TOKEN_CLASS) {
-            $c = substr($c, $used);
-            ($c, my $name) = class_name($c)
-                or die "class name expected after 'class' keyword";
-            my $base;
-            if ((my $c2) = match($c, 'is')) {
-                $c = $c2;
-                ($c, $base) = class_name($c)
-                    or die "class name expected after 'is' keyword";
-                $base->[0] = NODE_PRIMARY_IDENT;
-            }
-            ($c, my $block) = block($c)
-                or _err "Expected block after 'class' but not matched";
-            return ($c, _node2(NODE_CLASS, $START, $name, $base, $block));
-        } elsif ($token_id == TOKEN_USE) {
-            $c = substr($c, $used);
-            my ($used, $token_id, $klass) = _token_op($c);
-            my $op = +{
-                TOKEN_CLASS_NAME() => NODE_IDENT,
-                TOKEN_IDENT()      => NODE_IDENT,
-            }->{$token_id};
-            _err "class name is required after 'use' keyword"
-                unless $op;
-            $c = substr($c, $used);
-            my $type;
-            if ((my $c2) = match($c, '*')) {
-                $c = $c2;
-                $type = '*';
-            } elsif (my ($c3, $primary) = primary($c)) {
-                $c = $c3;
-                $type = $primary;
-            } else {
-                $type = _node(NODE_UNDEF);
-            }
-            return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
         } elsif ($token_id == TOKEN_FOR) {
             any(
                 substr($c, $used),
@@ -342,6 +303,58 @@ rule('statement', [
     },
 ]);
 */
+    };
+    Parser.prototype.parseClassStmt = function () {
+        var token = this.getToken(); // class
+        var name = this.parseIdentifier();
+        var parent;
+        if (!name) {
+            throw "Class name expected after 'class' keyword at line " + token[TK_LINENO];
+        }
+        if (this.lookToken()[TK_TAG] == Scanner.TOKEN_IS) {
+            this.getToken();
+
+            parent = this.parseIdentifier();
+            if (!parent) {
+                throw "Parent class name expected after 'is' keyword at line " + token[TK_LINENO];
+            }
+        }
+        var block = this.parseBlock();
+        if (!block) {
+            console.log(this.lookToken());
+            throw "Expected block after 'class' keyword. but not matched at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_CLASS,
+            token[TK_LINENO],
+            [name, parent, block]
+        );
+    };
+    Parser.prototype.parseUseStmt = function () {
+        // TODO
+        /*
+        } elsif ($token_id == TOKEN_USE) {
+            $c = substr($c, $used);
+            my ($used, $token_id, $klass) = _token_op($c);
+            my $op = +{
+                TOKEN_CLASS_NAME() => NODE_IDENT,
+                TOKEN_IDENT()      => NODE_IDENT,
+            }->{$token_id};
+            _err "class name is required after 'use' keyword"
+                unless $op;
+            $c = substr($c, $used);
+            my $type;
+            if ((my $c2) = match($c, '*')) {
+                $c = $c2;
+                $type = '*';
+            } elsif (my ($c3, $primary) = primary($c)) {
+                $c = $c3;
+                $type = $primary;
+            } else {
+                $type = _node(NODE_UNDEF);
+            }
+            return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
+            */
     };
     Parser.prototype.parseDoStmt = function () {
         var token = this.getToken(); // 'do'

@@ -44,6 +44,7 @@
     Scanner.TOKEN_SELF        = 223;
     Scanner.TOKEN_FILE        = 224;
     Scanner.TOKEN_LINE        = 225;
+    Scanner.TOKEN_IS          = 226;
 
     Scanner.TOKEN_QUESTION            = 300;
     Scanner.TOKEN_PLUSPLUS            = 301;
@@ -146,6 +147,7 @@
         "self" : Scanner.TOKEN_SELF,
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
+        "is" : Scanner.TOKEN_IS,
         "__END__\n" : Scanner.TOKEN_END
     };
 

@@ -618,6 +618,38 @@ tap.test('do', function (t) {
     t.end();
 });
 
+tap.test('class', function (t) {
+    try {
+        t.equivalent(parse('class Foo { }'), [
+            Parser.NODE_CLASS,
+            1,
+            [
+                [Parser.NODE_IDENT, 1, 'Foo'],
+                undefined,
+                [
+                    Parser.NODE_BLOCK,
+                    1,
+                    [Parser.NODE_STMTS, 1, [ ]]
+                ]
+            ]
+        ]);
+        t.equivalent(parse('class Foo is Bar { }'), [
+            Parser.NODE_CLASS,
+            1,
+            [
+                [Parser.NODE_IDENT, 1, 'Foo'],
+                [Parser.NODE_IDENT, 1, 'Bar'],
+                [
+                    Parser.NODE_BLOCK,
+                    1,
+                    [Parser.NODE_STMTS, 1, [ ]]
+                ]
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
