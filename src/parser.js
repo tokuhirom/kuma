@@ -125,11 +125,22 @@
             console.log("### " + msg);
         }
     };
-    Parser.prototype.getToken = function () {
+    Parser.prototype.getToken = function (use_lf) {
+        if (!use_lf) {
+            while (this.tokens[this.idx][TK_TAG] === Scanner.TOKEN_LF) {
+                ++this.idx;
+            }
+        }
         return this.tokens[this.idx++];
     };
-    Parser.prototype.lookToken = function () {
-        return this.tokens[this.idx];
+    Parser.prototype.lookToken = function (use_lf) {
+        var idx = this.idx;
+        if (!use_lf) {
+            while (this.tokens[idx][TK_TAG] === Scanner.TOKEN_LF) {
+                ++idx;
+            }
+        }
+        return this.tokens[idx];
     };
     Parser.prototype.ungetToken = function () {
         if (this.idx === 0) { throw "Invalid index"; }
@@ -143,8 +154,12 @@
     };
     Parser.prototype.parse = function () {
         var ret = this.parseStatementList();
+        while (this.tokens[this.idx] === Scanner.TOKEN_LF) {
+            ++this.idx;
+        }
         if (this.idx < this.tokens.length-1) {
             console.log(this.src);
+            console.log(this.tokens);
             throw "Cannot parse. index:" + this.idx + "   token length:" + this.tokens.length;
         }
         return ret;

@@ -3,6 +3,7 @@
 
 var tap = require('tap'),
 Parser = require("../src/parser.js").Kuma.Parser,
+Scanner = require("../src/scanner.js").Kuma.Scanner,
 vm = require('vm');
 
 tap.test('if', function (t) {
@@ -661,6 +662,49 @@ tap.test('regexp', function (t) {
     t.end();
 });
 
+tap.test('LF/;', function (t) {
+    try {
+        t.equivalent(parse2('1;2'), [
+            [
+                Parser.NODE_INTEGER,
+                1,
+                1
+            ],
+            [
+                Parser.NODE_INTEGER,
+                1,
+                2
+            ]
+        ]);
+        t.equivalent(parse2('1\n2'), [
+            [
+                Parser.NODE_INTEGER,
+                1,
+                1
+            ],
+            [
+                Parser.NODE_INTEGER,
+                2,
+                2
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('LF/;', function (t) {
+    try {
+        var TK_TAG = 0;
+        var parser = new Parser("1\n2");
+        t.equivalent(parser.lookToken()[TK_TAG], Scanner.TOKEN_INTEGER);
+        t.equivalent(parser.getToken()[TK_TAG], Scanner.TOKEN_INTEGER);
+        t.equivalent(parser.lookToken(true)[TK_TAG], Scanner.TOKEN_LF);
+        t.equivalent(parser.lookToken()[TK_TAG], Scanner.TOKEN_INTEGER);
+        t.equivalent(parser.getToken()[TK_TAG], Scanner.TOKEN_INTEGER);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
@@ -669,3 +713,10 @@ function parse(src) {
     return ast[2][0];
 }
 
+function parse2(src) {
+    console.log("Start:: " + src);
+    var parser = new Parser(src);
+    parser.TRACE_ON = true;
+    var ast = parser.parse();
+    return ast[2];
+}

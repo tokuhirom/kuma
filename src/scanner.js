@@ -119,6 +119,7 @@
     Scanner.TOKEN_RBRACE              = 372;
     Scanner.TOKEN_RBRACKET            = 373;
     Scanner.TOKEN_REGEXP              = 374;
+    Scanner.TOKEN_LF                  = 375;
 
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
@@ -241,10 +242,6 @@
         // ------------------------------------------------------------------------- 
         LOOP: while (1) {
             switch (this.src.charAt(0)) {
-            case "\n":
-                this.src = this.src.substr(1);
-                this.lineno++;
-                continue LOOP;
             case " ":
                 this.src = this.src.substr(1);
                 continue LOOP;
@@ -254,6 +251,18 @@
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
+        }
+
+        // ------------------------------------------------------------------------- 
+        // LF
+        // ------------------------------------------------------------------------- 
+        if (this.src.charAt(0) === "\n") {
+            this.src = this.src.substr(1);
+            return [
+                Scanner.TOKEN_LF,
+                undefined,
+                this.lineno++
+            ];
         }
 
         // ------------------------------------------------------------------------- 
