@@ -56,7 +56,6 @@
             // TODO: check the variable scope, etc...
             return (function () {
                 var func = ast[ND_DATAS];
-                console.log(func);
                 return "var " + this._translate(func);
             }).call(this);
         case Parser.NODE_FUNCALL:
@@ -118,7 +117,6 @@
             return (function () {
                 var ret = "{\n";
                 for (var i=0, len=ast[ND_DATAS].length; i<len; i++) {
-                    console.log(ast[ND_DATAS]);
                     ret += this._translate(ast[ND_DATAS][i]);
                 }
                 ret += "}\n";
@@ -158,8 +156,18 @@
                 var containerVar = 'K$$container' + this.getID();
                 var lenVar = 'K$$len' + this.getID();
                 var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]) + ";\n";
-                ret += 'for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
+                ret += 'if (Array.isArray(' + containerVar + ')) {';
+                ret += '  for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
                 ret += this._translate(ast[ND_DATAS][2]);
+                ret += '} else {';
+                ret += '  for (var ' + i + ' in ' + containerVar + ') { if (!' + containerVar + '.hasOwnProperty(' + i + ')) { continue; }';
+                if (ast[ND_DATAS][1] && ast[ND_DATAS][1].length > 1) {
+                var valueVar = this._translate(ast[ND_DATAS][1][1]);
+                ret += '  var ' + valueVar + " = " + containerVar + "[" + i + "];";
+                }
+                ret += this._translate(ast[ND_DATAS][2]);
+                ret += '}';
+                ret += '}';
                 return ret;
             }).call(this);
         case Parser.NODE_IDENT:

@@ -113,10 +113,8 @@ tap.test('assignment', function (t) {
         t.equivalent(testit("let x = 255; x &= 3; x"), 3);
         t.equivalent(testit("let x = 1; x |= 8; x"), 9);
         t.equivalent(testit("let x = 1; x ^= 8; x"), 9);
-        /*
-    Parser.NODE_POW_ASSIGN = 66;
-    Parser.NODE_OROR_ASSIGN = 70;
-    */
+ // Parser.NODE_POW_ASSIGN = 66;
+ // Parser.NODE_OROR_ASSIGN = 70;
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -172,13 +170,6 @@ tap.test('...', function (t) {
     t.end();
 });
 
-tap.test('foreach', function (t) {
-    try {
-        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
-    } catch (e) { t.fail(e); }
-    t.end();
-});
-
 tap.test('string', function (t) {
     try {
         t.equivalent(testit("'hoge'"), 'hoge');
@@ -225,6 +216,16 @@ tap.test('--/++', function (t) {
     } catch (e) { t.fail(e); }
     t.end();
 });
+
+tap.test('foreach', function (t) {
+    try {
+        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(k) } r"), ['a', 'b']);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(v) } r"), [1, 2]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 
 function testit(src) {
     if (0) {
