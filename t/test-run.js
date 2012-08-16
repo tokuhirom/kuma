@@ -4,6 +4,7 @@
 var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser,
+Core = require("../src/runtime.js").Kuma.Core,
 vm = require('vm');
 
 tap.test('__LINE__', function (t) {
@@ -229,6 +230,13 @@ tap.test('foreach', function (t) {
 tap.test('square', function (t) {
     try {
         t.equivalent(testit("sub square(x) { return x**2 }; square(5)"), 25);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('euler', function (t) {
+    try {
+        t.equivalent(testit("(1..999).grep(-> { return !($_ % 3 && $_ % 5) }).sum()"), 233168);
     } catch (e) { t.fail(e); }
     t.end();
 });
