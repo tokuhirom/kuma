@@ -4,6 +4,7 @@
 var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser,
+Core = require("../src/runtime.js").Kuma.Core,
 vm = require('vm');
 
 tap.test('__LINE__', function (t) {
@@ -113,10 +114,8 @@ tap.test('assignment', function (t) {
         t.equivalent(testit("let x = 255; x &= 3; x"), 3);
         t.equivalent(testit("let x = 1; x |= 8; x"), 9);
         t.equivalent(testit("let x = 1; x ^= 8; x"), 9);
-        /*
-    Parser.NODE_POW_ASSIGN = 66;
-    Parser.NODE_OROR_ASSIGN = 70;
-    */
+ // Parser.NODE_POW_ASSIGN = 66;
+ // Parser.NODE_OROR_ASSIGN = 70;
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -172,13 +171,6 @@ tap.test('...', function (t) {
     t.end();
 });
 
-tap.test('foreach', function (t) {
-    try {
-        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
-    } catch (e) { t.fail(e); }
-    t.end();
-});
-
 tap.test('string', function (t) {
     try {
         t.equivalent(testit("'hoge'"), 'hoge');
@@ -229,6 +221,46 @@ tap.test('--/++', function (t) {
 tap.test('for', function (t) {
     try {
         t.equivalent(testit('let n=0; for (let i=0; i<=10; i++) { n += i }'), 55);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('foreach', function (t) {
+    try {
+        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(k) } r"), ['a', 'b']);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(v) } r"), [1, 2]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('square', function (t) {
+    try {
+        t.equivalent(testit("sub square(x) { return x**2 }; square(5)"), 25);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('euler', function (t) {
+    try {
+        t.equivalent(testit("(1..999).grep(-> { return !($_ % 3 && $_ % 5) }).sum()"), 233168);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('postfix if/unless', function (t) {
+    try {
+        t.equivalent(testit("let i=0; i++ unless 1; i"), 0);
+        t.equivalent(testit("let i=0; i++ unless 0; i"), 1);
+        t.equivalent(testit("let i=0; i++ if 1; i"), 1);
+        t.equivalent(testit("let i=0; i++ if 0; i"), 0);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('postfix while', function (t) {
+    try {
+        t.equivalent(testit("let i=10; i-- while i>0; i"), 0);
     } catch (e) { t.fail(e); }
     t.end();
 });

@@ -219,7 +219,7 @@
     var QW_MAP = {
         '@' : /^(\w+)|(\s+)|(@)/,
         '(' : /^(\w+)|(\s+)|(\))/,
-        '{' : /^(\w+)|(\s+)|(})/,
+        '{' : /^(\w+)|(\s+)|(\})/,
         '[' : /^(\w+)|(\s+)|(\])/,
         '<' : /^(\w+)|(\s+)|(>)/,
         '/' : /^(\w+)|(\s+)|(\/)/,
@@ -228,7 +228,7 @@
     var QR_MAP = {
         '@' : /^(@)|([^@]+)/,
         '(' : /^(\))|([^\)]+)/,
-        '{' : /^(})|([^}]+)/,
+        '{' : /^(\})|([^}]+)/,
         '[' : /^(\])|([^\]]+)/,
         '<' : /^(>)|([^>]+)/,
         '/' : /^(\/)|([^\/]+)/,
@@ -240,14 +240,7 @@
         // ------------------------------------------------------------------------- 
         // skip white spaces
         // ------------------------------------------------------------------------- 
-        LOOP: while (1) {
-            switch (this.src.charAt(0)) {
-            case " ":
-                this.src = this.src.substr(1);
-                continue LOOP;
-            }
-            break;
-        }
+        this.src = this.src.replace(/^[ ]+/, '');
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
@@ -268,57 +261,17 @@
         // ------------------------------------------------------------------------- 
         // qw
         // ------------------------------------------------------------------------- 
-        var qwMatch = this.src.match(/^qw([{[(!@</])/);
+        var qwMatch = this.src.match(/^qw([{\[(!@<\/])/);
         if (qwMatch) {
-            var re = QW_MAP[qwMatch[1]];
-            this.src = this.src.substr(qwMatch[0].length);
-            var closed = false;
-            var words = [];
-            while (this.src.length!==0 && !closed) {
-                this.src = this.src.replace(
-                    re, function (all, word, space, close) {
-                        if (word) {
-                            words.push(word);
-                        } else if (close) {
-                            closed = true;
-                        }
-                        return '';
-                    }
-                );
-            }
-            return [
-                Scanner.TOKEN_QW,
-                words,
-                this.lineno
-            ];
+            return this.scanQW(qwMatch);
         }
 
         // ------------------------------------------------------------------------- 
         // qr
         // ------------------------------------------------------------------------- 
-        var qrMatch = this.src.match(/^qr([{[(!@</])/);
+        var qrMatch = this.src.match(/^qr([{\[(!@<\/])/);
         if (qrMatch) {
-            var re = QR_MAP[qrMatch[1]];
-            this.src = this.src.substr(qrMatch[0].length);
-            var closed = false;
-            var regex = '';
-            while (this.src.length!==0 && !closed) {
-                this.src = this.src.replace(
-                    re, function (all, close, word) {
-                        if (word) {
-                            regex += word;
-                        } else if (close) {
-                            closed = true;
-                        }
-                        return '';
-                    }
-                );
-            }
-            return [
-                Scanner.TOKEN_REGEXP,
-                regex,
-                this.lineno
-            ];
+            return this.scanQR(qrMatch);
         }
 
         // ------------------------------------------------------------------------- 
@@ -387,24 +340,7 @@
             }
         }
         if (this.src.match(/^'/)) {
-            // TODO: is it correct?
-            var ret = this.src.match(/^'((\\'|[^']+)*)'/);
-            if (ret) {
-                this.src = this.src.substr(ret[0].length);
-                var lineno = this.lineno;
-                // count up lineno.
-                ret[1].replace(/\n/g, (function () {
-                    this.lineno++;
-                    return "\n";
-                }).bind(this));
-                return [
-                    Scanner.TOKEN_STRING,
-                    ret[1],
-                    lineno
-                ];
-            } else {
-                throw "Scanning error: Unexpected EOF in string.";
-            }
+            return this.scanSQ();
         }
 
         // ------------------------------------------------------------------------- 
@@ -420,6 +356,71 @@
 
         console.log("Bad token" + this.src.substr(0,20));
         throw "An error occured in tokenize: " + this.src.substr(0,20);
+    };
+    Scanner.prototype.scanQW = function (qwMatch) {
+        var re = QW_MAP[qwMatch[1]];
+        this.src = this.src.substr(qwMatch[0].length);
+        var closed = false;
+        var words = [];
+        var qwScanCallback = function (all, word, space, close) {
+            if (word) {
+                words.push(word);
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(re, qwScanCallback);
+        }
+        return [
+            Scanner.TOKEN_QW,
+            words,
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQR = function (qrMatch) {
+        var re = QR_MAP[qrMatch[1]];
+        this.src = this.src.substr(qrMatch[0].length);
+        var closed = false;
+        var regex = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                regex += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        return [
+            Scanner.TOKEN_REGEXP,
+            regex,
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanSQ = function () {
+        var ret = this.src.match(/^'((\\'|[^']+)*)'/);
+        if (ret) {
+            this.src = this.src.substr(ret[0].length);
+            var lineno = this.lineno;
+            // count up lineno.
+            ret[1].replace(/\n/g, (function () {
+                this.lineno++;
+                return "\n";
+            }).bind(this));
+            return [
+                Scanner.TOKEN_STRING,
+                ret[1],
+                lineno
+            ];
+        } else {
+            throw "Scanning error: Unexpected EOF in string.";
+        }
     };
     global.Kuma.Scanner = Scanner;
 

@@ -27,7 +27,7 @@
         this.src = src;
         var scanner = new Scanner(src);
         var tokens = [];
-        while (1) {
+        while (true) {
             var token = scanner.get();
             tokens.push(token);
             if (token[0] === Scanner.TOKEN_EOF || token[0] === Scanner.TOKEN_END) {
@@ -172,7 +172,7 @@
         var child = upper.call(this);
         if (!child) { return; }
 
-        while (1) {
+        while (true) {
             var token = this.lookToken();
             if (!token) { break; }
 
@@ -274,25 +274,21 @@
              */
             throw "Unimplemented";
         case Scanner.TOKEN_UNLESS:
-            // TODO
-            /*
-            # foo unless bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-unless statement";
-            return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
-             */
-            throw "Unimplemented";
+            this.getToken(); // if
+            var condUnless = this.parseExpression();
+            return this.makeNode(
+                Parser.NODE_IF,
+                nextToken[TK_LINENO],
+                [this.makeNode(Parser.NODE_UNARY_NOT, condUnless[ND_LINENO], condUnless), stmt, undefined]
+            );
         case Scanner.TOKEN_WHILE:
-            // TODO
-            /*
-            # foo while bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-if statement";
-            return ($c, _node2(NODE_WHILE, $START, $expression, _node(NODE_BLOCK, $block)));
-             */
-            throw "Unimplemented";
+            this.getToken(); // while
+            var condWhile = this.parseExpression();
+            return this.makeNode(
+                Parser.NODE_WHILE,
+                nextToken[TK_LINENO],
+                [condWhile, stmt]
+            );
         default:
             throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
         }
@@ -1042,15 +1038,15 @@ rule('expression', [
         }
 
         var token = this.lookToken();
-        if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
+        if (token[TK_TAG] === Scanner.TOKEN_LPAREN) {
             // say(3)
             this.trace("Parsing funcall");
 
             var args = this.takeArguments();
             if (args) {
                 var node_type = (function () { // Note: you can optimize here.
-                    if (primary[ND_TYPE] == Parser.NODE_IDENT) {
-                        for (var i=0, len=BUILTIN_FUNCTIONS.length; i<len; i++) {
+                    if (primary[ND_TYPE] === Parser.NODE_IDENT) {
+                        for (var i=0, len=BUILTIN_FUNCTIONS.length; i<len; ++i) {
                             if (BUILTIN_FUNCTIONS[i] === primary[ND_DATAS]) {
                                 return Parser.NODE_BUILTIN_FUNCALL;
                             }
@@ -1327,15 +1323,9 @@ rule('expression', [
         );
     };
     /*
-        } elsif ($token_id == TOKEN_STRING_SQ) { # '
-        TODO
-            return _sq_string(substr($c, $used), q{'});
         } elsif ($token_id == TOKEN_STRING_Q_START) { # q{
         TODO
             return _sq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
-        } elsif ($token_id == TOKEN_STRING_DQ) { # "
-        TODO
-            return _dq_string(substr($c, $used), q{"});
         } elsif ($token_id == TOKEN_STRING_QQ_START) { # qq{
         TODO
             return _dq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
