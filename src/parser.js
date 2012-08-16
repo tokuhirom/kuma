@@ -154,7 +154,7 @@
     };
     Parser.prototype.parse = function () {
         var ret = this.parseStatementList();
-        while (this.tokens[this.idx] === Scanner.TOKEN_LF) {
+        while (this.tokens[this.idx][TK_TAG] === Scanner.TOKEN_LF) {
             ++this.idx;
         }
         if (this.idx < this.tokens.length-1) {
@@ -271,7 +271,7 @@
                 or die "expression required after postfix-for statement";
             return ($c, _node2(NODE_FOREACH, $START, $expression, [], _node(NODE_BLOCK, $block)));
              */
-            break;
+            throw "Unimplemented";
         case Scanner.TOKEN_UNLESS:
             // TODO
             /*
@@ -281,7 +281,7 @@
                 or die "expression required after postfix-unless statement";
             return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
              */
-            break;
+            throw "Unimplemented";
         case Scanner.TOKEN_WHILE:
             // TODO
             /*
@@ -291,7 +291,7 @@
                 or die "expression required after postfix-if statement";
             return ($c, _node2(NODE_WHILE, $START, $expression, _node(NODE_BLOCK, $block)));
              */
-            break;
+            throw "Unimplemented";
         default:
             throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
         }
