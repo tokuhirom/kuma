@@ -10,8 +10,10 @@ scanner
     * tune up
     * support #{} style
     * scan regexp literal
+    * support comment
     * split statements by \n
-    * object iteration
+    * //i
+    * //x
 
 parser
 ------

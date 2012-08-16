@@ -226,6 +226,13 @@ tap.test('--/++', function (t) {
     t.end();
 });
 
+tap.test('for', function (t) {
+    try {
+        t.equivalent(testit('let n=0; for (let i=0; i<=10; i++) { n += i }'), 55);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");

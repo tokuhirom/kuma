@@ -119,6 +119,7 @@
     Parser.NODE_DO = 79;
     Parser.NODE_CLASS = 80;
     Parser.NODE_REGEXP = 81;
+    Parser.NODE_FOR = 82;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -363,7 +364,6 @@
     Parser.prototype.parseForStmt = function () {
         var retval = this.parseForEachStmt();
         if (!retval) {
-            // TODO
             retval = this.parseCStyleForStmt();
         }
         return retval;
@@ -405,39 +405,50 @@
         );
     };
     Parser.prototype.parseCStyleForStmt = function () {
-        // TODO
-        /*
-        } elsif ($token_id == TOKEN_FOR) {
-            any(
-                substr($c, $used),
-                sub { # foreach
-                },
-                sub { # C style for
-                    my $c = shift;
-                    ($c) = match($c, '(')
-                        or return;
-                    my ($e1, $e2, $e3);
-                    if ((my $c2, $e1) = expression($c)) { # optional
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ';')
-                        or return;
-                    if ((my $c2, $e2) = expression($c)) {
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ';')
-                        or return;
-                    if ((my $c2, $e3) = expression($c)) {
-                        $c = $c2;
-                    }
-                    ($c) = match($c, ')')
-                        or die "closing paren is required after 'for' keyword.";;
-                    ($c, my $block) = block($c)
-                        or die "block is required after 'for' keyword.";
-                    return ($c, _node2(NODE_FOR, $START, $e1, $e2, $e3, $block));
-                }
-            );
-            */
+        var mark = this.getMark();
+        var token = this.getToken(); // for
+
+        // (
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_LPAREN) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        var e1 = this.parseExpression(); // optional
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_SEMICOLON) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        var e2 = this.parseExpression(); // optional
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_SEMICOLON) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        var e3 = this.parseExpression(); // optional
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        var block = this.parseBlock();
+        if (!block) {
+            throw "block is required after for keyword, at line " + token[TK_LINENO];
+        }
+
+        return this.makeNode(
+            Parser.NODE_FOR,
+            token[TK_LINENO],
+            [e1, e2, e3, block]
+        );
     };
     Parser.prototype.parseIfStmt = function () {
         var token = this.getToken();

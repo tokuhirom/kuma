@@ -748,6 +748,32 @@ tap.test('postfix if', function (t) {
     t.end();
 });
 
+tap.test('c-style for', function (t) {
+    try {
+        t.equivalent(parse2("for (;;) { }"), [[
+            Parser.NODE_FOR,
+            1,
+            [
+                undefined,
+                undefined,
+                undefined,
+                [Parser.NODE_BLOCK,1, [Parser.NODE_STMTS, 1, []]]
+            ]
+        ]]);
+        t.equivalent(parse2("for (6;4;3) { }"), [[
+            Parser.NODE_FOR,
+            1,
+            [
+                [ Parser.NODE_INTEGER, 1, 6 ],
+                [ Parser.NODE_INTEGER, 1, 4 ],
+                [ Parser.NODE_INTEGER, 1, 3 ],
+                [Parser.NODE_BLOCK,1, [Parser.NODE_STMTS, 1, []]]
+            ]
+        ]]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
