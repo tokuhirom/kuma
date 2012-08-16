@@ -25,6 +25,7 @@ parser
     * parse fileteest ops
     * parse regexp literal
     * parse list comprehention(is needed?)
+    * =~
 
 translator
 ----------
