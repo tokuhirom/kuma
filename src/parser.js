@@ -27,7 +27,7 @@
         this.src = src;
         var scanner = new Scanner(src);
         var tokens = [];
-        while (1) {
+        while (true) {
             var token = scanner.get();
             tokens.push(token);
             if (token[0] === Scanner.TOKEN_EOF || token[0] === Scanner.TOKEN_END) {
