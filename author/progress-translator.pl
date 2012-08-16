@@ -12,7 +12,9 @@ my @tokens = get_tokens();
 my $remains = 0+check_tokens(@tokens);
 printf("----\n");
 printf("%s", `date +%Y-%m-%dT%H:%M:%S`);
-printf("Parser: %d\n", `grep TODO src/parser.js | wc -l`);
+for (<src/*.js>) {
+    printf("$_: %d\n", `grep TODO $_ | wc -l`);
+}
 printf("TRANSLATOR: total: %d, remains: %d(%.2f%%)\n", 0+@tokens, $remains, 100.0*($remains/@tokens));
 system("wc -l src/*.js");
 
