@@ -241,6 +241,15 @@ tap.test('euler', function (t) {
     t.end();
 });
 
+tap.test('postfix unless', function (t) {
+    try {
+        t.equivalent(testit("let i=0; i++ unless 1; i"), 0);
+        t.equivalent(testit("let i=0; i++ unless 0; i"), 1);
+        t.equivalent(testit("let i=0; i++ if 1; i"), 1);
+        t.equivalent(testit("let i=0; i++ if 0; i"), 0);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
 function testit(src) {
     if (0) {

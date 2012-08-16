@@ -281,7 +281,13 @@
                 or die "expression required after postfix-unless statement";
             return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
              */
-            throw "Unimplemented";
+            this.getToken(); // if
+            var condUnless = this.parseExpression();
+            return this.makeNode(
+                Parser.NODE_IF,
+                nextToken[TK_LINENO],
+                [this.makeNode(Parser.NODE_UNARY_NOT, condUnless[ND_LINENO], condUnless), stmt, undefined]
+            );
         case Scanner.TOKEN_WHILE:
             // TODO
             /*
