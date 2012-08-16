@@ -340,24 +340,7 @@
             }
         }
         if (this.src.match(/^'/)) {
-            // TODO: is it correct?
-            var ret = this.src.match(/^'((\\'|[^']+)*)'/);
-            if (ret) {
-                this.src = this.src.substr(ret[0].length);
-                var lineno = this.lineno;
-                // count up lineno.
-                ret[1].replace(/\n/g, (function () {
-                    this.lineno++;
-                    return "\n";
-                }).bind(this));
-                return [
-                    Scanner.TOKEN_STRING,
-                    ret[1],
-                    lineno
-                ];
-            } else {
-                throw "Scanning error: Unexpected EOF in string.";
-            }
+            return this.scanSQ();
         }
 
         // ------------------------------------------------------------------------- 
@@ -418,6 +401,25 @@
             regex,
             this.lineno
         ];
+    };
+    Scanner.prototype.scanSQ = function () {
+        var ret = this.src.match(/^'((\\'|[^']+)*)'/);
+        if (ret) {
+            this.src = this.src.substr(ret[0].length);
+            var lineno = this.lineno;
+            // count up lineno.
+            ret[1].replace(/\n/g, (function () {
+                this.lineno++;
+                return "\n";
+            }).bind(this));
+            return [
+                Scanner.TOKEN_STRING,
+                ret[1],
+                lineno
+            ];
+        } else {
+            throw "Scanning error: Unexpected EOF in string.";
+        }
     };
     global.Kuma.Scanner = Scanner;
 
