@@ -236,6 +236,7 @@
             }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
+            console.log("FOR!!!!");
             return this.parseForStmt();
         } else {
             // normal statement
@@ -256,25 +257,33 @@
         case Scanner.TOKEN_IF:
             // foo if bar
             this.getToken(); // if
-            var cond = this.parseExpression();
+            var condIf = this.parseExpression();
+            if (!condIf) {
+                throw "Missing conditional expression for postfix if at line " + nextToken[TK_LINENO];
+            }
             return this.makeNode(
                 Parser.NODE_IF,
                 nextToken[TK_LINENO],
-                [cond, stmt, undefined]
+                [condIf, stmt, undefined]
             );
         case Scanner.TOKEN_FOR:
-            // TODO
-            /*
-            // foo for bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-for statement";
-            return ($c, _node2(NODE_FOREACH, $START, $expression, [], _node(NODE_BLOCK, $block)));
-             */
-            throw "Unimplemented";
+            // postfix for
+            this.getToken(); // for
+            var condFor = this.parseExpression();
+            if (!condFor) {
+                throw "Missing conditional expression for postfix for at line " + nextToken[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_FOREACH,
+                nextToken[TK_LINENO],
+                [condFor, undefined, stmt]
+            );
         case Scanner.TOKEN_UNLESS:
             this.getToken(); // if
             var condUnless = this.parseExpression();
+            if (!condUnless) {
+                throw "Missing conditional expression for postfix unless at line " + nextToken[TK_LINENO];
+            }
             return this.makeNode(
                 Parser.NODE_IF,
                 nextToken[TK_LINENO],
@@ -561,10 +570,10 @@
             }
 
             return this.makeNode(
-                                 Parser.NODE_SUB,
-                                 token[TK_LINENO],
-                                 [name, params, block]
-                                 );
+                Parser.NODE_SUB,
+                token[TK_LINENO],
+                [name, params, block]
+            );
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
              // TODO: test
         } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
@@ -630,11 +639,13 @@ rule('expression', [
         my $c = shift;
         my ($used, $token_id) = _token_op($c);
         } elsif ($token_id == TOKEN_TRY) {
+        // TODO
             $c = substr($c, $used);
             ($c, my $block) = block($c)
                 or _err "expected block after try keyword";
             return ($c, _node2(NODE_TRY, $START, $block));
         } elsif ($token_id == TOKEN_DIE) {
+        // TODO
             $c = substr($c, $used);
             ($c, my $block) = expression($c)
                 or die "expected expression after die keyword";

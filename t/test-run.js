@@ -7,6 +7,8 @@ Parser = require("../src/parser.js").Kuma.Parser,
 Core = require("../src/runtime.js").Kuma.Core,
 vm = require('vm');
 
+/*
+
 tap.test('__LINE__', function (t) {
     try {
         t.equivalent(testit("__LINE__"), 1);
@@ -258,6 +260,15 @@ tap.test('postfix while', function (t) {
     t.end();
 });
 
+*/
+
+tap.test('postfix for', function (t) {
+    try {
+        t.equivalent(testit("let i=0; i += $_ for 1..10; i"), 45);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 function testit(src) {
     if (0) {
         console.log("+++++++++++++++");
@@ -270,7 +281,7 @@ function testit(src) {
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
-    if (0) {
+    if (1) {
         console.log("---");
         console.log(jssrc);
         console.log("---");
