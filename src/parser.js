@@ -171,7 +171,7 @@
         var child = upper.call(this);
         if (!child) { return; }
 
-        while (1) {
+        while (true) {
             var token = this.lookToken();
             if (!token) { break; }
 
@@ -1031,15 +1031,15 @@ rule('expression', [
         }
 
         var token = this.lookToken();
-        if (token[TK_TAG] == Scanner.TOKEN_LPAREN) {
+        if (token[TK_TAG] === Scanner.TOKEN_LPAREN) {
             // say(3)
             this.trace("Parsing funcall");
 
             var args = this.takeArguments();
             if (args) {
                 var node_type = (function () { // Note: you can optimize here.
-                    if (primary[ND_TYPE] == Parser.NODE_IDENT) {
-                        for (var i=0, len=BUILTIN_FUNCTIONS.length; i<len; i++) {
+                    if (primary[ND_TYPE] === Parser.NODE_IDENT) {
+                        for (var i=0, len=BUILTIN_FUNCTIONS.length; i<len; ++i) {
                             if (BUILTIN_FUNCTIONS[i] === primary[ND_DATAS]) {
                                 return Parser.NODE_BUILTIN_FUNCALL;
                             }

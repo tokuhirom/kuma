@@ -16,10 +16,6 @@ scanner
 parser
 ------
 
-    * parse fib
-    * parse if
-    * postfix if
-    * normal if(parser)
     * parse fileteest ops
     * parse regexp literal
     * parse list comprehention(is needed?)
