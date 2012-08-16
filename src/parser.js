@@ -273,14 +273,6 @@
              */
             throw "Unimplemented";
         case Scanner.TOKEN_UNLESS:
-            // TODO
-            /*
-            # foo unless bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-unless statement";
-            return ($c, _node2(NODE_IF, $START, _node(NODE_UNARY_NOT, $expression), _node(NODE_BLOCK, $block), undef));
-             */
             this.getToken(); // if
             var condUnless = this.parseExpression();
             return this.makeNode(
@@ -289,15 +281,13 @@
                 [this.makeNode(Parser.NODE_UNARY_NOT, condUnless[ND_LINENO], condUnless), stmt, undefined]
             );
         case Scanner.TOKEN_WHILE:
-            // TODO
-            /*
-            # foo while bar
-            $c = substr($c, $used);
-            ($c, my $expression) = expression($c)
-                or die "expression required after postfix-if statement";
-            return ($c, _node2(NODE_WHILE, $START, $expression, _node(NODE_BLOCK, $block)));
-             */
-            throw "Unimplemented";
+            this.getToken(); // while
+            var condWhile = this.parseExpression();
+            return this.makeNode(
+                Parser.NODE_WHILE,
+                nextToken[TK_LINENO],
+                [condWhile, stmt]
+            );
         default:
             throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
         }
