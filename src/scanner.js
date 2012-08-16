@@ -384,16 +384,17 @@
         this.src = this.src.substr(qrMatch[0].length);
         var closed = false;
         var regex = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                regex += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
         while (this.src.length!==0 && !closed) {
             this.src = this.src.replace(
-                re, function (all, close, word) {
-                    if (word) {
-                        regex += word;
-                    } else if (close) {
-                        closed = true;
-                    }
-                    return '';
-                }
+                re, scanCallback
             );
         }
         return [
