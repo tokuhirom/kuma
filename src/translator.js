@@ -15,6 +15,7 @@
 
     function Translator() {
         this.id = 0;
+        this.requireIsArray = false;
     }
     Translator.prototype.translateArgs = function (args) {
         var src = '';
@@ -28,7 +29,13 @@
         return this.id++;
     };
     Translator.prototype.translate = function (ast) {
-        return '"use strict";' + "\n" + this._translate(ast);
+        // TODO: output Array.isArray
+        var header = '"use strict";';
+        var body = this._translate(ast);
+        if (this.requireIsArray) {
+            header += 'var KF$$ArrayisArray = Array.isArray || function (vArg) { return Object.prototype.toString.call(vArg) === "[object Array]" };';
+        }
+        return header + "\n" + this._translate(ast);
     };
     Translator.prototype._translate = function (ast) {
         var translator = this;
@@ -150,13 +157,15 @@
         case Parser.NODE_FOREACH:
             // [expression, vars, block]
             return (function () {
+                this.requireIsArray = true;
+
                 // i=0
                 var i = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1][0]) : '$_';
                 // for (i=0, len=exp.length; i<len; ++i) { }
                 var containerVar = 'K$$container' + this.getID();
                 var lenVar = 'K$$len' + this.getID();
                 var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]) + ";\n";
-                ret += 'if (Array.isArray(' + containerVar + ')) {';
+                ret += 'if (KF$$ArrayisArray(' + containerVar + ')) {';
                 ret += '  for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
                 ret += this._translate(ast[ND_DATAS][2]);
                 ret += '} else {';
