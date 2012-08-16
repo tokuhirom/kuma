@@ -110,8 +110,6 @@ tap.test("[]", function (t) {
     t.end();
 });
 
-console.log(scanIt('qw(a)'));
-
 tap.test("qw()", function (t) {
     t.equivalent(scanIt('qw()'), [
         [Scanner.TOKEN_QW, [], 1],
@@ -129,11 +127,19 @@ tap.test("qw()", function (t) {
         [Scanner.TOKEN_QW, ['a', 'b', 'c'], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
+    t.equivalent(scanIt('qw{a b c}'), [
+        [Scanner.TOKEN_QW, ['a', 'b', 'c'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
     t.end();
 });
 
 tap.test("qr()", function (t) {
     t.equivalent(scanIt('qr()'), [
+        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr{}'), [
         [Scanner.TOKEN_REGEXP, '', 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
@@ -159,7 +165,7 @@ tap.test("qr()", function (t) {
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];
-    while (1) {
+    while (true) {
         var token = s.get();
         ret.push(token);
         if (token[0] == Scanner.TOKEN_EOF) {
