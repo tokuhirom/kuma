@@ -26,6 +26,8 @@ translator
 runtime
 -------
 
+    * sprintf
+
 milestone
 ---------
 

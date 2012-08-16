@@ -1314,15 +1314,9 @@ rule('expression', [
         );
     };
     /*
-        } elsif ($token_id == TOKEN_STRING_SQ) { # '
-        TODO
-            return _sq_string(substr($c, $used), q{'});
         } elsif ($token_id == TOKEN_STRING_Q_START) { # q{
         TODO
             return _sq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
-        } elsif ($token_id == TOKEN_STRING_DQ) { # "
-        TODO
-            return _dq_string(substr($c, $used), q{"});
         } elsif ($token_id == TOKEN_STRING_QQ_START) { # qq{
         TODO
             return _dq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
