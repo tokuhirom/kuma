@@ -618,6 +618,17 @@ tap.test('do', function (t) {
     t.end();
 });
 
+tap.test('regexp', function (t) {
+    try {
+        t.equivalent(parse('qr/a/'), [
+            Parser.NODE_REGEXP,
+            1,
+            'a'
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

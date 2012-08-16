@@ -117,6 +117,7 @@
     Parser.NODE_LAMBDA = 77;
     Parser.NODE_FOREACH = 78;
     Parser.NODE_DO = 79;
+    Parser.NODE_REGEXP = 80;
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {
@@ -1076,6 +1077,13 @@ rule('expression', [
             return this.parseLambda();
         case Scanner.TOKEN_IDENT:
             return this.parseIdentifier();
+        case Scanner.TOKEN_REGEXP:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_REGEXP,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
         case Scanner.TOKEN_TRUE:
             token = this.getToken();
             return this.makeNode(
@@ -1284,9 +1292,6 @@ rule('expression', [
         } elsif ($token_id == TOKEN_DIV) { # /
         TODO
             return _regexp(substr($c, $used), q{/});
-        } elsif ($token_id == TOKEN_REGEXP_QR_START) { # qr{
-        TODO
-            return _regexp(substr($c, $used), _closechar(substr($c, $used-1, 1)));
         } elsif ($token_id ==TOKEN_HEREDOC_SQ_START) { # <<'
             $c = substr($c, $used);
         TODO

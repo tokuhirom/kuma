@@ -134,6 +134,29 @@ tap.test("qw()", function (t) {
     t.end();
 });
 
+tap.test("qr()", function (t) {
+    t.equivalent(scanIt('qr()'), [
+        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+tap.test("qr()", function (t) {
+    t.equivalent(scanIt('qr()'), [
+        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr(^.)'), [
+        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr/^./'), [
+        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
 
 function scanIt(src) {
     var s = new Scanner(src);
