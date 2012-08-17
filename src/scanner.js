@@ -39,7 +39,7 @@
         "else" : Scanner.TOKEN_ELSE,
         "while" : Scanner.TOKEN_WHILE,
         "for" : Scanner.TOKEN_FOR,
-        "let" : Scanner.TOKEN_LET,
+        "my" : Scanner.TOKEN_MY,
         "undef" : Scanner.TOKEN_UNDEF,
         "true" : Scanner.TOKEN_TRUE,
         "false" : Scanner.TOKEN_FALSE,

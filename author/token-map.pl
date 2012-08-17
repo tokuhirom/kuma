@@ -32,7 +32,7 @@ my @tokens = qw(
     TOKEN_ELSE
     TOKEN_WHILE
     TOKEN_FOR
-    TOKEN_LET
+    TOKEN_MY
     TOKEN_UNDEF
     TOKEN_TRUE
     TOKEN_FALSE

@@ -26,6 +26,8 @@ parser
 translator
 ----------
 
+    * block scope variable generation
+
 runtime
 -------
 

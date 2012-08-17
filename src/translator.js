@@ -59,7 +59,7 @@
                 var args = ast[ND_DATAS][1];
                 return "Kuma.Core." + translator._translate(func) + "(" + translator.translateArgs(args) + ")";
             })();
-        case Parser.NODE_LET:
+        case Parser.NODE_MY:
             // TODO: check the variable scope, etc...
             return (function () {
                 var func = ast[ND_DATAS];

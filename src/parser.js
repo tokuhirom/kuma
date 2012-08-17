@@ -1135,22 +1135,22 @@ rule('expression', [
             return this.parseArray();
         case Scanner.TOKEN_LBRACE:
             return this.parseHashCreation();
-        case Scanner.TOKEN_LET:
-            token = this.getToken(); // let
+        case Scanner.TOKEN_MY:
+            token = this.getToken(); // my
             var lhs = this.lookToken();
             if (lhs[TK_TAG] == Scanner.TOKEN_LPAREN) {
-                // TODO let (x,y) = 3;
+                // TODO my (x,y) = 3;
                 this.getToken();
                 throw "Not implemented yet";
             } else if (lhs[TK_TAG] == Scanner.TOKEN_IDENT) {
                 this.getToken();
                 return this.makeNode(
-                    Parser.NODE_LET,
+                    Parser.NODE_MY,
                     token[TK_LINENO],
                     this.makeNode(Parser.NODE_IDENT, token[TK_LINENO], lhs[TK_VALUE])
                 );
             } else  {
-                throw "This type of token is not allowed after let: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
+                throw "This type of token is not allowed after my: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
             }
             throw "Should not reach here.";
         case Scanner.TOKEN_QW:
