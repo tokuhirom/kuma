@@ -9,7 +9,6 @@ scanner
     * scanner supports heredoc or """
     * tune up
     * support #{} style
-    * support comment
     * split statements by \n
     * //x
 
