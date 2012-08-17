@@ -14,6 +14,7 @@ var optimist = require('optimist')
     .usage('Usage: $0 -e eval')
     .alias('h', 'help').describe('h', 'show this help message')
                        .describe('dump_ast', 'dump abstract syntax tree')
+                       .describe('dump_token', 'dump tokens')
                        .describe('dump_js',  'dump translated javascript source code')
     ;
 var argv = optimist.argv;
@@ -52,6 +53,9 @@ if (argv.e) {
 
 function evaluate(src) {
     var parser = new Parser(src);
+    if (argv.dump_token) {
+        console.log(parser.tokens);
+    }
     var ast = parser.parse();
     if (argv.dump_ast) {
         console.log(JSON.stringify(ast));
