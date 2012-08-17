@@ -795,6 +795,15 @@ tap.test('array item', function (t) {
     t.end();
 });
 
+tap.test('{}', function (t) {
+    try {
+        t.equivalent(parse("{}.foo"), [
+            Parser.NODE_GET_METHOD, 1, [ [ Parser.NODE_MAKE_HASH, 1, [] ], [ Parser.NODE_IDENT, 1, 'foo' ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

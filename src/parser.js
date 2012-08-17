@@ -71,10 +71,6 @@
         }
         return this.tokens[idx];
     };
-    Parser.prototype.ungetToken = function () {
-        if (this.idx === 0) { throw "Invalid index"; }
-        this.idx--;
-    };
     Parser.prototype.getMark = function () {
         return this.idx;
     };
@@ -159,9 +155,11 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
             return this.parseDoStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
+            var mark = this.getMark();
             var hash = this.parseHashCreation();
             if (hash) {
-                return hash;
+                this.restoreMark(mark);
+                return this.parseNormalStatemnt();
             }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
@@ -911,6 +909,7 @@
 
             var identifier = this.parseIdentifier();
             if (!identifier) {
+                console.log(this.lookToken());
                 throw "There is no identifier after '.' operator in method call at line " + object[ND_LINENO];
             }
             var args = this.parseArguments();
@@ -1232,12 +1231,14 @@
             }
             this.getToken();
         }
+
         if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACE) {
             this.trace("Not a right brace in hash: " + this.lookToken()[TK_TAG]);
             this.restoreMark(mark);
             return;
         }
         this.getToken();
+
         this.trace("Got a hash");
         return this.makeNode(
             Parser.NODE_MAKE_HASH,

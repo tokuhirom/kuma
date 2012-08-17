@@ -27,6 +27,17 @@
             return ret;
         };
     }
+    if (!Object.prototype.reverse) {
+        Object.prototype.reverse = function () {
+            var ret = {};
+            for (var k in this) {
+                if (this.hasOwnProperty(k)) {
+                    ret[this[k]] = k;
+                }
+            }
+            return ret;
+        };
+    }
 
     global.Kuma.Core = {
         say: function () {

@@ -47,8 +47,7 @@
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
         "is" : Scanner.TOKEN_IS,
-        "new" : Scanner.TOKEN_NEW,
-        "__END__\n" : Scanner.TOKEN_END
+        "new" : Scanner.TOKEN_NEW
     };
 
     var ops = {
@@ -157,6 +156,7 @@
         // ------------------------------------------------------------------------- 
         this.src = this.src.replace(/^[ ]+/, '');
         this.src = this.src.replace(/^#[^\n]+/, '');
+        this.src = this.src.replace(/^\n__END__\n[\s\S]+/, '');
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
@@ -210,9 +210,11 @@
         // scan keywords
         // ------------------------------------------------------------------------- 
         for (var keyword in KEYWORDS) {
-            if (this.src.substr(0, keyword.length) == keyword) {
-                this.src = this.src.substr(keyword.length);
-                return [KEYWORDS[keyword], undefined, this.lineno];
+            if (KEYWORDS.hasOwnProperty(keyword)) {
+                if (this.src.substr(0, keyword.length) == keyword) {
+                    this.src = this.src.substr(keyword.length);
+                    return [KEYWORDS[keyword], undefined, this.lineno];
+                }
             }
         }
 
