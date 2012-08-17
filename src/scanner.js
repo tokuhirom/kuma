@@ -47,6 +47,7 @@
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
         "is" : Scanner.TOKEN_IS,
+        "new" : Scanner.TOKEN_NEW,
         "__END__\n" : Scanner.TOKEN_END
     };
 
@@ -101,8 +102,6 @@
         '{': Scanner.TOKEN_LBRACE,
         '(': Scanner.TOKEN_LPAREN,
         ')': Scanner.TOKEN_RPAREN,
-        'qq': Scanner.TOKEN_STRING_QQ_START,
-        'q': Scanner.TOKEN_STRING_Q_START,
         '"': Scanner.TOKEN_STRING_DQ,
         "'": Scanner.TOKEN_STRING_SQ,
         '[': Scanner.TOKEN_LBRACKET,
@@ -115,13 +114,13 @@
         ';' : Scanner.TOKEN_SEMICOLON
     };
     var QW_MAP = {
-        '@' : /^(\w+)|(\s+)|(@)/,
-        '(' : /^(\w+)|(\s+)|(\))/,
-        '{' : /^(\w+)|(\s+)|(\})/,
-        '[' : /^(\w+)|(\s+)|(\])/,
-        '<' : /^(\w+)|(\s+)|(>)/,
-        '/' : /^(\w+)|(\s+)|(\/)/,
-        '!' : /^(\w+)|(\s+)|(!)/
+        '@' : /^(\w+)|(\n)|(\s+)|(@)/,
+        '(' : /^(\w+)|(\n)|(\s+)|(\))/,
+        '{' : /^(\w+)|(\n)|(\s+)|(\})/,
+        '[' : /^(\w+)|(\n)|(\s+)|(\])/,
+        '<' : /^(\w+)|(\n)|(\s+)|(>)/,
+        '/' : /^(\w+)|(\n)|(\s+)|(\/)/,
+        '!' : /^(\w+)|(\n)|(\s+)|(!)/
     };
     var QR_MAP = {
         '@' : /^(@)|([^@]+)/,
@@ -295,16 +294,18 @@
         this.src = this.src.substr(qwMatch[0].length);
         var closed = false;
         var words = [];
-        var qwScanCallback = function (all, word, space, close) {
+        var qwScanCallback = function (all, word, lf, space, close) {
             if (word) {
                 words.push(word);
+            } else if (lf) {
+                this.lineno++;
             } else if (close) {
                 closed = true;
             }
             return '';
         };
         while (this.src.length!==0 && !closed) {
-            this.src = this.src.replace(re, qwScanCallback);
+            this.src = this.src.replace(re, qwScanCallback.bind(this));
         }
         return [
             Scanner.TOKEN_QW,

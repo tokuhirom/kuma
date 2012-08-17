@@ -95,9 +95,7 @@ my @tokens = qw(
     TOKEN_LBRACE
     TOKEN_BYTES_SQ
     TOKEN_BYTES_DQ
-    TOKEN_STRING_QQ_START
     TOKEN_QW
-    TOKEN_STRING_Q_START
     TOKEN_STRING_DQ
     TOKEN_STRING_SQ
     TOKEN_LBRACKET
@@ -114,6 +112,7 @@ my @tokens = qw(
     TOKEN_RBRACKET
     TOKEN_REGEXP
     TOKEN_LF
+    TOKEN_NEW
 );
 my $i = 1;
 my %tokens = map { $_ => $i++ } @tokens;
