@@ -226,6 +226,12 @@
             return "((" + this._translate(ast[ND_DATAS][0]) + ")&(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_BITOR:
             return "((" + this._translate(ast[ND_DATAS][0]) + ")|(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_REGEXP:
+            return '/' + ast[ND_DATAS][0] + '/';
+        case Parser.NODE_REGEXP_MATCH:
+            return "((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + "))";
+        case Parser.NODE_REGEXP_NOT_MATCH:
+            return "(!((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + ")))";
         case Parser.NODE_DOTDOTDOT:
             return 'throw "Unimplemented";';
         case Parser.NODE_SUB:
@@ -347,7 +353,7 @@
             }).call(this);
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
-            throw "Unknown ast node: " + ast[ND_TYPE];
+            throw "Unknown ast node: " + Parser.id2name[ast[ND_TYPE]];
         }
     };
 

@@ -40,6 +40,8 @@
         this.idx = 0;
     }
 
+    Parser.id2name = node_map.id2name;
+
     for (var id in node_map.name2id) {
         if (!node_map.name2id.hasOwnProperty(id)) { continue; }
         Parser[id] = node_map.name2id[id];
@@ -512,9 +514,21 @@
                 [name, params, block]
             );
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
-             // TODO: test
+             /*
+        // TODO
+            $c = substr($c, $used);
+            ($c, my $block) = block($c)
+                or _err "expected block after try keyword";
+            return ($c, _node2(NODE_TRY, $START, $block));
+            */
         } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
-             // TODO: test
+             /*
+        // TODO
+            $c = substr($c, $used);
+            ($c, my $block) = expression($c)
+                or die "expected expression after die keyword";
+            return ($c, _node2(NODE_DIE, $START, $block));
+            */
         } else {
             return this.parseStrOrExpression();
         }
@@ -569,29 +583,6 @@
         }
         return ret;
     };
-
-    /*
-rule('expression', [
-    sub {
-        my $c = shift;
-        my ($used, $token_id) = _token_op($c);
-        } elsif ($token_id == TOKEN_TRY) {
-        // TODO
-            $c = substr($c, $used);
-            ($c, my $block) = block($c)
-                or _err "expected block after try keyword";
-            return ($c, _node2(NODE_TRY, $START, $block));
-        } elsif ($token_id == TOKEN_DIE) {
-        // TODO
-            $c = substr($c, $used);
-            ($c, my $block) = expression($c)
-                or die "expected expression after die keyword";
-            return ($c, _node2(NODE_DIE, $START, $block));
-        } else {
-            return str_or_expression($c);
-        }
-    },
-    */
 
     Parser.prototype.parseBlock = function () {
         var mark = this.getMark();
@@ -791,9 +782,11 @@ rule('expression', [
         return this.left_op(this.parseRegexpMatch, termMap);
     };
 
+    var regMatchMap = { };
+    regMatchMap[Scanner.TOKEN_REGEXP_MATCH]     = Parser.NODE_REGEXP_MATCH;
+    regMatchMap[Scanner.TOKEN_REGEXP_NOT_MATCH] = Parser.NODE_REGEXP_NOT_MATCH;
     Parser.prototype.parseRegexpMatch = function () {
-        // TODO: support =~, !~
-        return this.parseUnary();
+        return this.left_op(this.parseUnary, regMatchMap);
     };
 
     var UNARY_OPS = {};

@@ -281,6 +281,14 @@ tap.test('last/next', function (t) {
     t.end();
 });
 
+tap.test('regexp match', function (t) {
+    try {
+        t.equivalent(testit("!!('hoge' =~ qr/o/)"), true);
+        t.equivalent(testit("!!('hoge' !~ qr/o/)"), false);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

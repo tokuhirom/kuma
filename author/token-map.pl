@@ -121,5 +121,5 @@ my %tokens = map { $_ => $i++ } @tokens;
 print 'module.exports=' . encode_json({
     name2id => \%tokens,
     id2name => +{ reverse %tokens },
-});
+}) . ';';
 

@@ -88,11 +88,13 @@ my @nodes = qw(
     NODE_CLASS
     NODE_REGEXP
     NODE_FOR
+    NODE_REGEXP_MATCH
+    NODE_REGEXP_NOT_MATCH
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;
 print 'module.exports=' . encode_json({
     name2id => \%nodes,
     id2name => +{ reverse %nodes },
-});
+}) . ';';
 

@@ -774,6 +774,18 @@ tap.test('c-style for', function (t) {
     t.end();
 });
 
+tap.test('regexp match', function (t) {
+    try {
+        t.equivalent(parse("s =~ qr//"), [
+            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, '' ] ]
+        ]);
+        t.equivalent(parse("s !~ qr//"), [
+            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, '' ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
