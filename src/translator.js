@@ -160,19 +160,22 @@
                 this.requireIsArray = true;
 
                 // i=0
-                var i = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1][0]) : '$_';
+                var var1 = ast[ND_DATAS][1] ? this._translate(ast[ND_DATAS][1][0]) : '$_';
+                var i = ast[ND_DATAS][1] && ast[ND_DATAS][1].length > 1 ? this._translate(ast[ND_DATAS][1][1]) : 'K$$i' + this.getID();
                 // for (i=0, len=exp.length; i<len; ++i) { }
                 var containerVar = 'K$$container' + this.getID();
                 var lenVar = 'K$$len' + this.getID();
                 var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]) + ";\n";
                 ret += 'if (KF$$ArrayisArray(' + containerVar + ')) {';
-                ret += '  for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ')';
+                ret += '  for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ') {';
+                ret += '    ' + var1 + ' = ' + containerVar + '[' + i + '];';
                 ret += this._translate(ast[ND_DATAS][2]);
+                ret += '  } /* end-for */';
                 ret += '} else {';
-                ret += '  for (var ' + i + ' in ' + containerVar + ') { if (!' + containerVar + '.hasOwnProperty(' + i + ')) { continue; }';
+                ret += '  for (var ' + var1 + ' in ' + containerVar + ') { if (!' + containerVar + '.hasOwnProperty(' + var1 + ')) { continue; }';
                 if (ast[ND_DATAS][1] && ast[ND_DATAS][1].length > 1) {
                 var valueVar = this._translate(ast[ND_DATAS][1][1]);
-                ret += '  var ' + valueVar + " = " + containerVar + "[" + i + "];";
+                ret += '  var ' + valueVar + " = " + containerVar + "[" + var1 + "];";
                 }
                 ret += this._translate(ast[ND_DATAS][2]);
                 ret += '}';

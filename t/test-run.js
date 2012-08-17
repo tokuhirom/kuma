@@ -225,15 +225,6 @@ tap.test('for', function (t) {
     t.end();
 });
 
-tap.test('foreach', function (t) {
-    try {
-        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);
-        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(k) } r"), ['a', 'b']);
-        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(v) } r"), [1, 2]);
-    } catch (e) { t.fail(e); }
-    t.end();
-});
-
 tap.test('square', function (t) {
     try {
         t.equivalent(testit("sub square(x) { return x**2 }; square(5)"), 25);
@@ -267,10 +258,23 @@ tap.test('postfix while', function (t) {
 
 tap.test('postfix for', function (t) {
     try {
-        t.equivalent(testit("let i=0; i += $_ for 1..10; i"), 45);
+        t.equivalent(testit("let i=0; i += $_ for 1..10; i"), 55);
     } catch (e) { t.fail(e); }
     t.end();
 });
+
+tap.test('foreach', function (t) {
+    try {
+        t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 55);
+        t.equivalent(testit("(1..10).sum()"), 55);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(k) } r"), ['a', 'b']);
+        t.equivalent(testit("let r=[]; for {a:1, b:2} -> k, v { r.push(v) } r"), [1, 2]);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+
+// foreach statement have a bug. i
 
 function testit(src) {
     if (0) {
@@ -284,7 +288,7 @@ function testit(src) {
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
-    if (1) {
+    if (0) {
         console.log("---");
         console.log(jssrc);
         console.log("---");

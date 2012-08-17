@@ -259,3 +259,27 @@ TRANSLATOR: total: 85, remains: 21(24.71%)
   427 src/scanner.js
   327 src/translator.js
  2137 total
+----
+2012-08-17T09:54:41
+src/parser.js: 17
+src/runtime.js: 0
+src/scanner.js: 1
+src/translator.js: 3
+TRANSLATOR: total: 85, remains: 20(23.53%)
+ 1370 src/parser.js
+   37 src/runtime.js
+  427 src/scanner.js
+  346 src/translator.js
+ 2180 total
+----
+2012-08-17T10:29:36
+src/parser.js: 17
+src/runtime.js: 0
+src/scanner.js: 1
+src/translator.js: 3
+TRANSLATOR: total: 85, remains: 20(23.53%)
+ 1370 src/parser.js
+   37 src/runtime.js
+  427 src/scanner.js
+  346 src/translator.js
+ 2180 total
