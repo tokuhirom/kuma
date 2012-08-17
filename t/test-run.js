@@ -220,6 +220,13 @@ tap.test('--/++', function (t) {
     t.end();
 });
 
+tap.test('for', function (t) {
+    try {
+        t.equivalent(testit('let n=0; for (let i=0; i<=10; i++) { n += i }'), 55);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 tap.test('foreach', function (t) {
     try {
         t.equivalent(testit("let i=0; for 1..10 -> $_ { i+= $_ } i"), 45);

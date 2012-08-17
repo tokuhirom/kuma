@@ -286,6 +286,25 @@
             return '--(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_DEC:
             return '(' + this._translate(ast[ND_DATAS]) + ")--";
+        case Parser.NODE_FOR:
+            // [e1, e2, e3, body]
+            return (function () {
+                var ret = 'for (';
+                if (ast[ND_DATAS][0]) {
+                    ret += this._translate(ast[ND_DATAS][0]);
+                }
+                ret += ';';
+                if (ast[ND_DATAS][1]) {
+                    ret += this._translate(ast[ND_DATAS][1]);
+                }
+                ret += ';';
+                if (ast[ND_DATAS][2]) {
+                    ret += this._translate(ast[ND_DATAS][2]);
+                }
+                ret += ')';
+                ret += this._translate(ast[ND_DATAS][3]);
+                return ret;
+            }).call(this);
         case Parser.NODE_LAMBDA:
             return (function () {
                 // TODO: support $a,$b
