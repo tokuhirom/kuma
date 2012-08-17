@@ -39,7 +39,7 @@ milestone
 ---------
 
     * [done] fib
-    * class
+    * class support
     * block scope
     * no paste site
     * use node-js library
