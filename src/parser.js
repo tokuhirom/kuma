@@ -18,7 +18,7 @@
 
     var BUILTIN_FUNCTIONS = [
         'say', 'open', 'p', 'exit',
-        'getpid', 'sprintf'
+        'getpid', 'sprintf', 'printf'
     ];
 
     function Parser(src, filename) {

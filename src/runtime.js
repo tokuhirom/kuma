@@ -4,6 +4,7 @@
     if (!global.Kuma) { global.Kuma = {}; }
 
     var sprintf = require('sprintf').sprintf;
+    var sys = require('sys');
 
     if (!Array.prototype.grep) {
         Array.prototype.grep = function (callback) {
@@ -39,6 +40,9 @@
         },
         sprintf: function () {
             return sprintf.apply(this, Array.prototype.slice.call(arguments));
+        },
+        printf: function () {
+            sys.print(sprintf.apply(this, Array.prototype.slice.call(arguments)));
         },
         exit: function (status) {
             // http://nodejs.org/api/process.html#process_process_exit_code

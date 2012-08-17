@@ -31,7 +31,6 @@ translator
 runtime
 -------
 
-    * sprintf
     * ARGF
 
 milestone
