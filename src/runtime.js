@@ -17,6 +17,13 @@
             return ret;
         };
     }
+    if (!Array.prototype.each) {
+        Array.prototype.each = function (callback) {
+            for (var i=0, len = this.length; i<len; i++) {
+                callback(this[i]);
+            }
+        };
+    }
     if (!Array.prototype.sum) {
         Array.prototype.sum = function () {
             var ret = 0;

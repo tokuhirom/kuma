@@ -87,7 +87,7 @@ my nodes = qw(
 
 my i = 1
 my node_map = {}
-nodes.map(-> { node_map[$_] = i++ })
+nodes.each(-> { node_map[$_] = i++ })
 
 my json = JSON.stringify({
     "name2id": node_map,
