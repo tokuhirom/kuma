@@ -4,6 +4,7 @@
     if (!global.Kuma) { global.Kuma = {}; }
 
     var Scanner = require('./scanner.js').Kuma.Scanner;
+    var node_map = require('./node-map.js');
 
     // index for each token
     var TK_TAG    = 0;
@@ -39,87 +40,10 @@
         this.idx = 0;
     }
 
-    Parser.NODE_FUNCALL = 1;
-    Parser.NODE_IDENT = 2;
-    Parser.NODE_BUILTIN_FUNCALL = 3;
-    Parser.NODE_STRING = 4;
-    Parser.NODE_PRE_INC = 5;
-    Parser.NODE_POST_INC = 6;
-    Parser.NODE_PRE_DEC = 7;
-    Parser.NODE_POST_DEC = 8;
-    Parser.NODE_POW = 9;
-    Parser.NODE_INTEGER = 10;
-    Parser.NODE_UNARY_NOT = 11;
-    Parser.NODE_UNARY_TILDE = 12;
-    Parser.NODE_UNARY_REF = 13;
-    Parser.NODE_UNARY_PLUS = 14;
-    Parser.NODE_UNARY_MINUS = 15;
-    Parser.NODE_UNARY_MUL = 15;
-    Parser.NODE_TRUE = 16;
-    Parser.NODE_FALSE = 17;
-    Parser.NODE_MUL = 18;
-    Parser.NODE_DIV = 19;
-    Parser.NODE_MOD = 20;
-    Parser.NODE_ADD = 21;
-    Parser.NODE_SUBTRACT = 22;
-    Parser.NODE_LSHIFT = 23;
-    Parser.NODE_RSHIFT = 24;
-    Parser.NODE_GT = 25;
-    Parser.NODE_GE = 26;
-    Parser.NODE_LT = 27;
-    Parser.NODE_LE = 28;
-    Parser.NODE_EQ = 29;
-    Parser.NODE_NE = 30;
-    Parser.NODE_CMP = 31;
-    Parser.NODE_RANGE = 32;
-    Parser.NODE_DOTDOTDOT = 33;
-    Parser.NODE_LOGICAL_OR = 34;
-    Parser.NODE_LOGICAL_AND = 35;
-    Parser.NODE_BITOR = 36;
-    Parser.NODE_BITXOR = 37;
-    Parser.NODE_BITAND = 38;
-    Parser.NODE_THREE = 39;
-    Parser.NODE_COMMA = 40;
-    Parser.NODE_UNARY_NOT = 41;
-    Parser.NODE_LOGICAL_XOR = 44;
-    Parser.NODE_NOP = 45;
-    Parser.NODE_BLOCK = 46;
-    Parser.NODE_RETURN = 47;
-    Parser.NODE_BREAK = 48;
-    Parser.NODE_CONTINUE = 49;
-    Parser.NODE_SUB = 50;
-    Parser.NODE_TRY = 51;
-    Parser.NODE_THROW = 52;
-    Parser.NODE_STMTS = 53;
-    Parser.NODE_UNDEF = 54;
-    Parser.NODE_IF = 55;
-    Parser.NODE_ELSIF = 56;
-    Parser.NODE_ELSE = 57;
-    Parser.NODE_ASSIGN = 58;
-    Parser.NODE_MUL_ASSIGN = 59;
-    Parser.NODE_PLUS_ASSIGN = 60;
-    Parser.NODE_DIV_ASSIGN = 61;
-    Parser.NODE_MOD_ASSIGN = 62;
-    Parser.NODE_MINUS_ASSIGN = 63;
-    Parser.NODE_LSHIFT_ASSIGN = 64;
-    Parser.NODE_RSHIFT_ASSIGN = 65;
-    Parser.NODE_POW_ASSIGN = 66;
-    Parser.NODE_AND_ASSIGN = 67;
-    Parser.NODE_OR_ASSIGN = 68;
-    Parser.NODE_XOR_ASSIGN = 69;
-    Parser.NODE_OROR_ASSIGN = 70;
-    Parser.NODE_LET = 71;
-    Parser.NODE_WHILE = 72;
-    Parser.NODE_MAKE_ARRAY = 73;
-    Parser.NODE_MAKE_HASH = 74;
-    Parser.NODE_GET_METHOD = 75;
-    Parser.NODE_METHOD_CALL = 76;
-    Parser.NODE_LAMBDA = 77;
-    Parser.NODE_FOREACH = 78;
-    Parser.NODE_DO = 79;
-    Parser.NODE_CLASS = 80;
-    Parser.NODE_REGEXP = 81;
-    Parser.NODE_FOR = 82;
+    for (var id in node_map.name2id) {
+        if (!node_map.name2id.hasOwnProperty(id)) { continue; }
+        Parser[id] = node_map.name2id[id];
+    }
 
     Parser.prototype.trace = function (msg) {
         if (this.TRACE_ON) {

@@ -42,6 +42,7 @@ milestone
     * publish node.js library
     * self-hosting
     * [done] fizzbuzz
+    * run on browser
 
 END
 ===
