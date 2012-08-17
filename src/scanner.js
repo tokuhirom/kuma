@@ -4,6 +4,8 @@
 
     if (!global.Kuma) { global.Kuma = {}; }
 
+    var token_map = require('./token-map.js');
+
     function Scanner(src) {
         if (typeof src === 'undefined') { throw "Missing mandatory parameter: src"; }
         if (!src.charAt) { throw "src must be string"; }
@@ -11,116 +13,12 @@
         this.lineno = 1;
     }
 
+    for (var id in token_map.name2id) {
+        if (!token_map.name2id.hasOwnProperty(id)) { continue; }
+        Scanner[id] = token_map.name2id[id];
+    }
+
     // constant variables
-    Scanner.TOKEN_EOF    = -1;
-    Scanner.TOKEN_IDENT  = 0;
-    Scanner.TOKEN_DOUBLE  = 7;
-    Scanner.TOKEN_INTEGER = 4;
-    Scanner.TOKEN_STRING = 3;
-
-    Scanner.TOKEN_CLASS       = 200;
-    Scanner.TOKEN_RETURN      = 201;
-    Scanner.TOKEN_USE         = 202;
-    Scanner.TOKEN_UNLESS      = 203;
-    Scanner.TOKEN_IF          = 204;
-    Scanner.TOKEN_DO          = 205;
-    Scanner.TOKEN_SUB         = 206;
-    Scanner.TOKEN_STR_NOT     = 207;
-    Scanner.TOKEN_DIE         = 208;
-    Scanner.TOKEN_TRY         = 209;
-    Scanner.TOKEN_STR_OR      = 210;
-    Scanner.TOKEN_STR_XOR     = 211;
-    Scanner.TOKEN_STR_AND     = 212;
-    Scanner.TOKEN_ELSIF       = 213;
-    Scanner.TOKEN_BREAK        = 214;
-    Scanner.TOKEN_CONTINUE        = 215;
-    Scanner.TOKEN_ELSE        = 216;
-    Scanner.TOKEN_WHILE       = 217;
-    Scanner.TOKEN_FOR         = 218;
-    Scanner.TOKEN_LET         = 219;
-    Scanner.TOKEN_UNDEF       = 220;
-    Scanner.TOKEN_TRUE        = 221;
-    Scanner.TOKEN_FALSE       = 222;
-    Scanner.TOKEN_SELF        = 223;
-    Scanner.TOKEN_FILE        = 224;
-    Scanner.TOKEN_LINE        = 225;
-    Scanner.TOKEN_IS          = 226;
-
-    Scanner.TOKEN_QUESTION            = 300;
-    Scanner.TOKEN_PLUSPLUS            = 301;
-    Scanner.TOKEN_PLUS_ASSIGN         = 302;
-    Scanner.TOKEN_PLUS                = 303;
-    Scanner.TOKEN_BYTES_DQ            = 304;
-    Scanner.TOKEN_BYTES_SQ            = 305;
-    Scanner.TOKEN_LPAREN              = 306;
-    Scanner.TOKEN_HEREDOC_SQ_START    = 307;
-    Scanner.TOKEN_DIV_ASSIGN          = 308;
-    Scanner.TOKEN_DIV                 = 309;
-    Scanner.TOKEN_MOD_ASSIGN          = 310;
-    Scanner.TOKEN_MOD                 = 311;
-    Scanner.TOKEN_COMMA               = 312;
-    Scanner.TOKEN_NOT_EQUAL           = 313;
-    Scanner.TOKEN_REGEXP_NOT_MATCH    = 314;
-    Scanner.TOKEN_NOT                 = 315;
-    Scanner.TOKEN_EQUAL_EQUAL         = 316;
-    Scanner.TOKEN_FAT_COMMA           = 317;
-    Scanner.TOKEN_REGEXP_MATCH        = 318;
-    Scanner.TOKEN_ASSIGN              = 319;
-    Scanner.TOKEN_XOR_ASSIGN          = 320;
-    Scanner.TOKEN_XOR                 = 321;
-    Scanner.TOKEN_DOTDOTDOT           = 322;
-    Scanner.TOKEN_DOTDOT              = 323;
-    Scanner.TOKEN_DOT                 = 324;
-    Scanner.TOKEN_OROR_ASSIGN         = 325;
-    Scanner.TOKEN_OROR                = 326;
-    Scanner.TOKEN_OR_ASSIGN           = 327;
-    Scanner.TOKEN_OR                  = 328;
-    Scanner.TOKEN_ANDAND              = 329;
-    Scanner.TOKEN_AND_ASSIGN          = 330;
-    Scanner.TOKEN_AND                 = 331;
-    Scanner.TOKEN_LSHIFT_ASSIGN       = 332;
-    Scanner.TOKEN_HEREDOC_SQ_START    = 333;
-    Scanner.TOKEN_LSHIFT              = 334;
-    Scanner.TOKEN_CMP                 = 335;
-    Scanner.TOKEN_LE                  = 336;
-    Scanner.TOKEN_LT                  = 337;
-    Scanner.TOKEN_RSHIFT_ASSIGN       = 338;
-    Scanner.TOKEN_RSHIFT              = 339;
-    Scanner.TOKEN_GE                  = 340;
-    Scanner.TOKEN_GT                  = 341;
-    Scanner.TOKEN_REF                 = 342;
-    Scanner.TOKEN_TILDE               = 343;
-    Scanner.TOKEN_DEREF               = 344;
-    Scanner.TOKEN_POW_ASSIGN          = 345;
-    Scanner.TOKEN_POW                 = 346;
-    Scanner.TOKEN_MUL_ASSIGN          = 347;
-    Scanner.TOKEN_MUL                 = 348;
-    Scanner.TOKEN_PLUSPLUS            = 349;
-    Scanner.TOKEN_PLUS_ASSIGN         = 350;
-    Scanner.TOKEN_PLUS                = 351;
-    Scanner.TOKEN_LBRACE              = 352;
-    Scanner.TOKEN_BYTES_SQ            = 354;
-    Scanner.TOKEN_BYTES_DQ            = 355;
-    Scanner.TOKEN_STRING_QQ_START     = 356;
-    Scanner.TOKEN_QW                  = 358;
-    Scanner.TOKEN_STRING_Q_START      = 359;
-    Scanner.TOKEN_STRING_DQ           = 360;
-    Scanner.TOKEN_STRING_SQ           = 361;
-    Scanner.TOKEN_LBRACKET            = 362;
-    Scanner.TOKEN_FILETEST            = 363;
-    Scanner.TOKEN_MINUSMINUS          = 364;
-    Scanner.TOKEN_LAMBDA              = 365;
-    Scanner.TOKEN_MINUS_ASSIGN        = 366;
-    Scanner.TOKEN_MINUS               = 367;
-    Scanner.TOKEN_RPAREN              = 368;
-    Scanner.TOKEN_COLON = 369;
-    Scanner.TOKEN_END = 370;
-    Scanner.TOKEN_SEMICOLON = 371;
-    Scanner.TOKEN_RBRACE              = 372;
-    Scanner.TOKEN_RBRACKET            = 373;
-    Scanner.TOKEN_REGEXP              = 374;
-    Scanner.TOKEN_LF                  = 375;
-
     var KEYWORDS = {
         "class" : Scanner.TOKEN_CLASS,
         "return" : Scanner.TOKEN_RETURN,
