@@ -165,6 +165,20 @@ tap.test("qr()", function (t) {
     t.end();
 });
 
+tap.test("comment", function (t) {
+    t.equivalent(scanIt('# foo\n...'), [
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_DOTDOTDOT, undefined, 2],
+        [Scanner.TOKEN_EOF,    undefined, 2]
+    ]);
+    t.equivalent(scanIt('  #foo\n...'), [
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_DOTDOTDOT, undefined, 2],
+        [Scanner.TOKEN_EOF,    undefined, 2]
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

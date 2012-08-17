@@ -136,9 +136,10 @@
 
     Scanner.prototype.get = function () {
         // ------------------------------------------------------------------------- 
-        // skip white spaces
+        // skip white space and comments
         // ------------------------------------------------------------------------- 
         this.src = this.src.replace(/^[ ]+/, '');
+        this.src = this.src.replace(/^#[^\n]+/, '');
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];

@@ -17,7 +17,8 @@
     var ND_DATAS  = 2;
 
     var BUILTIN_FUNCTIONS = [
-        'say', 'open', 'p', 'exit'
+        'say', 'open', 'p', 'exit',
+        'getpid'
     ];
 
     function Parser(src, filename) {

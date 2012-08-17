@@ -32,6 +32,9 @@
         p: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
         },
+        getpid: function () {
+            return process.pid;
+        },
         exit: function (status) {
             // http://nodejs.org/api/process.html#process_process_exit_code
             process.exit(status);
