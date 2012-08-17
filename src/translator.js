@@ -53,9 +53,9 @@
             return '';
         case Parser.NODE_UNDEF:
             return "undefined";
-        case Parser.NODE_BREAK:
+        case Parser.NODE_LAST:
             return "break";
-        case Parser.NODE_CONTINUE:
+        case Parser.NODE_NEXT:
             return "continue";
         case Parser.NODE_RETURN:
             return "return (" + self._translate(ast[ND_DATAS]) + ")" ;

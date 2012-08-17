@@ -63,15 +63,15 @@ tap.test('if', function (t) {
 });
 
 
-tap.test('break', function (t) {
+tap.test('last', function (t) {
     try {
-        t.equivalent(parse("break"), [
-                     Parser.NODE_BREAK,
+        t.equivalent(parse("last"), [
+                     Parser.NODE_LAST,
                      1,
                      undefined
                      ]);
-        t.equivalent(parse("continue"), [
-                     Parser.NODE_CONTINUE,
+        t.equivalent(parse("next"), [
+                     Parser.NODE_NEXT,
                      1,
                      undefined
                      ]);

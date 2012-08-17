@@ -53,8 +53,8 @@ my @nodes = qw(
     NODE_NOP
     NODE_BLOCK
     NODE_RETURN
-    NODE_BREAK
-    NODE_CONTINUE
+    NODE_LAST
+    NODE_NEXT
     NODE_SUB
     NODE_TRY
     NODE_THROW

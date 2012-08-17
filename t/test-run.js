@@ -273,6 +273,13 @@ tap.test('foreach', function (t) {
     t.end();
 });
 
+tap.test('last/next', function (t) {
+    try {
+        t.equivalent(testit("my i=0; for 1..10 -> $_ { i += $_; last if $_>5 } i"), 21);
+        t.equivalent(testit("my i=0; for 1..10 -> $_ { next if $_ % 2; i+= $_ } i"), 30);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
 
 // foreach statement have a bug. i
 

@@ -482,16 +482,16 @@
     Parser.prototype.parseExpression = function () {
         var token = this.lookToken();
         this.trace("Parsing expression : " + token[TK_TAG]);
-        if (token[TK_TAG] === Scanner.TOKEN_BREAK) {
+        if (token[TK_TAG] === Scanner.TOKEN_LAST) {
             this.getToken();
             return this.makeNode(
-                                 Parser.NODE_BREAK,
-                                 token[TK_LINENO]
-                                 );
-        } else if (token[TK_TAG] === Scanner.TOKEN_CONTINUE) {
+                Parser.NODE_LAST,
+                token[TK_LINENO]
+            );
+        } else if (token[TK_TAG] === Scanner.TOKEN_NEXT) {
             this.getToken();
             return this.makeNode(
-                                 Parser.NODE_CONTINUE,
+                                 Parser.NODE_NEXT,
                                  token[TK_LINENO]
                                  );
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
