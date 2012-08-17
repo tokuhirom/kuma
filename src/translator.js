@@ -227,6 +227,7 @@
         case Parser.NODE_BITOR:
             return "((" + this._translate(ast[ND_DATAS][0]) + ")|(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_REGEXP:
+            // TODO: escape requireeeeeeeeeeeed?
             return '/' + ast[ND_DATAS][0] + '/';
         case Parser.NODE_REGEXP_MATCH:
             return "((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + "))";
