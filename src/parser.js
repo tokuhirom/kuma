@@ -17,7 +17,7 @@
     var ND_DATAS  = 2;
 
     var BUILTIN_FUNCTIONS = [
-        'say', 'open', 'p'
+        'say', 'open', 'p', 'exit'
     ];
 
     function Parser(src, filename) {
