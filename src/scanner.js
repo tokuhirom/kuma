@@ -132,6 +132,24 @@
         '/' : /^(\/)|([^\/]+)/,
         '!' : /^(!)|([^!]+)/
     };
+    var Q_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '!' : /^(!)|([^!]+)/
+    };
+    var QQ_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '!' : /^(!)|([^!]+)/
+    };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
 
     Scanner.prototype.get = function () {
@@ -171,6 +189,22 @@
         var qrMatch = this.src.match(/^qr([{\[(!@<\/])/);
         if (qrMatch) {
             return this.scanQR(qrMatch);
+        }
+
+        // ------------------------------------------------------------------------- 
+        // q
+        // ------------------------------------------------------------------------- 
+        var qMatch = this.src.match(/^q([{\[(!@<\/])/);
+        if (qMatch) {
+            return this.scanQ(qMatch);
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qq
+        // ------------------------------------------------------------------------- 
+        var qqMatch = this.src.match(/^qq([{\[(!@<\/])/);
+        if (qqMatch) {
+            return this.scanQQ(qqMatch);
         }
 
         // ------------------------------------------------------------------------- 
@@ -304,6 +338,60 @@
         return [
             Scanner.TOKEN_REGEXP,
             [regex, option],
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQQ = function (qqMatch) {
+        // TODO: support #{ }
+        var re = QQ_MAP[qqMatch[1]];
+        this.src = this.src.substr(qqMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        return [
+            Scanner.TOKEN_STRING,
+            str,
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQ = function (qMatch) {
+        var re = Q_MAP[qMatch[1]];
+        this.src = this.src.substr(qMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        var option;
+        this.src = this.src.replace(/^[ism]+/i, function (opt) {
+            option = opt;
+            return '';
+        });
+        return [
+            Scanner.TOKEN_STRING,
+            str,
             this.lineno
         ];
     };

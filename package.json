@@ -6,6 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "tap": "~0.3.0",
+    'sprintf': '~0.1.1',
     "optimist": "0"
   },
   "scripts": {

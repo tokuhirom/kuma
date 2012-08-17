@@ -32,7 +32,7 @@ runtime
 -------
 
     * sprintf
-    * exit()
+    * ARGF
 
 milestone
 ---------

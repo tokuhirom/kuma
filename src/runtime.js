@@ -3,6 +3,8 @@
     "use strict";
     if (!global.Kuma) { global.Kuma = {}; }
 
+    var sprintf = require('sprintf').sprintf;
+
     if (!Array.prototype.grep) {
         Array.prototype.grep = function (callback) {
             var ret = [];
@@ -34,6 +36,9 @@
         },
         getpid: function () {
             return process.pid;
+        },
+        sprintf: function () {
+            return sprintf.apply(this, Array.prototype.slice.call(arguments));
         },
         exit: function (status) {
             // http://nodejs.org/api/process.html#process_process_exit_code

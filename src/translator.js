@@ -63,8 +63,16 @@
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
-                return "Kuma.Core." + translator._translate(func) + "(" + translator.translateArgs(args) + ")";
-            })();
+                var ret = 'Kuma.Core.' + this._translate(ast[ND_DATAS][0]) + '(';
+                for (var i=0, len=args.length; i<len; ++i) {
+                    ret += this._translate(args[i]);
+                    if (i!==len-1) {
+                        ret += ', ';
+                    }
+                }
+                ret += ')';
+                return ret;
+            }).call(this);
         case Parser.NODE_MY:
             // TODO: check the variable scope, etc...
             return (function () {
@@ -75,8 +83,16 @@
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
-                return translator._translate(func) + "(" + translator.translateArgs(args) + ")";
-            })();
+                var ret = this._translate(ast[ND_DATAS][0]) + '(';
+                for (var i=0, len=args.length; i<len; ++i) {
+                    ret += this._translate(args[i]);
+                    if (i!==len-1) {
+                        ret += ', ';
+                    }
+                }
+                ret += ')';
+                return ret;
+            }).call(this);
         case Parser.NODE_ASSIGN:
             return translator._translate(ast[ND_DATAS][0]) + " = " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_UNARY_NOT:

@@ -18,7 +18,7 @@
 
     var BUILTIN_FUNCTIONS = [
         'say', 'open', 'p', 'exit',
-        'getpid'
+        'getpid', 'sprintf'
     ];
 
     function Parser(src, filename) {
@@ -1252,12 +1252,6 @@
         );
     };
     /*
-        } elsif ($token_id == TOKEN_STRING_Q_START) { # q{
-        TODO
-            return _sq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
-        } elsif ($token_id == TOKEN_STRING_QQ_START) { # qq{
-        TODO
-            return _dq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
         } elsif ($token_id == TOKEN_DIV) { # /
         TODO
             return _regexp(substr($c, $used), q{/});

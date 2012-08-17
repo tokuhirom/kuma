@@ -1,4 +1,4 @@
-/*jslint node: true, es5: true */
+/*jslint node: true, es5: true, eval: true */
 "use strict";
 
 var tap = require('tap'),
@@ -291,6 +291,13 @@ tap.test('regexp match', function (t) {
     t.end();
 });
 
+tap.test('sprintf', function (t) {
+    try {
+        t.equivalent(testit("sprintf('%03d', 5)"), '005');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
@@ -305,12 +312,14 @@ function testit(src) {
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
+
     if (0) {
         console.log("---");
         console.log(jssrc);
         console.log("---");
     }
-    var ret = vm.runInThisContext(jssrc);
+    var Kuma = require("../src/runtime.js").Kuma;
+    var ret = eval(jssrc);
     return ret;
 }
 

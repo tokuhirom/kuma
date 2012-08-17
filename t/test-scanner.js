@@ -179,6 +179,22 @@ tap.test("comment", function (t) {
     t.end();
 });
 
+tap.test("q()", function (t) {
+    t.equivalent(scanIt('q(hoge)'), [
+        [Scanner.TOKEN_STRING, 'hoge', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+tap.test("qq()", function (t) {
+    t.equivalent(scanIt('qq(hoge)'), [
+        [Scanner.TOKEN_STRING, 'hoge', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];
