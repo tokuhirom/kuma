@@ -228,7 +228,13 @@
             return "((" + this._translate(ast[ND_DATAS][0]) + ")|(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_REGEXP:
             // TODO: escape requireeeeeeeeeeeed?
-            return '/' + ast[ND_DATAS][0] + '/';
+            return (function () {
+                var ret = '/' + ast[ND_DATAS][0] + '/';
+                if (ast[ND_DATAS][1]) {
+                    ret += ast[ND_DATAS][1];
+                }
+                return ret;
+            }).call(this);
         case Parser.NODE_REGEXP_MATCH:
             return "((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_REGEXP_NOT_MATCH:

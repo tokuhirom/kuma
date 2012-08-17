@@ -7,7 +7,6 @@ use autodie;
 use JSON;
 
 my @tokens = qw(
-    TOKEN_EOF
     TOKEN_IDENT
     TOKEN_DOUBLE
     TOKEN_INTEGER
@@ -118,6 +117,7 @@ my @tokens = qw(
 );
 my $i = 1;
 my %tokens = map { $_ => $i++ } @tokens;
+$tokens{'TOKEN_EOF'} = -1;
 print 'module.exports=' . encode_json({
     name2id => \%tokens,
     id2name => +{ reverse %tokens },

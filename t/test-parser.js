@@ -656,7 +656,7 @@ tap.test('regexp', function (t) {
         t.equivalent(parse('qr/a/'), [
             Parser.NODE_REGEXP,
             1,
-            'a'
+            ['a', undefined]
         ]);
     }catch (e) { t.fail(e); }
     t.end();
@@ -777,10 +777,10 @@ tap.test('c-style for', function (t) {
 tap.test('regexp match', function (t) {
     try {
         t.equivalent(parse("s =~ qr//"), [
-            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, '' ] ]
+            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
         ]);
         t.equivalent(parse("s !~ qr//"), [
-            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, '' ] ]
+            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
         ]);
     }catch (e) { t.fail(e); }
     t.end();

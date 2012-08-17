@@ -9,10 +9,8 @@ scanner
     * scanner supports heredoc or """
     * tune up
     * support #{} style
-    * scan regexp literal
     * support comment
     * split statements by \n
-    * //i
     * //x
 
 parser
@@ -34,6 +32,7 @@ runtime
 -------
 
     * sprintf
+    * exit()
 
 milestone
 ---------

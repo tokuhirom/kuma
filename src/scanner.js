@@ -295,9 +295,14 @@
                 re, scanCallback
             );
         }
+        var option;
+        this.src = this.src.replace(/^[ism]+/i, function (opt) {
+            option = opt;
+            return '';
+        });
         return [
             Scanner.TOKEN_REGEXP,
-            regex,
+            [regex, option],
             this.lineno
         ];
     };

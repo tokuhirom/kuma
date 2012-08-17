@@ -285,6 +285,8 @@ tap.test('regexp match', function (t) {
     try {
         t.equivalent(testit("!!('hoge' =~ qr/o/)"), true);
         t.equivalent(testit("!!('hoge' !~ qr/o/)"), false);
+        t.equivalent(testit("!!('hoge' =~ qr/O/)"), false);
+        t.equivalent(testit("!!('hoge' =~ qr/O/i)"), true);
     } catch (e) { t.fail(e); }
     t.end();
 });

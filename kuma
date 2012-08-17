@@ -10,9 +10,18 @@ var Translator = require("./src/translator.js").Kuma.Translator,
     Kuma = {
         "Core": Core
     };
-var argv = require('optimist')
+var optimist = require('optimist')
     .usage('Usage: $0 -e eval')
-    .argv;
+    .alias('h', 'help').describe('h', 'show this help message')
+                       .describe('dump_ast', 'dump abstract syntax tree')
+                       .describe('dump_js',  'dump translated javascript source code')
+    ;
+var argv = optimist.argv;
+
+if (argv.h) {
+    console.log(optimist.help());
+    process.exit(0);
+}
 
 if (argv.e) {
     // -e  means eval mode

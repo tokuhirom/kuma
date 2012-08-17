@@ -135,11 +135,11 @@ tap.test("qw()", function (t) {
 
 tap.test("qr()", function (t) {
     t.equivalent(scanIt('qr()'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr{}'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.end();
@@ -147,15 +147,19 @@ tap.test("qr()", function (t) {
 
 tap.test("qr()", function (t) {
     t.equivalent(scanIt('qr()'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr(^.)'), [
-        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_REGEXP, ['^.', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr/^./'), [
-        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_REGEXP, ['^.', undefined], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr/^./i'), [
+        [Scanner.TOKEN_REGEXP, ['^.', 'i'], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.end();
