@@ -165,7 +165,6 @@
             }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            console.log("FOR!!!!");
             return this.parseForStmt();
         } else {
             // normal statement
