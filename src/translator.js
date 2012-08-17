@@ -49,8 +49,14 @@
                 }
                 return ret.join(";\n");
             })();
+        case Parser.NODE_NOP:
+            return '';
         case Parser.NODE_UNDEF:
             return "undefined";
+        case Parser.NODE_BREAK:
+            return "break";
+        case Parser.NODE_CONTINUE:
+            return "continue";
         case Parser.NODE_RETURN:
             return "return (" + self._translate(ast[ND_DATAS]) + ")" ;
         case Parser.NODE_BUILTIN_FUNCALL:

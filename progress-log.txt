@@ -283,3 +283,19 @@ TRANSLATOR: total: 85, remains: 20(23.53%)
   427 src/scanner.js
   346 src/translator.js
  2180 total
+----
+2012-08-17T10:57:47
+src/node-map.js: 0
+src/parser.js: 17
+src/runtime.js: 0
+src/scanner.js: 1
+src/token-map.js: 0
+src/translator.js: 3
+TRANSLATOR: total: 82, remains: 17(20.73%)
+    0 src/node-map.js
+ 1294 src/parser.js
+   37 src/runtime.js
+  325 src/scanner.js
+    0 src/token-map.js
+  349 src/translator.js
+ 2005 total
