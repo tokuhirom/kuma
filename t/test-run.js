@@ -298,6 +298,13 @@ tap.test('sprintf', function (t) {
     t.end();
 });
 
+tap.test('int', function (t) {
+    try {
+        t.equivalent(testit("int('3')"), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
