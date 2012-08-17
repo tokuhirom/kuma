@@ -90,6 +90,7 @@ my @nodes = qw(
     NODE_FOR
     NODE_REGEXP_MATCH
     NODE_REGEXP_NOT_MATCH
+    NODE_ITEM
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;

@@ -18,7 +18,8 @@
 
     var BUILTIN_FUNCTIONS = [
         'say', 'open', 'p', 'exit',
-        'getpid', 'sprintf', 'printf'
+        'getpid', 'sprintf', 'printf',
+        'print'
     ];
 
     function Parser(src, filename) {
@@ -993,6 +994,25 @@
                 this.restoreMark(mark);
                 return;
             }
+        } else if (token[TK_TAG] === Scanner.TOKEN_LBRACKET) {
+            // $thing[$n]
+            this.getToken(); // [
+
+            var arg = this.parseExpression();
+            if (!arg) {
+                return;
+            }
+
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACKET) {
+                throw "Unmatched bracket at line " + this.lookToken[TK_TAG];
+            }
+            this.getToken(); // ]
+
+            return this.makeNode(
+                Parser.NODE_ITEM,
+                token[TK_LINENO],
+                [primary, arg]
+            );
         } else {
             // It's primary token
             return primary;

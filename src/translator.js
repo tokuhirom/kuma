@@ -59,6 +59,8 @@
             return "continue";
         case Parser.NODE_RETURN:
             return "return (" + self._translate(ast[ND_DATAS]) + ")" ;
+        case Parser.NODE_ITEM:
+            return this._translate(ast[ND_DATAS][0]) + '[' + this._translate(ast[ND_DATAS][1]) + ']';
         case Parser.NODE_BUILTIN_FUNCALL:
             return (function () {
                 var func = ast[ND_DATAS][0];

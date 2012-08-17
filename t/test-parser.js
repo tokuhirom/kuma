@@ -786,6 +786,15 @@ tap.test('regexp match', function (t) {
     t.end();
 });
 
+tap.test('array item', function (t) {
+    try {
+        t.equivalent(parse("sss[bababa]"), [
+            Parser.NODE_ITEM, 1, [ [ Parser.NODE_IDENT, 1, 'sss' ], [ Parser.NODE_IDENT, 1, 'bababa' ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
