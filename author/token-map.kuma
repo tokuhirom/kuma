@@ -107,10 +107,10 @@ my tokens = qw(
     TOKEN_NEW
 )
 
-my $i = 1
+my i = 1
 my token_map = {}
 
-tokens.each(-> { token_map[$_] = $i++ })
+tokens.each(-> { token_map[$_] = i++ })
 token_map['TOKEN_EOF'] = -1
 
 my json = JSON.stringify({
