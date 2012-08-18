@@ -27,11 +27,11 @@ if (argv.h) {
 if (argv.e) {
     // -e  means eval mode
     var src = '' + argv.e;
-    evaluate(src);
+    evaluate.call(this, src);
 } else if (argv._.length > 0) {
     var fname = argv._[0];
     var src = fs.readFileSync(fname, 'utf-8');
-    evaluate(src);
+    evaluate.call(this, src);
 } else {
     // TODO: readline?
     var rl = readline.createInterface({
@@ -43,7 +43,7 @@ if (argv.e) {
     rl.prompt();
     rl.on('line', function(src) {
         try {
-            console.log(evaluate(''+src.trim()));
+            console.log(evaluate.call(this, ''+src.trim()));
         } catch (e) { console.log(e); }
         rl.prompt();
     }).on('close', function () {

@@ -63,7 +63,7 @@
         return this.tokens[this.idx++];
     };
     Parser.prototype.getTokenName = function (token_id) {
-        return Parser.id2name[''+token_id];
+        return Scanner.id2name[''+token_id];
     };
     Parser.prototype.lookToken = function (use_lf) {
         var idx = this.idx;
@@ -109,7 +109,13 @@
 
             var rhs = upper.call(this);
             if (!rhs) {
-                throw "Syntax error after " + this.getTokenName(token[TK_TAG]) + " at line " + this.lineno;
+                if (token[TK_TAG] === Scanner.TOKEN_MUL) {
+                    // '*' operator is used in non binary op syntax.
+                    // do not throw exception for 'use fs *'
+                    return;
+                } else {
+                    throw "Syntax error after " + this.getTokenName(token[TK_TAG]) + " at line " + this.lineno;
+                }
             }
 
             child = this.makeNode(
@@ -226,7 +232,7 @@
                 [condWhile, stmt]
             );
         default:
-            throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
+            throw "Unexpected token : " + this.getTokenName(nextToken[TK_TAG])  + " at line " + this.lookToken(true)[TK_LINENO];
         }
     };
     Parser.prototype.parseClassStmt = function () {
@@ -256,8 +262,8 @@
         );
     };
     Parser.prototype.parseUseStmt = function () {
-        var token = this.getToken(); // use
-        var module = this.parseExpression();
+        var token = this.getToken(); // TOKEN_USE
+        var module = this.parsePrimary();
         if (!module) {
             throw "Missing module name after use keyword at line " + token[TK_LINENO];
         }
@@ -269,6 +275,7 @@
         // use 'test/more.kuma'
         var exportType;
         if (this.lookToken()[TK_TAG] === Scanner.TOKEN_MUL) {
+            this.getToken();
             exportType = '*';
         } else {
             var primary = this.parsePrimary();
@@ -1301,6 +1308,27 @@
             $c = substr($c, $used);
             return ($c, _node(NODE_SELF, $LINENO));
             */
+
+    if (0) {
+        for (var k in Parser.prototype) {
+            var level = 0;
+            (function () {
+                var orig = Parser.prototype[k];
+                var key = k;
+                Parser.prototype[key] = function () {
+                    var buf = '';
+                    for (var i=0; i<level; i++) {
+                        buf += ' ';
+                    }
+                    console.log(buf + key);
+                    level++;
+                    var retval = orig.apply(this, Array.prototype.slice.call(arguments));
+                    level--;
+                    return retval;
+                };
+            }).call(this);
+        }
+    }
 
     global.Kuma.Parser = Parser;
 

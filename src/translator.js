@@ -393,7 +393,6 @@
             return (function () {
                 var module     = ast[ND_DATAS][0];
                 var exportType = ast[ND_DATAS][1];
-                console.log(exportType);
                 if (typeof(exportType) === 'undefined') {
                     // use fs;
                     return (function () {
@@ -480,10 +479,32 @@
                         }
                         return ret;
                     }).call(this);
-                } else if (typeof(exportType) === '*') {
+                } else if (exportType === '*') {
                     // use fs *;
-                    // TODO
+                    return (function () {
+                        // => var fs = require("fs");
+                        var ret = 'var ';
+                            ret += this._translate(module);
+                            ret += ' = require(';
+                        if (module[ND_TYPE] === Parser.NODE_IDENT) {
+                            ret += "'" + module[ND_DATAS] + "'";
+                        } else {
+                            ret += this._translate(module);
+                        }
+                            ret += ');\n';
+
+                        // => for (var k in fs) { if (fs.hasOwnProperty(k)) {
+                        //        this.k = fs[k];
+                        //    }
+                        // => var %s = %s.%s;
+                        var k = 'K$$key' + this.getID();
+                            ret += 'for (var '+k+' in fs) { if (fs.hasOwnProperty('+k+')) {';
+                            ret += '  this[' + k + '] = ' + this._translate(module) + '[' + k + ']';
+                            ret += '} }';
+                        return ret;
+                    }).call(this);
                 } else {
+                    console.log(exportType);
                     throw 'Unimplemented';
                 }
             }).call(this);

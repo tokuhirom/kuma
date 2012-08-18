@@ -13,6 +13,7 @@
         this.lineno = 1;
     }
 
+    Scanner.id2name = token_map.id2name;
     for (var id in token_map.name2id) {
         if (!token_map.name2id.hasOwnProperty(id)) { continue; }
         Scanner[id] = token_map.name2id[id];
