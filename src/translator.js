@@ -176,6 +176,17 @@
                 ret += "}\n";
                 return ret;
             }).call(this);
+        case Parser.NODE_CLASS:
+            // [name, parent, block]
+            return (function () {
+                // TODO: exntend support
+                var ret = 'function ';
+                    ret += this._translate(ast[ND_DATAS][0]);
+                    ret += '() {';
+                    ret += this._translate(ast[ND_DATAS][2]);
+                    ret += "}\n";
+                return ret;
+            }).call(this);
         case Parser.NODE_FOREACH:
             // [expression, vars, block]
             return (function () {

@@ -62,6 +62,9 @@
         }
         return this.tokens[this.idx++];
     };
+    Parser.prototype.getTokenName = function (token_id) {
+        return this.id2name[''+token_id];
+    };
     Parser.prototype.lookToken = function (use_lf) {
         var idx = this.idx;
         if (!use_lf) {
@@ -106,8 +109,7 @@
 
             var rhs = upper.call(this);
             if (!rhs) {
-                // TODO better diag
-                throw "Syntax error after " + node_type + " at line " + this.lineno;
+                throw "Syntax error after " + this.getTokenName(token[TK_TAG]) + " at line " + this.lineno;
             }
 
             child = this.makeNode(
@@ -254,7 +256,7 @@
         );
     };
     Parser.prototype.parseUseStmt = function () {
-        // TODO
+        // TODO implement use statement
         /*
         } elsif ($token_id == TOKEN_USE) {
             $c = substr($c, $used);
@@ -514,7 +516,7 @@
             );
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
              /*
-        // TODO
+        // TODO try block
             $c = substr($c, $used);
             ($c, my $block) = block($c)
                 or _err "expected block after try keyword";
@@ -803,8 +805,7 @@
             this.getToken();
 
             var lhs = this.parseUnary();
-            // TODO: show token name
-            if (!lhs) { throw "Missing lhs for token number " + token[TK_TAG]; }
+            if (!lhs) { throw "Missing lhs for " + this.getTokenName(token[TK_TAG]) + ' at line ' + token[TK_LINENO]; }
             return this.makeNode(
                 UNARY_OPS[token[TK_TAG]],
                 token[TK_LINENO],
