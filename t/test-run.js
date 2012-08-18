@@ -305,6 +305,15 @@ tap.test('int', function (t) {
     t.end();
 });
 
+/*
+tap.test('Class', function (t) {
+    try {
+        t.equivalent(testit("class Foo { }; typeof(Foo)"), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+*/
+
 // foreach statement have a bug. i
 
 function testit(src) {

@@ -38,17 +38,15 @@
         return header + "\n" + this._translate(ast);
     };
     Translator.prototype._translate = function (ast) {
-        var translator = this;
-        var self = this;
         switch (ast[ND_TYPE]) {
         case Parser.NODE_STMTS:
             return (function () {
                 var ret= [];
                 for (var i=0, len=ast[ND_DATAS].length; i<len; i++) {
-                    ret.push(self._translate(ast[ND_DATAS][i]));
+                    ret.push(this._translate(ast[ND_DATAS][i]));
                 }
                 return ret.join(";\n");
-            })();
+            }).call(this);
         case Parser.NODE_NOP:
             return '';
         case Parser.NODE_UNDEF:
@@ -58,7 +56,7 @@
         case Parser.NODE_NEXT:
             return "continue";
         case Parser.NODE_RETURN:
-            return "return (" + self._translate(ast[ND_DATAS]) + ")" ;
+            return "return (" + this._translate(ast[ND_DATAS]) + ")" ;
         case Parser.NODE_ITEM:
             return this._translate(ast[ND_DATAS][0]) + '[' + this._translate(ast[ND_DATAS][1]) + ']';
         case Parser.NODE_BUILTIN_FUNCALL:
@@ -96,15 +94,15 @@
                 return ret;
             }).call(this);
         case Parser.NODE_ASSIGN:
-            return translator._translate(ast[ND_DATAS][0]) + " = " + this._translate(ast[ND_DATAS][1]);
+            return this._translate(ast[ND_DATAS][0]) + " = " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_UNARY_NOT:
-            return "!(" + translator._translate(ast[ND_DATAS]) + ")";
+            return "!(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_UNARY_TILDE:
-            return "~(" + translator._translate(ast[ND_DATAS]) + ")";
+            return "~(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_UNARY_PLUS:
-            return "+(" + translator._translate(ast[ND_DATAS]) + ")";
+            return "+(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_UNARY_MINUS:
-            return "-(" + translator._translate(ast[ND_DATAS]) + ")";
+            return "-(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_INTEGER:
             return ast[ND_DATAS];
         case Parser.NODE_TRUE:
@@ -155,29 +153,29 @@
             }).call(this);
         case Parser.NODE_IF:
             return (function () {
-                var ret = 'if (' + self._translate(ast[ND_DATAS][0]) + ")\n";
-                    ret += self._translate(ast[ND_DATAS][1]);
+                var ret = 'if (' + this._translate(ast[ND_DATAS][0]) + ")\n";
+                    ret += this._translate(ast[ND_DATAS][1]);
                 if (ast[ND_DATAS][2]) {
-                    ret += self._translate(ast[ND_DATAS][2]);
+                    ret += this._translate(ast[ND_DATAS][2]);
                 }
                 return ret;
-            })();
+            }).call(this);
         case Parser.NODE_ELSIF:
             return (function () {
-                var ret = 'else if (' + self._translate(ast[ND_DATAS][0]) + ")\n";
-                    ret += self._translate(ast[ND_DATAS][1]);
+                var ret = 'else if (' + this._translate(ast[ND_DATAS][0]) + ")\n";
+                    ret += this._translate(ast[ND_DATAS][1]);
                 if (ast[ND_DATAS][2]) {
-                    ret += self._translate(ast[ND_DATAS][2]);
+                    ret += this._translate(ast[ND_DATAS][2]);
                 }
                 return ret;
-            })();
+            }).call(this);
         case Parser.NODE_ELSE:
             return (function () {
                 var ret = 'else {';
-                    ret += self._translate(ast[ND_DATAS]);
+                    ret += this._translate(ast[ND_DATAS]);
                 ret += "}\n";
                 return ret;
-            })();
+            }).call(this);
         case Parser.NODE_FOREACH:
             // [expression, vars, block]
             return (function () {
@@ -317,7 +315,7 @@
         case Parser.NODE_GET_METHOD:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")." + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_POW:
-            return 'Math.pow(('+translator._translate(ast[ND_DATAS][0]) + "), (" + this._translate(ast[ND_DATAS][1]) + "))";
+            return 'Math.pow(('+this._translate(ast[ND_DATAS][0]) + "), (" + this._translate(ast[ND_DATAS][1]) + "))";
         case Parser.NODE_PRE_INC:
             return '++(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_INC:

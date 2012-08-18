@@ -4,7 +4,7 @@ TODO list
 scanner
 -------
 
-    * comment support(should output to the js?)
+    * multiline comment support(should output to the js?)
     * scanner supports strings
     * scanner supports heredoc or """
     * tune up
