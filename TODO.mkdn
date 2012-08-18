@@ -11,6 +11,7 @@ scanner
     * support #{} style
     * split statements by \n
     * //x
+    * export keyword?
 
 parser
 ------

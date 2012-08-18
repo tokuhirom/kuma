@@ -15,7 +15,7 @@ var optimist = require('optimist')
     .alias('h', 'help').describe('h', 'show this help message')
                        .describe('dump_ast', 'dump abstract syntax tree')
                        .describe('dump_token', 'dump tokens')
-                       .describe('dump_js',  'dump translated javascript source code')
+    .alias('D', 'dump_js').describe('dump_js',  'dump translated javascript source code')
     ;
 var argv = optimist.argv;
 

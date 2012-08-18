@@ -63,7 +63,7 @@
         return this.tokens[this.idx++];
     };
     Parser.prototype.getTokenName = function (token_id) {
-        return this.id2name[''+token_id];
+        return Parser.id2name[''+token_id];
     };
     Parser.prototype.lookToken = function (use_lf) {
         var idx = this.idx;
@@ -256,30 +256,34 @@
         );
     };
     Parser.prototype.parseUseStmt = function () {
-        // TODO implement use statement
-        /*
-        } elsif ($token_id == TOKEN_USE) {
-            $c = substr($c, $used);
-            my ($used, $token_id, $klass) = _token_op($c);
-            my $op = +{
-                TOKEN_CLASS_NAME() => NODE_IDENT,
-                TOKEN_IDENT()      => NODE_IDENT,
-            }->{$token_id};
-            _err "class name is required after 'use' keyword"
-                unless $op;
-            $c = substr($c, $used);
-            my $type;
-            if ((my $c2) = match($c, '*')) {
-                $c = $c2;
-                $type = '*';
-            } elsif (my ($c3, $primary) = primary($c)) {
-                $c = $c3;
-                $type = $primary;
+        var token = this.getToken(); // use
+        var module = this.parseExpression();
+        if (!module) {
+            throw "Missing module name after use keyword at line " + token[TK_LINENO];
+        }
+
+        // use fs
+        // use fs *
+        // use fs qw//
+        // use fs { 'foo': 'bar'}
+        // use 'test/more.kuma'
+        var exportType;
+        if (this.lookToken()[TK_TAG] === Scanner.TOKEN_MUL) {
+            exportType = '*';
+        } else {
+            var primary = this.parsePrimary();
+            if (primary) {
+                exportType = primary;
             } else {
-                $type = _node(NODE_UNDEF);
+                exportType = undefined;
             }
-            return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
-            */
+        }
+
+        return this.makeNode(
+            Parser.NODE_USE,
+            token[TK_LINENO],
+            [module, exportType]
+        );
     };
     Parser.prototype.parseDoStmt = function () {
         var token = this.getToken(); // 'do'
@@ -799,7 +803,7 @@
         var token = this.lookToken();
         if (token[TK_TAG] === Scanner.NODE_FILETEST) {
             this.getToken();
-            // TODO:
+            // TODO: implement filetest operator
             throw 'not implemented';
         } else if (token[TK_TAG] in UNARY_OPS) {
             this.getToken();

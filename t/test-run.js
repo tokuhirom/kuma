@@ -312,6 +312,15 @@ tap.test('Class', function (t) {
     t.end();
 });
 
+tap.test('use', function (t) {
+    try {
+        t.equivalent(testit("use fs; fs"), require('fs'));
+        t.equivalent(testit("use fs qw/realpath/; realpath"), require('fs').realpath);
+        t.equivalent(testit("use fs {'watch': 'look'}; look"), require('fs').watch);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

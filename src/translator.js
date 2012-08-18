@@ -385,6 +385,108 @@
                     ret += this._translate(ast[ND_DATAS][1]);
                 return ret;
             }).call(this);
+        case Parser.NODE_USE:
+            // [module, '*']
+            // [module, {}]
+            // [module, []]
+            // [module, undefined]
+            return (function () {
+                var module     = ast[ND_DATAS][0];
+                var exportType = ast[ND_DATAS][1];
+                console.log(exportType);
+                if (typeof(exportType) === 'undefined') {
+                    // use fs;
+                    return (function () {
+                        var ret = 'var ';
+                            ret += this._translate(module);
+                            ret += ' = require(';
+                        if (module[ND_TYPE] === Parser.NODE_IDENT) {
+                            ret += "'" + module[ND_DATAS] + "'";
+                        } else {
+                            ret += this._translate(module);
+                        }
+                            ret += ');\n';
+                        return ret;
+                    }).call(this);
+                } else if (Array.isArray(exportType) && exportType[ND_TYPE] === Parser.NODE_MAKE_ARRAY) {
+                    // use fs qw/watch/;
+                    return (function () {
+                        // => var fs = require("fs");
+                        var ret = 'var ';
+                            ret += this._translate(module);
+                            ret += ' = require(';
+                        if (module[ND_TYPE] === Parser.NODE_IDENT) {
+                            ret += "'" + module[ND_DATAS] + "'";
+                        } else {
+                            ret += this._translate(module);
+                        }
+                            ret += ');\n';
+
+                        // => var watch = fs.watch;
+                        // => var %s = %s.%s;
+                        var ary = exportType[ND_DATAS];
+                        for (var i=0, len=ary.length; i<len; i++) {
+                            ret += 'var ';
+                        if (ary[i][ND_TYPE] === Parser.NODE_STRING) {
+                            ret += ary[i][ND_DATAS];
+                        } else {
+                            ret += this._translate(ary[i]);
+                        }
+                            ret += ' = ';
+                            ret += this._translate(module);
+                            ret += '.';
+                        if (ary[i][ND_TYPE] === Parser.NODE_STRING) {
+                            ret += ary[i][ND_DATAS];
+                        } else {
+                            ret += this._translate(ary[i]);
+                        }
+                            ret += ';';
+                        }
+                        return ret;
+                    }).call(this);
+                } else if (Array.isArray(exportType) && exportType[ND_TYPE] === Parser.NODE_MAKE_HASH) {
+                    // use fs {'watch': 'look'};
+                    return (function () {
+                        // => var fs = require("fs");
+                        var ret = 'var ';
+                            ret += this._translate(module);
+                            ret += ' = require(';
+                        if (module[ND_TYPE] === Parser.NODE_IDENT) {
+                            ret += "'" + module[ND_DATAS] + "'";
+                        } else {
+                            ret += this._translate(module);
+                        }
+                            ret += ');\n';
+
+                        // => var watch = fs.watch;
+                        // => var %s = %s.%s;
+                        var ary = exportType[ND_DATAS];
+                        for (var i=0, len=ary.length; i<len; i+=2) {
+                            ret += 'var ';
+                        if (ary[i][ND_TYPE] === Parser.NODE_STRING) {
+                            ret += ary[i+1][ND_DATAS];
+                        } else {
+                            ret += this._translate(ary[i+1]);
+                        }
+                            ret += ' = ';
+                            ret += this._translate(module);
+                            ret += '.';
+                        if (ary[i][ND_TYPE] === Parser.NODE_STRING) {
+                            ret += ary[i][ND_DATAS];
+                        } else {
+                            ret += this._translate(ary[i]);
+                        }
+                            ret += ';';
+                        }
+                        return ret;
+                    }).call(this);
+                } else if (typeof(exportType) === '*') {
+                    // use fs *;
+                    // TODO
+                } else {
+                    throw 'Unimplemented';
+                }
+            }).call(this);
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + Parser.id2name[ast[ND_TYPE]];

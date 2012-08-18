@@ -83,6 +83,7 @@ my nodes = qw(
     NODE_REGEXP_MATCH
     NODE_REGEXP_NOT_MATCH
     NODE_ITEM
+    NODE_USE
 )
 
 my i = 1
