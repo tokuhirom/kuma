@@ -386,10 +386,7 @@
                 return ret;
             }).call(this);
         case Parser.NODE_USE:
-            // [module, '*']
-            // [module, {}]
-            // [module, []]
-            // [module, undefined]
+            // [module, exportType]
             return (function () {
                 var module     = ast[ND_DATAS][0];
                 var exportType = ast[ND_DATAS][1];
