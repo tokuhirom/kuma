@@ -19,7 +19,6 @@ parser
     * parse fileteest ops
     * parse regexp literal
     * parse list comprehention(is needed?)
-    * =~
     * labels for 'for' statement
     * labels for 'while' statement
 
@@ -37,6 +36,7 @@ milestone
 ---------
 
     * [done] fib
+    * export feature
     * class support
     * block scope
     * no paste site
@@ -44,7 +44,9 @@ milestone
     * publish node.js library
     * self-hosting
     * [done] fizzbuzz
+    * self support
     * run on browser
+    * Test::More
 
 END
 ===

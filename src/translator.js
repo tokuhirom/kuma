@@ -41,7 +41,8 @@
             header += 'var KF$$ArrayisArray = Array.isArray || function (vArg) { return Object.prototype.toString.call(vArg) === "[object Array]" };';
         }
         if (this.requireExtend) {
-            header += 'var KF$$extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };';
+            header += 'var KF$$hasProp = {}.hasOwnProperty;';
+            header += 'var KF$$extends = function(child, parent) { for (var key in parent) { if (KF$$hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };';
         }
         return header + "\n" + this._translate(ast);
     };
@@ -187,16 +188,32 @@
         case Parser.NODE_CLASS:
             // [name, parent, block]
             return (function () {
-                if (ast[ND_DATAS][1]) {
-                    this.requireExtend = true;
-                    // TODO: exntend support
-                }
                 var className = this._translate(ast[ND_DATAS][0]);
-                var ret = 'function ';
-                    ret += className;
-                    ret += '() {';
+                var parent;
+                if (ast[ND_DATAS][1]) {
+                    parent = this._translate(ast[ND_DATAS][1]);
+                    this.requireExtend = true;
+                }
+
+                var ret  = 'var ' + className + ' = (function (_super) {';
+                    if (parent) {
+                    ret += "    KF$$extends(" + className + ', _super);';
+                    }
+                    ret += "    function " + className + "() {";
+                    if (parent) {
+                    ret += "        " + className + ".__super__.constructor.apply(this, arguments);";
+                    }
+                    ret += "    };";
+                    ret += "    return " + className + ";";
+                    ret += "})(";
+                    if (parent) {
+                        ret += parent;
+                    }
+                    // Foo.__super__.constructor.apply(this, arguments);
                     // TODO: ctor
-                    ret += "}\n";
+                    ret += ");\n";
+
+                // set up methods
                 var origClassName = this.className;
                 try {
                     this.className = className;
