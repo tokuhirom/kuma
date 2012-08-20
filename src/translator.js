@@ -330,8 +330,9 @@
                         }
                     }
                 }
-                    ret += ')';
+                    ret += ') { var KV$$self = this;';
                     ret += this._translate(ast[ND_DATAS][2]);
+                    ret += '}\n';
                 return ret;
             }).call(this);
         case Parser.NODE_MUL_ASSIGN:
@@ -558,6 +559,8 @@
                     throw 'Unimplemented';
                 }
             }).call(this);
+        case Parser.NODE_SELF:
+            return 'KV$$self';
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + Parser.id2name[ast[ND_TYPE]];

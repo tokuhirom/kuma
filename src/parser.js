@@ -1133,6 +1133,12 @@
                 Parser.NODE_UNDEF,
                 token[TK_LINENO]
             );
+        case Scanner.TOKEN_SELF:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_SELF,
+                token[TK_LINENO]
+            );
         case Scanner.TOKEN_INTEGER:
             token = this.getToken();
             return this.makeNode(
@@ -1329,10 +1335,6 @@
             return _bytes_sq(substr($c, $used), 0);
         } elsif ($token_id ==TOKEN_BYTES_DQ) { # b"
             return _bytes_dq(substr($c, $used), 0);
-        } elsif ($token_id == TOKEN_SELF) {
-        TODO
-            $c = substr($c, $used);
-            return ($c, _node(NODE_SELF, $LINENO));
             */
 
     if (0) {
