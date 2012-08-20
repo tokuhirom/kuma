@@ -273,10 +273,14 @@
         // use fs qw//
         // use fs { 'foo': 'bar'}
         // use 'test/more.kuma'
+        var nextToken = this.lookToken(true);
         var exportType;
-        if (this.lookToken()[TK_TAG] === Scanner.TOKEN_MUL) {
+        if (nextToken[TK_TAG] === Scanner.TOKEN_MUL) {
             this.getToken();
             exportType = '*';
+        } else if (nextToken[TK_TAG] === Scanner.TOKEN_LF || nextToken[TK_TAG] === Scanner.TOKEN_SEMICOLON) {
+            // use fs\nmy ...
+            exportType = undefined;
         } else {
             var primary = this.parsePrimary();
             if (primary) {

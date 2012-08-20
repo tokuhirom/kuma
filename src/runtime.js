@@ -7,43 +7,51 @@
     var sys = require('sys');
 
     if (!Array.prototype.grep) {
-        Array.prototype.grep = function (callback) {
-            var ret = [];
-            for (var i=0, len = this.length; i<len; i++) {
-                if (callback(this[i])) {
-                    ret.push(this[i]);
+        Object.defineProperty(Array.prototype, 'grep', {
+            enumerable: false,
+            value: function (callback) {
+                var ret = [];
+                for (var i=0, len = this.length; i<len; i++) {
+                    if (callback(this[i])) {
+                        ret.push(this[i]);
+                    }
                 }
+                return ret;
             }
-            return ret;
-        };
+        });
     }
     if (!Array.prototype.each) {
-        Array.prototype.each = function (callback) {
-            for (var i=0, len = this.length; i<len; i++) {
-                callback(this[i]);
-            }
-        };
+        Object.defineProperty(Array.prototype, 'each', {
+            enumerable: false,
+            value: Array.prototype.forEach
+        });
     }
     if (!Array.prototype.sum) {
-        Array.prototype.sum = function () {
-            var ret = 0;
-            var container = this;
-            for (var i=0, len = this.length; i<len; i++) {
-                ret += this[i];
+        Object.defineProperty(Array.prototype, 'sum', {
+            enumerable: false,
+            value: function () {
+                var ret = 0;
+                var container = this;
+                for (var i=0, len = this.length; i<len; i++) {
+                    ret += this[i];
+                }
+                return ret;
             }
-            return ret;
-        };
+        });
     }
     if (!Object.prototype.reverse) {
-        Object.prototype.reverse = function () {
-            var ret = {};
-            for (var k in this) {
-                if (this.hasOwnProperty(k)) {
-                    ret[this[k]] = k;
+        Object.defineProperty(Object.prototype, 'reverse', {
+            enumerable: false,
+            value: function () {
+                var ret = {};
+                for (var k in this) {
+                    if (this.hasOwnProperty(k)) {
+                        ret[this[k]] = k;
+                    }
                 }
+                return ret;
             }
-            return ret;
-        };
+        });
     }
 
     global.Kuma.Core = {

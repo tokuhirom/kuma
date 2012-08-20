@@ -13,6 +13,10 @@
     var ND_LINENO = 1;
     var ND_DATAS  = 2;
 
+    function getNodeNameByType(type) {
+        return Parser.id2name[''+type];
+    }
+
     function Translator() {
         this.id = 0;
         this.requireIsArray = false;
@@ -502,6 +506,9 @@
                     }).call(this);
                 } else {
                     console.log(exportType);
+                    if (Array.isArray(exportType)) {
+                        console.log(getNodeNameByType(exportType[ND_TYPE]));
+                    }
                     throw 'Unimplemented';
                 }
             }).call(this);
@@ -509,6 +516,7 @@
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug
             throw "Unknown ast node: " + Parser.id2name[ast[ND_TYPE]];
         }
+
     };
 
     global.Kuma.Translator = Translator;
