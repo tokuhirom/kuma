@@ -328,6 +328,13 @@ tap.test('oct', function (t) {
     t.end();
 });
 
+tap.test('hex', function (t) {
+    try {
+        t.equivalent(testit('0xdeadbeef'), 3735928559);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
