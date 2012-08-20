@@ -591,19 +591,21 @@
                 or _err "expected block after try keyword";
             return ($c, _node2(NODE_TRY, $START, $block));
             */
-        } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
-             /*
-        // TODO
-            $c = substr($c, $used);
-            ($c, my $block) = expression($c)
-                or die "expected expression after die keyword";
-            return ($c, _node2(NODE_DIE, $START, $block));
-            */
+        } else if (token[TK_TAG] === Scanner.TOKEN_DIE) {
+            return this.parseDie();
         } else {
             return this.parseStrOrExpression();
         }
     };
-
+    Parser.prototype.parseDie = function () {
+        var token = this.getToken(); // die
+        var exp = this.parseExpression(); // maybe undefined.
+        return this.makeNode(
+            Parser.NODE_DIE,
+            token[TK_LINENO],
+            exp
+        );
+    };
     Parser.prototype.parseIdentifier = function () {
         var token = this.lookToken();
         if (token[TK_TAG] == Scanner.TOKEN_IDENT) {

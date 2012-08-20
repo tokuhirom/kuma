@@ -70,6 +70,14 @@
                     return "break";
                 }
             }).call(this);
+        case Parser.NODE_DIE:
+            return (function () {
+                if (ast[ND_DATAS]) {
+                    return 'throw ' + this._translate(ast[ND_DATAS]);
+                } else {
+                    return "throw 'Died'";
+                }
+            }).call(this);
         case Parser.NODE_NEXT:
             return (function () {
                 if (ast[ND_DATAS]) {
@@ -215,8 +223,11 @@
                     }
                     ret += "    function " + className + "() {";
                     if (parent) {
-                    ret += "        " + className + ".__super__.constructor.apply(this, arguments);";
+                    ret += "        " + className + ".__super__.constructor.apply(this, arguments);\n";
                     }
+                    ret += "        if (this.initialize) {\n";
+                    ret += "            this.initialize.apply(this, arguments);\n";
+                    ret += "        }";
                     ret += "    };";
                     ret += "    return " + className + ";";
                     ret += "})(";

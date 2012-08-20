@@ -331,3 +331,19 @@ TRANSLATOR: total: 84, remains: 13(15.48%)
     0 src/token-map.js
   361 src/translator.js
  2010 total
+----
+2012-08-21T06:09:46
+src/node-map.js: 0
+src/parser.js: 8
+src/runtime.js: 0
+src/scanner.js: 2
+src/token-map.js: 0
+src/translator.js: 4
+TRANSLATOR: total: 87, remains: 10(11.49%)
+     0 src/node-map.js
+  1412 src/parser.js
+    95 src/runtime.js
+   443 src/scanner.js
+     0 src/token-map.js
+   605 src/translator.js
+  2555 total

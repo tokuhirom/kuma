@@ -344,6 +344,13 @@ tap.test('labeled', function (t) {
     t.end();
 });
 
+tap.test('sub', function (t) {
+    try {
+        t.equivalent(testit('"hoge".substr(1,2)'), 'og');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

@@ -1,6 +1,13 @@
 TODO list
 =========
 
+generic
+-------
+
+    * <=> operator?
+      * is ruby supported this?
+    * $1, $2, $3, ...
+
 scanner
 -------
 

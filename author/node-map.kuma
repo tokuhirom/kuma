@@ -87,6 +87,7 @@ my nodes = qw(
     NODE_NEW
     NODE_SELF
     NODE_LABELED
+    NODE_DIE
 )
 
 my i = 1

@@ -232,7 +232,7 @@
         // ------------------------------------------------------------------------- 
         for (var keyword in KEYWORDS) {
             if (KEYWORDS.hasOwnProperty(keyword)) {
-                if (this.src.substr(0, keyword.length) == keyword) {
+                if (this.src.match(new RegExp('^' + keyword + '([^a-zA-Z_]|$)'))) {
                     this.src = this.src.substr(keyword.length);
                     return [KEYWORDS[keyword], undefined, this.lineno];
                 }

@@ -95,6 +95,7 @@ my @nodes = qw(
     NODE_NEW
     NODE_SELF
     NODE_LABELED
+    NODE_DIE
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;
