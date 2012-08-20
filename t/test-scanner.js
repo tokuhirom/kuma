@@ -195,6 +195,22 @@ tap.test("qq()", function (t) {
     t.end();
 });
 
+tap.test("divide or regexp", function (t) {
+    t.equivalent(scanIt('3/5'), [
+        [Scanner.TOKEN_INTEGER, 3, 1],
+        [Scanner.TOKEN_DIV, undefined, 1],
+        [Scanner.TOKEN_INTEGER, 5, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('3 =~ /hoge/'), [
+        [Scanner.TOKEN_INTEGER, 3, 1],
+        [Scanner.TOKEN_REGEXP_MATCH, undefined, 1],
+        [Scanner.TOKEN_REGEXP, ['hoge', undefined], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

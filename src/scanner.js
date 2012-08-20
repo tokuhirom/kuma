@@ -150,8 +150,22 @@
         '!' : /^(!)|([^!]+)/
     };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
+    var DIVABLE_TOKENS = [
+        'TOKEN_IDENT', 'TOKEN_DOUBLE', 'TOKEN_INTEGER', 'TOKEN_PLUSPLUS', 'TOKEN_BYTES_DQ', 'TOKEN_BYTES_SQ', 'TOKEN_QW', 'TOKEN_STRING_DQ',
+        'TOKEN_STRING_SQ', 'TOKEN_LBRACKET', 'TOKEN_MINUSMINUS', 'TOKEN_LAMBDA', 'TOKEN_RPAREN', 'TOKEN_RBRACKET', 'TOKEN_REGEXP',
+    ];
 
     Scanner.prototype.get = function () {
+        var retval = this._get();
+        if (retval[0] !== Scanner.TOKEN_LF) {
+            this.lastToken = retval[0];
+        }
+        return retval;
+    };
+    Scanner.prototype.divable = function (token_id) {
+        return !!(token_id in DIVABLE_TOKENS);
+    };
+    Scanner.prototype._get = function () {
         // ------------------------------------------------------------------------- 
         // skip white space and comments
         // ------------------------------------------------------------------------- 
@@ -189,6 +203,12 @@
         var qrMatch = this.src.match(/^qr([{\[(!@<\/])/);
         if (qrMatch) {
             return this.scanQR(qrMatch);
+        }
+        if (!this.divable(this.lastToken)) {
+            var reMatch = this.src.match(/^(\/)/);
+            if (reMatch) {
+                return this.scanQR(reMatch);
+            }
         }
 
         // ------------------------------------------------------------------------- 
