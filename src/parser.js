@@ -44,6 +44,10 @@
 
     Parser.id2name = node_map.id2name;
 
+    function getNodeNameByType(type) {
+        return Parser.id2name[''+type];
+    }
+
     for (var id in node_map.name2id) {
         if (!node_map.name2id.hasOwnProperty(id)) { continue; }
         Parser[id] = node_map.name2id[id];
@@ -232,7 +236,8 @@
                 [condWhile, stmt]
             );
         default:
-            throw "Unexpected token : " + this.getTokenName(nextToken[TK_TAG])  + " at line " + this.lookToken(true)[TK_LINENO];
+            console.log(nextToken);
+            throw "Unexpected token after expression: " + this.getTokenName(nextToken[TK_TAG])  + " at line " + this.lookToken(true)[TK_LINENO];
         }
     };
     Parser.prototype.parseClassStmt = function () {
@@ -681,7 +686,7 @@
             this.getToken();
             var lhs = this.parseExpression();
             if (!lhs) {
-                throw "Cannot get expression after " + node_type;
+                throw "Cannot get expression after " + getNodeNameByType(node_type) + ' at line ' + token[TK_LINENO];
             }
             return this.makeNode(
                 node_type,
@@ -914,7 +919,7 @@
     };
 
     Parser.prototype.parseMethodCall = function () {
-        var object = this.parseFuncall();
+        var object = this.parseNewExpression();
         if (!object) { return; }
         var ret = object;
         while (1) {
@@ -944,6 +949,23 @@
             }
         }
         return ret;
+    };
+
+    Parser.prototype.parseNewExpression = function () {
+        if (this.lookToken()[TK_TAG] === Scanner.TOKEN_NEW) {
+            var token = this.getToken();
+            var funcall = this.parseFuncall();
+            if (!funcall) {
+                throw "There is no funcall expression after 'new' operator at line " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_NEW,
+                token[TK_LINENO],
+                funcall
+            );
+        } else {
+            return this.parseFuncall();
+        }
     };
 
     Parser.prototype.parseArguments = function () {

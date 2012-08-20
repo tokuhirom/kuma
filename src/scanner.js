@@ -355,7 +355,7 @@
             );
         }
         var option;
-        this.src = this.src.replace(/^[ism]+/i, function (opt) {
+        this.src = this.src.replace(/^[ismg]+/i, function (opt) {
             option = opt;
             return '';
         });

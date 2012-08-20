@@ -308,6 +308,9 @@
                 if (ast[ND_DATAS][1]) {
                     for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
                         ret += this._translate(ast[ND_DATAS][1][i]);
+                        if (i!==len-1) {
+                            ret += ', ';
+                        }
                     }
                 }
                     ret += ')';
@@ -362,6 +365,9 @@
             return '--(' + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_POST_DEC:
             return '(' + this._translate(ast[ND_DATAS]) + ")--";
+        case Parser.NODE_NEW:
+            // expression
+            return 'new ' + this._translate(ast[ND_DATAS]);
         case Parser.NODE_FOR:
             // [e1, e2, e3, body]
             return (function () {

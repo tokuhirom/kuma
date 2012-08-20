@@ -162,6 +162,10 @@ tap.test("qr()", function (t) {
         [Scanner.TOKEN_REGEXP, ['^.', 'i'], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
+    t.equivalent(scanIt('qr/^./g'), [
+        [Scanner.TOKEN_REGEXP, ['^.', 'g'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
     t.end();
 });
 
