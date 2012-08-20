@@ -47,6 +47,8 @@
         return header + "\n" + this._translate(ast);
     };
     Translator.prototype._translate = function (ast) {
+        if (!ast) { console.trace("missing argument"); }
+
         switch (ast[ND_TYPE]) {
         case Parser.NODE_STMTS:
             return (function () {
@@ -61,9 +63,21 @@
         case Parser.NODE_UNDEF:
             return "undefined";
         case Parser.NODE_LAST:
-            return "break";
+            return (function () {
+                if (ast[ND_DATAS]) {
+                    return 'break ' + this._translate(ast[ND_DATAS]);
+                } else {
+                    return "break";
+                }
+            }).call(this);
         case Parser.NODE_NEXT:
-            return "continue";
+            return (function () {
+                if (ast[ND_DATAS]) {
+                    return 'continue ' + this._translate(ast[ND_DATAS]);
+                } else {
+                    return "continue";
+                }
+            }).call(this);
         case Parser.NODE_RETURN:
             return "return (" + this._translate(ast[ND_DATAS]) + ")" ;
         case Parser.NODE_ITEM:
@@ -558,6 +572,14 @@
                     }
                     throw 'Unimplemented';
                 }
+            }).call(this);
+        case Parser.NODE_LABELED:
+            return (function () {
+                var ret = '';
+                ret += this._translate(ast[ND_DATAS][0]);
+                ret += ':';
+                ret += this._translate(ast[ND_DATAS][1]);
+                return ret;
             }).call(this);
         case Parser.NODE_SELF:
             return 'KV$$self';

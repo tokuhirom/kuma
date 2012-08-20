@@ -335,6 +335,13 @@ tap.test('hex', function (t) {
     t.end();
 });
 
+tap.test('labeled', function (t) {
+    try {
+        t.equivalent(testit('LOOP: while (1) { while (1) { last LOOP; } }; 4649'), 4649);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

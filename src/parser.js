@@ -177,8 +177,53 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
             return this.parseForStmt();
         } else {
+            var labeled = this.parseLabeledStatement();
+            if (labeled) {
+                return labeled;
+            }
             // normal statement
             return this.parseNormalStatemnt();
+        }
+    };
+    Parser.prototype.parseLabeledStatement = function () {
+        var mark = this.getMark();
+        var label = this.parseIdentifier();
+        if (!label) {
+            return;
+        }
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COLON) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        switch (this.lookToken()[TK_TAG]) {
+        case Scanner.TOKEN_FOR:
+            var forStmt = this.parseForStmt();
+            if (forStmt) {
+                return this.makeNode(
+                    Parser.NODE_LABELED,
+                    label[TK_LINENO],
+                    [label, forStmt]
+                );
+            }
+            this.restoreMark(mark);
+            return;
+        case Scanner.TOKEN_WHILE:
+            var whileStmt = this.parseWhileStmt();
+            if (whileStmt) {
+                return this.makeNode(
+                    Parser.NODE_LABELED,
+                    label[TK_LINENO],
+                    [label, whileStmt]
+                );
+            }
+            this.restoreMark(mark);
+            return;
+        default:
+            this.restoreMark(mark);
+            return;
         }
     };
     Parser.prototype.parseNormalStatemnt = function () {
@@ -507,15 +552,19 @@
         this.trace("Parsing expression : " + token[TK_TAG]);
         if (token[TK_TAG] === Scanner.TOKEN_LAST) {
             this.getToken();
+            var label = this.parseIdentifier();
             return this.makeNode(
                 Parser.NODE_LAST,
-                token[TK_LINENO]
+                token[TK_LINENO],
+                label
             );
         } else if (token[TK_TAG] === Scanner.TOKEN_NEXT) {
             this.getToken();
+            var nextLabel = this.parseIdentifier();
             return this.makeNode(
                                  Parser.NODE_NEXT,
-                                 token[TK_LINENO]
+                                 token[TK_LINENO],
+                                 nextLabel
                                  );
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
             this.getToken();
