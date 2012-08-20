@@ -34,7 +34,6 @@
         return this.id++;
     };
     Translator.prototype.translate = function (ast) {
-        // TODO: output Array.isArray
         var header = '"use strict";';
         var body = this._translate(ast);
         if (this.requireIsArray) {
@@ -46,8 +45,9 @@
         }
         return header + "\n" + this._translate(ast);
     };
-    Translator.prototype._translate = function (ast) {
+    Translator.prototype._translate = function (ast, option) {
         if (!ast) { console.trace("missing argument"); }
+        if (!option) { option = { }; }
 
         switch (ast[ND_TYPE]) {
         case Parser.NODE_STMTS:
@@ -249,12 +249,18 @@
                 var containerVar = 'K$$container' + this.getID();
                 var lenVar = 'K$$len' + this.getID();
                 var ret = 'var ' + containerVar + ' = ' + this._translate(ast[ND_DATAS][0]) + ";\n";
-                ret += 'if (KF$$ArrayisArray(' + containerVar + ')) {';
+                ret += 'if (KF$$ArrayisArray(' + containerVar + ')) {\n';
+                if (option.label) {
+                    ret += '  ' + option.label + ':\n';
+                }
                 ret += '  for (var ' + i + '=0, ' + lenVar + '=' + containerVar + '.length; ' + i + '<' + lenVar + '; ++' + i + ') {';
                 ret += '    ' + var1 + ' = ' + containerVar + '[' + i + '];';
                 ret += this._translate(ast[ND_DATAS][2]);
-                ret += '  } /* end-for */';
-                ret += '} else {';
+                ret += '  } /* end-for */\n';
+                ret += '} else {\n';
+                if (option.label) {
+                    ret += '  ' + option.label + ':\n';
+                }
                 ret += '  for (var ' + var1 + ' in ' + containerVar + ') { if (!' + containerVar + '.hasOwnProperty(' + var1 + ')) { continue; }';
                 if (ast[ND_DATAS][1] && ast[ND_DATAS][1].length > 1) {
                 var valueVar = this._translate(ast[ND_DATAS][1][1]);
@@ -403,7 +409,11 @@
         case Parser.NODE_FOR:
             // [e1, e2, e3, body]
             return (function () {
-                var ret = 'for (';
+                var ret = '';
+                if (option.label) {
+                    ret += option.label + ":";
+                }
+                ret += 'for (';
                 if (ast[ND_DATAS][0]) {
                     ret += this._translate(ast[ND_DATAS][0]);
                 }
@@ -444,7 +454,11 @@
             }).apply(this);
         case Parser.NODE_WHILE:
             return (function () {
-                var ret = 'while (';
+                var ret = '';
+                if (option.label) {
+                    ret += option.label + ":";
+                }
+                    ret += 'while (';
                     ret += this._translate(ast[ND_DATAS][0]);
                     ret += ')';
                     ret += this._translate(ast[ND_DATAS][1]);
@@ -575,11 +589,8 @@
             }).call(this);
         case Parser.NODE_LABELED:
             return (function () {
-                var ret = '';
-                ret += this._translate(ast[ND_DATAS][0]);
-                ret += ':';
-                ret += this._translate(ast[ND_DATAS][1]);
-                return ret;
+                var label = this._translate(ast[ND_DATAS][0]);
+                return this._translate(ast[ND_DATAS][1], {label: label});
             }).call(this);
         case Parser.NODE_SELF:
             return 'KV$$self';

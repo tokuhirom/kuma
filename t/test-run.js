@@ -338,6 +338,8 @@ tap.test('hex', function (t) {
 tap.test('labeled', function (t) {
     try {
         t.equivalent(testit('LOOP: while (1) { while (1) { last LOOP; } }; 4649'), 4649);
+        t.equivalent(testit('LOOP: for 1..1000 -> i { for 1..1000 -> { last LOOP; } }; 5963'), 5963);
+        t.equivalent(testit('LOOP: for (my i=0; i<10; i++) { for (my j=0; j<100000000000; j++) { last LOOP; } }; 5963'), 5963);
     } catch (e) { t.fail(e); }
     t.end();
 });
