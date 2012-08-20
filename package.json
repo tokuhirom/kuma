@@ -5,9 +5,10 @@
   "main": "src/kuma.js",
   "dependencies": {},
   "devDependencies": {
-    "tap": "~0.3.0",
-    'sprintf': '~0.1.1',
-    "optimist": "0"
+    "tap": "~0.3.0",     // for testing
+    'sprintf': '~0.1.1', // for standard library
+    'glob': '~3.1.12',   // for standard library
+    "optimist": "0"      // for 'kuma' command.
   },
   "scripts": {
     "test": "tap t/*.js"

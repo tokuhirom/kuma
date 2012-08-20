@@ -54,9 +54,16 @@
         });
     }
 
+    var glob_cache;
     global.Kuma.Core = {
         say: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
+        },
+        glob: function (pattern) {
+            if (!glob_cache) { // lazy loading
+                glob_cache = require('glob');
+            }
+            return glob_cache.sync(pattern);
         },
         p: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
