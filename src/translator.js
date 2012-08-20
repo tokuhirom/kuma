@@ -20,6 +20,7 @@
     function Translator() {
         this.id = 0;
         this.requireIsArray = false;
+        this.requireExtend = false;
     }
     Translator.prototype.translateArgs = function (args) {
         var src = '';
@@ -38,6 +39,9 @@
         var body = this._translate(ast);
         if (this.requireIsArray) {
             header += 'var KF$$ArrayisArray = Array.isArray || function (vArg) { return Object.prototype.toString.call(vArg) === "[object Array]" };';
+        }
+        if (this.requireExtend) {
+            header += 'var KF$$extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };';
         }
         return header + "\n" + this._translate(ast);
     };
@@ -183,12 +187,23 @@
         case Parser.NODE_CLASS:
             // [name, parent, block]
             return (function () {
-                // TODO: exntend support
+                if (ast[ND_DATAS][1]) {
+                    this.requireExtend = true;
+                    // TODO: exntend support
+                }
+                var className = this._translate(ast[ND_DATAS][0]);
                 var ret = 'function ';
-                    ret += this._translate(ast[ND_DATAS][0]);
+                    ret += className;
                     ret += '() {';
-                    ret += this._translate(ast[ND_DATAS][2]);
+                    // TODO: ctor
                     ret += "}\n";
+                var origClassName = this.className;
+                try {
+                    this.className = className;
+                    ret += this._translate(ast[ND_DATAS][2][ND_DATAS]);
+                } finally {
+                    this.className = origClassName;
+                }
                 return ret;
             }).call(this);
         case Parser.NODE_FOREACH:
@@ -277,9 +292,17 @@
                 // [name, params, block]
                 // name can be null
                 // params can be null
-                var ret  = 'function ';
-                if (ast[ND_DATAS][0]) {
-                    ret += this._translate(ast[ND_DATAS][0]);
+                var ret = '';
+                if (this.className) {
+                    if (!ast[ND_DATAS][0]) {
+                        throw "[Translation Error] function name is required for instance method at line " + ast[ND_LINENO];
+                    }
+                    ret += this.className + '.prototype.' +  this._translate(ast[ND_DATAS][0]) + ' = function ';
+                } else {
+                    ret += 'function ';
+                    if (ast[ND_DATAS][0]) {
+                        ret += this._translate(ast[ND_DATAS][0]);
+                    }
                 }
                     ret += '(';
                 if (ast[ND_DATAS][1]) {
