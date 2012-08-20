@@ -29,12 +29,16 @@ if (argv.h) {
 if (argv.e) {
     // -e  means eval mode
     var src = '' + argv.e;
+    global.ARGV = argv._;
     evaluate.call(this, src);
 } else if (argv._.length > 0) {
     var fname = argv._[0];
     var src = fs.readFileSync(fname, 'utf-8');
+    global.ARGV = argv._.slice(1);
     evaluate.call(this, src);
 } else {
+    global.ARGV = argv._;
+
     // TODO: readline?
     var rl = readline.createInterface({
         input: process.stdin,

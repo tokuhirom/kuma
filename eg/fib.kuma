@@ -6,4 +6,4 @@ sub fib(n) {
     }
 }
 
-say(fib(25))
+say(fib(ARGV[0]))
