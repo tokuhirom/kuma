@@ -1,4 +1,4 @@
-/*jslint node: true, es5: true, eval: true */
+/*jslint node: true, es5: true, evil: true */
 "use strict";
 
 var tap = require('tap'),
@@ -317,6 +317,13 @@ tap.test('use', function (t) {
         t.equivalent(testit("use fs; fs"), require('fs'));
         t.equivalent(testit("use fs qw/realpath/; realpath"), require('fs').realpath);
         t.equivalent(testit("use fs {'watch': 'look'}; look"), require('fs').watch);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('oct', function (t) {
+    try {
+        t.equivalent(testit('oct("777")'), 511);
     } catch (e) { t.fail(e); }
     t.end();
 });
