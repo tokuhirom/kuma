@@ -804,6 +804,15 @@ tap.test('{}', function (t) {
     t.end();
 });
 
+tap.test('0.14', function (t) {
+    try {
+        t.equivalent(parse("0.14"), [
+            Parser.NODE_DOUBLE, 1, 0.14
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

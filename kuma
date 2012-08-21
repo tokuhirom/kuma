@@ -45,7 +45,7 @@ if (argv.e) {
         output: process.stdout
     });
 
-    rl.setPrompt('kuma~> ');
+    rl.setPrompt('~> ');
     rl.prompt();
     rl.on('line', function(src) {
         try {

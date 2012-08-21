@@ -150,10 +150,6 @@
         '!' : /^(!)|([^!]+)/
     };
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
-    var DIVABLE_TOKENS = [
-        'TOKEN_IDENT', 'TOKEN_DOUBLE', 'TOKEN_INTEGER', 'TOKEN_PLUSPLUS', 'TOKEN_BYTES_DQ', 'TOKEN_BYTES_SQ', 'TOKEN_QW', 'TOKEN_STRING_DQ',
-        'TOKEN_STRING_SQ', 'TOKEN_LBRACKET', 'TOKEN_MINUSMINUS', 'TOKEN_LAMBDA', 'TOKEN_RPAREN', 'TOKEN_RBRACKET', 'TOKEN_REGEXP',
-    ];
 
     Scanner.prototype.get = function () {
         var retval = this._get();
@@ -163,7 +159,27 @@
         return retval;
     };
     Scanner.prototype.divable = function (token_id) {
-        return !!(token_id in DIVABLE_TOKENS);
+        switch (token_id) {
+        case Scanner.TOKEN_IDENT:
+        case Scanner.TOKEN_DOUBLE:
+        case Scanner.TOKEN_INTEGER:
+        case Scanner.TOKEN_PLUSPLUS:
+        case Scanner.TOKEN_BYTES_DQ:
+        case Scanner.TOKEN_BYTES_SQ:
+        case Scanner.TOKEN_QW:
+        case Scanner.TOKEN_STRING_DQ:
+        case Scanner.TOKEN_STRING_SQ:
+        case Scanner.TOKEN_LBRACKET:
+        case Scanner.TOKEN_MINUSMINUS:
+        case Scanner.TOKEN_LAMBDA:
+        case Scanner.TOKEN_RPAREN:
+        case Scanner.TOKEN_RBRACKET:
+        case Scanner.TOKEN_REGEXP:
+        case Scanner.TOKEN_LPAREN:
+            return true;
+        default:
+            return false;
+        }
     };
     Scanner.prototype._get = function () {
         // ------------------------------------------------------------------------- 
@@ -254,7 +270,7 @@
         var doublematched = this.src.match(/^(?:[1-9][0-9]*|0)(\.[0-9]+)/);
         if (doublematched) {
             this.src = this.src.substr(doublematched[0].length);
-            return [Scanner.TOKEN_DOUBLE, 0+doublematched[0], this.lineno];
+            return [Scanner.TOKEN_DOUBLE, parseFloat(doublematched[0]), this.lineno];
         }
         var matched = this.src.match(/^[1-9][0-9]*/);
         if (matched) {

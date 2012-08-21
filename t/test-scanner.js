@@ -216,6 +216,27 @@ tap.test("divide or regexp", function (t) {
         [Scanner.TOKEN_REGEXP, ['hoge', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
+    t.equivalent(scanIt('(lower + upper) / 2'), [
+        [Scanner.TOKEN_LPAREN, undefined, 1],
+        [Scanner.TOKEN_IDENT, "lower", 1],
+        [Scanner.TOKEN_PLUS, undefined, 1],
+        [Scanner.TOKEN_IDENT, "upper", 1],
+        [Scanner.TOKEN_RPAREN, undefined, 1],
+        [Scanner.TOKEN_DIV, undefined, 1],
+        [Scanner.TOKEN_INTEGER, 2, 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
+tap.test("dividable", function (t) {
+    var scanner = new Scanner('');
+    try {
+        t.equal(scanner.divable(Scanner.TOKEN_IDENT), true);
+        t.equal(scanner.divable(Scanner.TOKEN_REGEXP_MATCH), false);
+        console.log(Scanner.TOKEN_LPAREN);
+        t.equal(scanner.divable(Scanner.TOKEN_LPAREN), true);
+    } catch (e) { t.fail(e); }
     t.end();
 });
 

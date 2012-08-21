@@ -368,6 +368,21 @@ tap.test('parsing', function (t) {
     t.end();
 });
 
+// same behaviour between perl
+tap.test('int', function (t) {
+    try {
+        t.equivalent(testit('int(0)'), 0);
+        t.equivalent(testit('int(0.1)'), 0);
+        t.equivalent(testit('int(0.9)'), 0);
+        t.equivalent(testit('int(1)'), 1);
+        t.equivalent(testit('int(-0.1)'), 0);
+        t.equivalent(testit('int(-0.9)'), 0);
+        t.equivalent(testit('int(-1)'), -1);
+        t.equivalent(testit('int(-1.1)'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

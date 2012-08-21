@@ -67,7 +67,6 @@
         case Parser.NODE_PRE_DEC:
         case Parser.NODE_POST_DEC:
         case Parser.NODE_POW:
-        case Parser.NODE_INTEGER:
         case Parser.NODE_UNARY_NOT:
         case Parser.NODE_UNARY_TILDE:
         case Parser.NODE_UNARY_REF:
@@ -265,6 +264,8 @@
         case Parser.NODE_UNARY_MINUS:
             return "-(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_INTEGER:
+            return ast[ND_DATAS];
+        case Parser.NODE_DOUBLE:
             return ast[ND_DATAS];
         case Parser.NODE_TRUE:
             return "true";

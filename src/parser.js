@@ -228,6 +228,10 @@
     };
     Parser.prototype.parseNormalStatemnt = function () {
         var stmt = this.parseJumpStatement();
+        if (!stmt) {
+            return;
+        }
+
         var nextToken = this.lookToken(true);
         switch (nextToken[TK_TAG]) {
         case Scanner.TOKEN_EOF:
@@ -281,6 +285,7 @@
                 [condWhile, stmt]
             );
         default:
+            console.log(stmt);
             console.log(nextToken);
             throw "Unexpected token after expression: " + this.getTokenName(nextToken[TK_TAG])  + " at line " + this.lookToken(true)[TK_LINENO];
         }
@@ -1194,6 +1199,13 @@
             token = this.getToken();
             return this.makeNode(
                 Parser.NODE_INTEGER,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        case Scanner.TOKEN_DOUBLE:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_DOUBLE,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
