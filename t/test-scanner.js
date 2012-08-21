@@ -63,6 +63,10 @@ tap.test("literal", function (t) {
         [Scanner.TOKEN_DOUBLE, 3.14, 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
+    t.equivalent(scanIt('0.14'), [
+        [Scanner.TOKEN_DOUBLE, 0.14, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
     t.equivalent(scanIt('"Hello"'), [
         [Scanner.TOKEN_STRING, "Hello",   1],
         [Scanner.TOKEN_EOF,    undefined, 1]

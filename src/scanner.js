@@ -251,7 +251,7 @@
         // ------------------------------------------------------------------------- 
         // handle number
         // ------------------------------------------------------------------------- 
-        var doublematched = this.src.match(/^[1-9][0-9]*(\.[0-9]+)/);
+        var doublematched = this.src.match(/^(?:[1-9][0-9]*|0)(\.[0-9]+)/);
         if (doublematched) {
             this.src = this.src.substr(doublematched[0].length);
             return [Scanner.TOKEN_DOUBLE, 0+doublematched[0], this.lineno];
