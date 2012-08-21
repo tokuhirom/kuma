@@ -479,12 +479,18 @@
             // [module, exportType]
             return (function () {
                 var module     = ast[ND_DATAS][0];
+                var moduleName;
+                if (module[ND_TYPE] == Parser.NODE_IDENT) {
+                    moduleName = module[ND_DATAS];
+                } else {
+                    moduleName = module[ND_DATAS].replace(/.+\//, '').replace(/\.js/, '');
+                }
                 var exportType = ast[ND_DATAS][1];
                 if (typeof(exportType) === 'undefined') {
                     // use fs;
                     return (function () {
                         var ret = 'var ';
-                            ret += this._translate(module);
+                            ret += moduleName;
                             ret += ' = require(';
                         if (module[ND_TYPE] === Parser.NODE_IDENT) {
                             ret += "'" + module[ND_DATAS] + "'";
@@ -499,7 +505,7 @@
                     return (function () {
                         // => var fs = require("fs");
                         var ret = 'var ';
-                            ret += this._translate(module);
+                            ret += moduleName;
                             ret += ' = require(';
                         if (module[ND_TYPE] === Parser.NODE_IDENT) {
                             ret += "'" + module[ND_DATAS] + "'";
@@ -535,7 +541,7 @@
                     return (function () {
                         // => var fs = require("fs");
                         var ret = 'var ';
-                            ret += this._translate(module);
+                            ret += moduleName;
                             ret += ' = require(';
                         if (module[ND_TYPE] === Parser.NODE_IDENT) {
                             ret += "'" + module[ND_DATAS] + "'";
@@ -571,7 +577,7 @@
                     return (function () {
                         // => var fs = require("fs");
                         var ret = 'var ';
-                            ret += this._translate(module);
+                            ret += moduleName;
                             ret += ' = require(';
                         if (module[ND_TYPE] === Parser.NODE_IDENT) {
                             ret += "'" + module[ND_DATAS] + "'";

@@ -7,6 +7,10 @@ generic
     * <=> operator?
       * is ruby supported this?
     * $1, $2, $3, ...
+    * super()
+    * <=>
+    * return (as == b) ? 0 : ((as < b) ? -1 : 1);
+    * optional type checking for arguments
 
 scanner
 -------
