@@ -45,6 +45,133 @@
         }
         return header + "\n" + this._translate(ast);
     };
+    Translator.prototype._injectReturn = function (ast, option) {
+        switch (ast[ND_TYPE]) {
+        case Parser.NODE_BLOCK:
+            ast[ND_DATAS] = this._injectReturn(ast[ND_DATAS]);
+            return ast;
+        case Parser.NODE_STMTS:
+            if (ast[ND_DATAS].length > 0) {
+                var lastNode = ast[ND_DATAS][ast[ND_DATAS].length-1];
+                ast[ND_DATAS][ast[ND_DATAS].length-1] = this._injectReturn(
+                    ast[ND_DATAS][ast[ND_DATAS].length-1]
+                );
+            }
+            return ast;
+        case Parser.NODE_INTEGER:
+        case Parser.NODE_IDENT:
+        case Parser.NODE_BUILTIN_FUNCALL:
+        case Parser.NODE_STRING:
+        case Parser.NODE_PRE_INC:
+        case Parser.NODE_POST_INC:
+        case Parser.NODE_PRE_DEC:
+        case Parser.NODE_POST_DEC:
+        case Parser.NODE_POW:
+        case Parser.NODE_INTEGER:
+        case Parser.NODE_UNARY_NOT:
+        case Parser.NODE_UNARY_TILDE:
+        case Parser.NODE_UNARY_REF:
+        case Parser.NODE_UNARY_PLUS:
+        case Parser.NODE_UNARY_MINUS:
+        case Parser.NODE_UNARY_MUL:
+        case Parser.NODE_FUNCALL:
+        case Parser.NODE_TRUE:
+        case Parser.NODE_FALSE:
+        case Parser.NODE_MUL:
+        case Parser.NODE_DIV:
+        case Parser.NODE_MOD:
+        case Parser.NODE_ADD:
+        case Parser.NODE_SUBTRACT:
+        case Parser.NODE_LSHIFT:
+        case Parser.NODE_RSHIFT:
+        case Parser.NODE_GT:
+        case Parser.NODE_GE:
+        case Parser.NODE_LT:
+        case Parser.NODE_LE:
+        case Parser.NODE_EQ:
+        case Parser.NODE_NE:
+        case Parser.NODE_CMP:
+        case Parser.NODE_RANGE:
+        case Parser.NODE_LOGICAL_OR:
+        case Parser.NODE_LOGICAL_AND:
+        case Parser.NODE_BITOR:
+        case Parser.NODE_BITXOR:
+        case Parser.NODE_BITAND:
+        case Parser.NODE_THREE:
+        case Parser.NODE_COMMA:
+        case Parser.NODE_UNARY_NOT:
+        case Parser.NODE_LOGICAL_XOR:
+        case Parser.NODE_NOP:
+        case Parser.NODE_BLOCK:
+        case Parser.NODE_UNDEF:
+        case Parser.NODE_ASSIGN:
+        case Parser.NODE_MUL_ASSIGN:
+        case Parser.NODE_PLUS_ASSIGN:
+        case Parser.NODE_DIV_ASSIGN:
+        case Parser.NODE_MOD_ASSIGN:
+        case Parser.NODE_MINUS_ASSIGN:
+        case Parser.NODE_LSHIFT_ASSIGN:
+        case Parser.NODE_RSHIFT_ASSIGN:
+        case Parser.NODE_POW_ASSIGN:
+        case Parser.NODE_AND_ASSIGN:
+        case Parser.NODE_OR_ASSIGN:
+        case Parser.NODE_XOR_ASSIGN:
+        case Parser.NODE_OROR_ASSIGN:
+        case Parser.NODE_MY:
+        case Parser.NODE_MAKE_ARRAY:
+        case Parser.NODE_MAKE_HASH:
+        case Parser.NODE_REGEXP_MATCH:
+        case Parser.NODE_REGEXP_NOT_MATCH:
+        case Parser.NODE_DO:
+        case Parser.NODE_SELF:
+        case Parser.NODE_REGEXP:
+        case Parser.NODE_NEW:
+        case Parser.NODE_LAMBDA:
+        case Parser.NODE_ITEM:
+            return this.makeReturnNode(ast);
+            // is not returnable
+        case Parser.NODE_RETURN:
+        case Parser.NODE_WHILE:
+        case Parser.NODE_CLASS:
+        case Parser.NODE_LABELED:
+        case Parser.NODE_DIE:
+        case Parser.NODE_USE:
+        case Parser.NODE_FOREACH:
+        case Parser.NODE_FOR:
+        case Parser.NODE_DOTDOTDOT:
+        case Parser.NODE_LAST:
+        case Parser.NODE_NEXT:
+        case Parser.NODE_SUB:
+        case Parser.NODE_TRY:
+        case Parser.NODE_THROW:
+            return ast;
+            // can be return?
+        case Parser.NODE_IF:
+            ast[ND_DATAS][1] = this._injectReturn(ast[ND_DATAS][1]);
+            if (ast[ND_DATAS][2]) {
+                ast[ND_DATAS][2] = this._injectReturn(ast[ND_DATAS][2]);
+            }
+            return ast;
+        case Parser.NODE_ELSIF:
+            ast[ND_DATAS][1] = this._injectReturn(ast[ND_DATAS][1]);
+            if (ast[ND_DATAS][2]) {
+                ast[ND_DATAS][2] = this._injectReturn(ast[ND_DATAS][2]);
+            }
+            return ast;
+        case Parser.NODE_ELSE:
+            return this._injectReturn(ast[ND_DATAS]);
+        case Parser.NODE_GET_METHOD:
+        case Parser.NODE_METHOD_CALL:
+            return ast;
+        }
+    };
+    Translator.prototype.makeReturnNode = function (ast) {
+        return [
+            Parser.NODE_RETURN,
+            ast[ND_LINENO],
+            ast
+        ];
+    };
     Translator.prototype._translate = function (ast, option) {
         if (!ast) { console.trace("missing argument"); }
         if (!option) { option = { }; }
@@ -365,7 +492,7 @@
                     }
                 }
                     ret += ') { var KV$$self = this;';
-                    ret += this._translate(ast[ND_DATAS][2]);
+                    ret += this._translate(this._injectReturn(ast[ND_DATAS][2]));
                     ret += '}\n';
                 return ret;
             }).call(this);
@@ -458,7 +585,7 @@
                 } else {
                     ret += '$_';
                 }
-                ret += ") " + this._translate(ast[ND_DATAS][1]) + ")\n";
+                ret += ") " + this._translate(this._injectReturn(ast[ND_DATAS][1])) + ")\n";
                 return ret;
             }).call(this);
         case Parser.NODE_RANGE:
