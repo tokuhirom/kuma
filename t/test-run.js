@@ -360,6 +360,14 @@ tap.test('cmp', function (t) {
     t.end();
 });
 
+tap.test('parsing', function (t) {
+    try {
+        t.equivalent(testit('my foo=1\n+2\nfoo'), 3);
+        t.equivalent(testit('my foo="foo".toUpperCase()\n.toLowerCase()\nfoo'), 'foo');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
