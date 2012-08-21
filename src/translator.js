@@ -126,6 +126,9 @@
             }).call(this);
         case Parser.NODE_ASSIGN:
             return this._translate(ast[ND_DATAS][0]) + " = " + this._translate(ast[ND_DATAS][1]);
+        case Parser.NODE_CMP:
+            // a <=> b
+            return '(function (a, b) { return a == b ? 0 : a < b ? -1 : 1; })(' + this._translate(ast[ND_DATAS][0]) + ", " + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_UNARY_NOT:
             return "!(" + this._translate(ast[ND_DATAS]) + ")";
         case Parser.NODE_UNARY_TILDE:

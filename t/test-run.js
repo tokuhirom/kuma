@@ -351,6 +351,15 @@ tap.test('sub', function (t) {
     t.end();
 });
 
+tap.test('cmp', function (t) {
+    try {
+        t.equivalent(testit('1 <=> 0'), 1);
+        t.equivalent(testit('0 <=> 0'), 0);
+        t.equivalent(testit('0 <=> 1'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
