@@ -240,6 +240,19 @@ tap.test("dividable", function (t) {
     t.end();
 });
 
+tap.test("file test operator", function (t) {
+    t.equivalent(scanIt('-f'), [
+        [Scanner.TOKEN_FILETEST, 'f', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('-file'), [
+        [Scanner.TOKEN_MINUS, undefined, 1],
+        [Scanner.TOKEN_IDENT, 'file', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

@@ -36,7 +36,6 @@ scanner
 parser
 ------
 
-    * parse fileteest ops
     * parse list comprehention(is needed?)
     * labels for 'for' statement
     * labels for 'while' statement

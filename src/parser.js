@@ -891,10 +891,8 @@
     UNARY_OPS[Scanner.TOKEN_MINUS] = Parser.NODE_UNARY_MINUS;
     Parser.prototype.parseUnary = function (src) {
         var token = this.lookToken();
-        if (token[TK_TAG] === Scanner.NODE_FILETEST) {
-            this.getToken();
-            // TODO: implement filetest operator
-            throw 'not implemented';
+        if (token[TK_TAG] === Scanner.TOKEN_FILETEST) {
+            return this.parseFileTest();
         } else if (token[TK_TAG] in UNARY_OPS) {
             this.getToken();
 
@@ -908,6 +906,16 @@
         } else {
             return this.parsePow();
         }
+    };
+    Parser.prototype.parseFileTest = function () {
+        console.log("FILETEST");
+        var ft = this.getToken();
+        var arg = this.parseExpression();
+        return this.makeNode(
+            Parser.NODE_FILETEST,
+            ft[TK_LINENO],
+            [ft[TK_VALUE], arg]
+        );
     };
     Parser.prototype.parsePow = function () {
         // x**y

@@ -55,6 +55,7 @@
     }
 
     var glob_cache;
+    var fs_cache;
     global.Kuma.Core = {
         say: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
@@ -86,10 +87,28 @@
         oct: function (s) {
             return parseInt(s, 8);
         },
+        fileTest: function (type, path) {
+            if (!fs_cache) { fs_cache = require('fs'); }
+            var stat;
+            try {
+                stat = fs_cache.lstatSync(path);
+            } catch (e) { }
+            switch (type) {
+            case 'f':
+                return stat && stat.isFile();
+            case 'd':
+                return stat && stat.isDirectory();
+            case 'e':
+                return !!stat;
+            default:
+                throw "Unknown file test type: " + type;
+            }
+            return stat;
+        },
         exit: function (status) {
             // http://nodejs.org/api/process.html#process_process_exit_code
             process.exit(status);
-        }
+       }
     };
 
 })(this.exports || this);

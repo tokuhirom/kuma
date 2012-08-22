@@ -97,6 +97,7 @@ my @nodes = qw(
     NODE_LABELED
     NODE_DIE
     NODE_STATIC
+    NODE_FILETEST
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;

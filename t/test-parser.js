@@ -813,6 +813,17 @@ tap.test('0.14', function (t) {
     t.end();
 });
 
+tap.test('file test', function (t) {
+    try {
+        t.equivalent(parse("-f $file"), [
+            Parser.NODE_FILETEST, 1, [
+                'f', [Parser.NODE_IDENT, 1, '$file']
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);
