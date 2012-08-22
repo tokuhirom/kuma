@@ -12,6 +12,8 @@ generic
     * do not return "use strict" in string
     * alias method
     * support operator overload?
+    * ``
+    * system() function
 
 One Liners
 ----------
@@ -35,7 +37,6 @@ parser
 ------
 
     * parse fileteest ops
-    * parse regexp literal
     * parse list comprehention(is needed?)
     * labels for 'for' statement
     * labels for 'while' statement

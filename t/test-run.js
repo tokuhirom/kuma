@@ -49,6 +49,7 @@ tap.test('literals', function (t) {
         t.equivalent(testit("true"), true);
         t.equivalent(testit("false"), false);
         t.equivalent(testit("undef"), undefined);
+        t.equivalent(testit('5_000'), 5000);
     } catch (e) {
         t.fail(e);
     }

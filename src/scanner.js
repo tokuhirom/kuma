@@ -273,10 +273,10 @@
             this.src = this.src.substr(doublematched[0].length);
             return [Scanner.TOKEN_DOUBLE, parseFloat(doublematched[0]), this.lineno];
         }
-        var matched = this.src.match(/^[1-9][0-9]*/);
+        var matched = this.src.match(/^[1-9][0-9_]*/);
         if (matched) {
             this.src = this.src.substr(matched[0].length);
-            return [Scanner.TOKEN_INTEGER, parseInt(matched[0], 10), this.lineno];
+            return [Scanner.TOKEN_INTEGER, parseInt(matched[0].replace(/_/g, ''), 10), this.lineno];
         }
         var hexmatched = this.src.match(/^0x[0-9a-fA-F]+/);
         if (hexmatched) {
