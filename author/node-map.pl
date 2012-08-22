@@ -96,6 +96,7 @@ my @nodes = qw(
     NODE_SELF
     NODE_LABELED
     NODE_DIE
+    NODE_STATIC
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;

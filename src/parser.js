@@ -571,23 +571,10 @@
                                  token[TK_LINENO],
                                  nextLabel
                                  );
+        } else if (token[TK_TAG] === Scanner.TOKEN_STATIC) {
+            return this.parseStatic();
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
-            this.getToken();
-            // name is optional thing.
-            // you can use anon sub.
-            var name = this.parseIdentifier();
-            // and parameters are optional
-            var params = this.parseParameters();
-            var block = this.parseBlock();
-            if (!block) {
-                throw "Expected block after sub at line " + token[TK_LINENO];
-            }
-
-            return this.makeNode(
-                Parser.NODE_SUB,
-                token[TK_LINENO],
-                [name, params, block]
-            );
+            return this.parseSub();
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
              /*
         // TODO try block
@@ -601,6 +588,37 @@
         } else {
             return this.parseStrOrExpression();
         }
+    };
+    Parser.prototype.parseStatic = function () {
+        // static sub ...
+        var token = this.getToken();
+        var sub = this.parseSub();
+        if (!sub) {
+            throw "Cannot parse subroutine after 'static' keyword at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_STATIC,
+            token[TK_LINENO],
+            [sub]
+        );
+    };
+    Parser.prototype.parseSub = function () {
+        var token = this.getToken();
+        // name is optional thing.
+        // you can use anon sub.
+        var name = this.parseIdentifier();
+        // and parameters are optional
+        var params = this.parseParameters();
+        var block = this.parseBlock();
+        if (!block) {
+            throw "Expected block after sub at line " + token[TK_LINENO];
+        }
+
+        return this.makeNode(
+            Parser.NODE_SUB,
+            token[TK_LINENO],
+            [name, params, block]
+        );
     };
     Parser.prototype.parseDie = function () {
         var token = this.getToken(); // die

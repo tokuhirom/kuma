@@ -161,7 +161,10 @@
             return this._injectReturn(ast[ND_DATAS]);
         case Parser.NODE_GET_METHOD:
         case Parser.NODE_METHOD_CALL:
+        case Parser.NODE_STATIC:
             return ast;
+        default:
+            throw "[BUG] Unknown node";
         }
     };
     Translator.prototype.makeReturnNode = function (ast) {
@@ -466,6 +469,8 @@
             return "(!((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + ")))";
         case Parser.NODE_DOTDOTDOT:
             return 'throw "Unimplemented";';
+        case Parser.NODE_STATIC:
+            return this._translate(ast[ND_DATAS][0], {static: true});
         case Parser.NODE_SUB:
             return (function () {
                 // [name, params, block]
@@ -476,7 +481,11 @@
                     if (!ast[ND_DATAS][0]) {
                         throw "[Translation Error] function name is required for instance method at line " + ast[ND_LINENO];
                     }
-                    ret += this.className + '.prototype.' +  this._translate(ast[ND_DATAS][0]) + ' = function ';
+                    if (option.static) {
+                        ret += this.className + '.' +  this._translate(ast[ND_DATAS][0]) + ' = function ';
+                    } else {
+                        ret += this.className + '.prototype.' +  this._translate(ast[ND_DATAS][0]) + ' = function ';
+                    }
                 } else {
                     ret += 'function ';
                     if (ast[ND_DATAS][0]) {

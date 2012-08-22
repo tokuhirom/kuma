@@ -113,6 +113,7 @@ my @tokens = qw(
     TOKEN_REGEXP
     TOKEN_LF
     TOKEN_NEW
+    TOKEN_STATIC
 );
 my $i = 1;
 my %tokens = map { $_ => $i++ } @tokens;
