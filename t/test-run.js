@@ -7,6 +7,9 @@ Parser = require("../src/parser.js").Kuma.Parser,
 Core = require("../src/runtime.js").Kuma.Core,
 vm = require('vm');
 
+//      console.log(testit("p((-> { 8;unless 1 { 3 } })())"));
+//      process.exit(0);
+
 tap.test('__LINE__', function (t) {
     try {
         t.equivalent(testit("__LINE__"), 1);
@@ -18,7 +21,7 @@ tap.test('__LINE__', function (t) {
 
 tap.test('unless', function (t) {
     try {
-        t.equivalent(testit("8;unless 1 { 3 }"), 8);
+        t.equivalent(testit("8;unless 1 { 3 }"), undefined);
         t.equivalent(testit("unless 0 { 3 }"), 3);
     } catch (e) { t.fail(e); }
     t.end();
@@ -114,8 +117,6 @@ tap.test('assignment', function (t) {
         t.equivalent(testit("my x = 255; x &= 3; x"), 3);
         t.equivalent(testit("my x = 1; x |= 8; x"), 9);
         t.equivalent(testit("my x = 1; x ^= 8; x"), 9);
- // Parser.NODE_POW_ASSIGN = 66;
- // Parser.NODE_OROR_ASSIGN = 70;
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -220,7 +221,7 @@ tap.test('--/++', function (t) {
 
 tap.test('for', function (t) {
     try {
-        t.equivalent(testit('my n=0; for (my i=0; i<=10; i++) { n += i }'), 55);
+        t.equivalent(testit('my $n=0; for (my $i=0; $i<=10; $i++) { $n += $i } $n'), 55);
     } catch (e) { t.fail(e); }
     t.end();
 });

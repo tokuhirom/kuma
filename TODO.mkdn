@@ -10,8 +10,8 @@ generic
     * optional type checking for arguments
     * args[0]
     * do not return "use strict" in string
-    * 'static' keyword for class method
     * alias method
+    * support operator overload?
 
 One Liners
 ----------

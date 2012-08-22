@@ -43,7 +43,7 @@
             header += 'var KF$$hasProp = {}.hasOwnProperty;';
             header += 'var KF$$extends = function(child, parent) { for (var key in parent) { if (KF$$hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };';
         }
-        return header + "\n" + this._translate(ast);
+        return header + "\n(function () {\n" + this._translate(this._injectReturn(ast)) + "\n})()";
     };
     Translator.prototype._injectReturn = function (ast, option) {
         switch (ast[ND_TYPE]) {
@@ -127,6 +127,7 @@
         case Parser.NODE_NEW:
         case Parser.NODE_LAMBDA:
         case Parser.NODE_ITEM:
+        case Parser.NODE_METHOD_CALL:
             return this.makeReturnNode(ast);
             // is not returnable
         case Parser.NODE_RETURN:
@@ -160,7 +161,6 @@
         case Parser.NODE_ELSE:
             return this._injectReturn(ast[ND_DATAS]);
         case Parser.NODE_GET_METHOD:
-        case Parser.NODE_METHOD_CALL:
         case Parser.NODE_STATIC:
             return ast;
         default:
