@@ -103,7 +103,6 @@
         case Parser.NODE_NOP:
         case Parser.NODE_BLOCK:
         case Parser.NODE_UNDEF:
-        case Parser.NODE_ASSIGN:
         case Parser.NODE_MUL_ASSIGN:
         case Parser.NODE_PLUS_ASSIGN:
         case Parser.NODE_DIV_ASSIGN:
@@ -116,7 +115,6 @@
         case Parser.NODE_OR_ASSIGN:
         case Parser.NODE_XOR_ASSIGN:
         case Parser.NODE_OROR_ASSIGN:
-        case Parser.NODE_MY:
         case Parser.NODE_MAKE_ARRAY:
         case Parser.NODE_MAKE_HASH:
         case Parser.NODE_REGEXP_MATCH:
@@ -146,6 +144,7 @@
         case Parser.NODE_SUB:
         case Parser.NODE_TRY:
         case Parser.NODE_THROW:
+        case Parser.NODE_MY:
             return ast;
             // can be return?
         case Parser.NODE_IF:
@@ -164,6 +163,7 @@
             return this._injectReturn(ast[ND_DATAS]);
         case Parser.NODE_GET_METHOD:
         case Parser.NODE_STATIC:
+        case Parser.NODE_ASSIGN: // XXX This should be returnable, but it's not accepted by JS syntax..
             return ast;
         default:
             throw "[BUG] Unknown node";
@@ -540,7 +540,12 @@
         case Parser.NODE_XOR_ASSIGN:
             return this._translate(ast[ND_DATAS][0]) + " ^= " + this._translate(ast[ND_DATAS][1]);
         case Parser.NODE_STRING:
-            return "'" + ast[ND_DATAS] + "'";
+            // TODO: better escape?
+            return (function () {
+                return ast[ND_DATAS].split(/\n/).map(function (line) {
+                    return "'" + line + "'";
+                }).join(' + "\\n" +');
+            }).call(this);
         case Parser.NODE_THREE:
             return '(' + this._translate(ast[ND_DATAS][0]) + ")?(" + this._translate(ast[ND_DATAS][1]) + '):(' + this._translate(ast[ND_DATAS][2]) + ')';
         case Parser.NODE_METHOD_CALL:

@@ -391,6 +391,13 @@ tap.test('default arguments', function (t) {
     t.end();
 });
 
+tap.test('heredoc', function (t) {
+    try {
+        t.equivalent(testit("<<'...';\nhogehoge\nfugafuga\n..."), "hogehoge\nfugafuga\n");
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

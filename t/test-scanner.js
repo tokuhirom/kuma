@@ -269,6 +269,16 @@ tap.test("qx", function (t) {
     t.end();
 });
 
+tap.test("heredoc", function (t) {
+    t.equivalent(scanIt("<<'...';\nhogehoge\n..."), [
+        [Scanner.TOKEN_STRING, 'hogehoge\n', 1],
+        [Scanner.TOKEN_SEMICOLON, undefined, 1],
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_EOF, undefined, 4],
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

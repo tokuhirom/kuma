@@ -6,9 +6,11 @@
 
     var token_map = require('./token-map.js');
 
+    // constructor
     function Scanner(src) {
         if (typeof src === 'undefined') { throw "Missing mandatory parameter: src"; }
         if (!src.charAt) { throw "src must be string"; }
+        this.heredocTokenQueue = [];
         this.src = src;
         this.lineno = 1;
     }
@@ -83,7 +85,6 @@
         '&=': Scanner.TOKEN_AND_ASSIGN,
         '&': Scanner.TOKEN_AND,
         '<<=': Scanner.TOKEN_LSHIFT_ASSIGN,
-        "<<'": Scanner.TOKEN_HEREDOC_SQ_START,
         '<<': Scanner.TOKEN_LSHIFT,
         '<=>': Scanner.TOKEN_CMP,
         '<=': Scanner.TOKEN_LE,
@@ -166,6 +167,9 @@
         var retval = this._get();
         if (retval[0] !== Scanner.TOKEN_LF) {
             this.lastToken = retval[0];
+            this.lastTokenIsLF = false;
+        } else {
+            this.lastTokenIsLF = true;
         }
         return retval;
     };
@@ -209,11 +213,13 @@
         // ------------------------------------------------------------------------- 
         if (this.src.charAt(0) === "\n") {
             this.src = this.src.substr(1);
-            return [
+            var token = [
                 Scanner.TOKEN_LF,
                 undefined,
                 this.lineno++
             ];
+            this.processHeredoc();
+            return token;
         }
 
         // ------------------------------------------------------------------------- 
@@ -260,6 +266,16 @@
         var qqMatch = this.src.match(/^qq([{\[(!@<\/])/);
         if (qqMatch) {
             return this.scanQQ(qqMatch);
+        }
+
+        // ------------------------------------------------------------------------- 
+        // heredoc
+        // ------------------------------------------------------------------------- 
+        var heredocSQMatch = this.src.match(/^<<'([^']+)'/);
+        if (heredocSQMatch) {
+        console.log("HEEEEEEEEEEER");
+            this.src = this.src.substr(heredocSQMatch[0].length);
+            return this.scanHeredocSQ(heredocSQMatch[1]);
         }
 
         // ------------------------------------------------------------------------- 
@@ -504,6 +520,40 @@
             ];
         } else {
             throw "Scanning error: Unexpected EOF in string.";
+        }
+    };
+    Scanner.prototype.scanHeredocSQ = function (marker) {
+        var token = [
+            Scanner.TOKEN_HEREDOC_SQ_START,
+            undefined,
+            this.lineno
+        ];
+        this.heredocTokenQueue.push([marker, token]);
+        return token;
+    };
+    Scanner.prototype.processHeredoc = function () {
+        while (this.heredocTokenQueue.length > 0) {
+            var h = this.heredocTokenQueue.shift();
+            var marker = h[0];
+            var token = h[1];
+            var buffer = '';
+            while (true) {
+                var m = this.src.match(/^(.*)(\n|$)/);
+                if (!m) {
+                    throw 'Unexpected EOF in heredoc.'; // TODO: better diag
+                }
+                this.src = this.src.substr(m[0].length);
+                this.lineno++;
+                if (m[1] === marker) {
+                    break;
+                }
+                buffer += m[0];
+                if (this.src.length === 0) {
+                    throw 'Unexpected EOF in heredoc.'; // TODO: better diag
+                }
+            }
+            token[0] = Scanner.TOKEN_STRING;
+            token[1] = buffer;
         }
     };
     global.Kuma.Scanner = Scanner;
