@@ -3,7 +3,7 @@
 
 var Translator = require("./src/translator.js").Kuma.Translator,
     Parser = require("./src/parser.js").Kuma.Parser,
-    Scanner = require("./src/parser.js").Kuma.Scanner,
+    Scanner = require("./src/scanner.js").Kuma.Scanner,
     Core = require("./src/runtime.js").Kuma.Core,
     fs = require('fs'),
     readline = require('readline'),
@@ -14,8 +14,10 @@ var Translator = require("./src/translator.js").Kuma.Translator,
 var optimist = require('optimist')
     .usage('Usage: $0 -e eval')
     .alias('h', 'help').describe('h', 'show this help message')
-                       .describe('dump_ast', 'dump abstract syntax tree')
-                       .describe('dump_token', 'dump tokens')
+    .describe('dump_ast', 'dump abstract syntax tree')
+        .boolean('dump_ast')
+    .describe('dump_token', 'dump tokens')
+        .boolean('dump_token')
     .alias('D', 'dump_js')
         .describe('dump_js',  'dump translated javascript source code')
         .boolean('D')
@@ -61,7 +63,13 @@ if (typeof argv.e !== 'undefined') {
 function evaluate(src) {
     var parser = new Parser(src);
     if (argv.dump_token) {
-        console.log(parser.tokens);
+        for (var i=0, l=parser.tokens.length; i<l; ++i) {
+            console.log([
+                Scanner.id2name[parser.tokens[i][0]],
+                parser.tokens[i][1],
+                parser.tokens[i][2]
+            ]);
+        }
     }
     var ast = parser.parse();
     if (argv.dump_ast) {
