@@ -653,7 +653,7 @@
         var ret = this.parseParameterList();
 
         if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
-            throw "You dont close paren in subroutine arguments at line " + this.lookToken()[TK_LINENO];
+            throw "You don't close paren in subroutine arguments but you give " + this.getTokenName(this.lookToken()[TK_TAG]) + " at line " + this.lookToken()[TK_LINENO];
         }
         this.getToken();
 
@@ -669,9 +669,21 @@
             if (!variable) {
                 break;
             }
-            ret.push(variable);
 
-            if (this.lookToken()[TK_TAG] == Scanner.TOKEN_COMMA) {
+            // default variable.
+            if (this.lookToken()[TK_TAG] === Scanner.TOKEN_ASSIGN) {
+                var token = this.getToken(); // =
+
+                var defval = this.parsePrimary();
+                if (!defval) {
+                    throw "Expected default value but " + this.getTokenName(this.lookToken()[TK_TAG]) + " at line " + token[TK_LINENO];
+                }
+                ret.push([variable, defval]);
+            } else {
+                ret.push([variable]);
+            }
+
+            if (this.lookToken()[TK_TAG] === Scanner.TOKEN_COMMA) {
                 this.getToken();
             } else {
                 break;

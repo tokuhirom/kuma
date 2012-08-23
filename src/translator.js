@@ -495,15 +495,26 @@
                     }
                 }
                     ret += '(';
-                if (ast[ND_DATAS][1]) {
+                if (ast[ND_DATAS][1]) { // arguments
                     for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
-                        ret += this._translate(ast[ND_DATAS][1][i]);
+                        ret += this._translate(ast[ND_DATAS][1][i][0]);
                         if (i!==len-1) {
                             ret += ', ';
                         }
                     }
                 }
                     ret += ') { var KV$$self = this;';
+                if (ast[ND_DATAS][1]) { // arguments
+                    for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
+                        if (ast[ND_DATAS][1][i][1]) {
+                            ret += 'if (arguments.length<=' + i + ') {\n';
+                            ret += this._translate(ast[ND_DATAS][1][i][0]);
+                            ret += '=(';
+                            ret += this._translate(ast[ND_DATAS][1][i][1]);
+                            ret += ');\n}\n';
+                        }
+                    }
+                }
                     ret += this._translate(this._injectReturn(ast[ND_DATAS][2]));
                     ret += '}\n';
                 return ret;

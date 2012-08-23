@@ -7,9 +7,6 @@ Parser = require("../src/parser.js").Kuma.Parser,
 Core = require("../src/runtime.js").Kuma.Core,
 vm = require('vm');
 
-//      console.log(testit("p((-> { 8;unless 1 { 3 } })())"));
-//      process.exit(0);
-
 tap.test('__LINE__', function (t) {
     try {
         t.equivalent(testit("__LINE__"), 1);
@@ -381,6 +378,15 @@ tap.test('int', function (t) {
         t.equivalent(testit('int(-0.9)'), 0);
         t.equivalent(testit('int(-1)'), -1);
         t.equivalent(testit('int(-1.1)'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('default arguments', function (t) {
+    try {
+        t.equivalent(testit('sub foo($n=3) { $n }; foo()'), 3);
+        t.equivalent(testit('sub foo($n=3) { $n }; foo(5)'), 5);
+        t.equivalent(testit('sub foo($n=3,$v=7) { $v }; foo()'), 7);
     } catch (e) { t.fail(e); }
     t.end();
 });

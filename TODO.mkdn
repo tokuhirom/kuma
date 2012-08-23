@@ -8,7 +8,6 @@ generic
     * super()
     * (as == b) ? 0 : ((as < b) ? -1 : 1);
     * optional type checking for arguments
-    * default argument value
     * args[0]
     * do not return "use strict" in string
     * alias method
