@@ -824,6 +824,15 @@ tap.test('file test', function (t) {
     t.end();
 });
 
+tap.test('qx', function (t) {
+    try {
+        t.equivalent(parse("qx/ls/"), [
+            Parser.NODE_QX, 1, 'ls'
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
 function parse(src) {
     console.log("Start:: " + src);
     var parser = new Parser(src);

@@ -253,6 +253,22 @@ tap.test("file test operator", function (t) {
     t.end();
 });
 
+tap.test("qx", function (t) {
+    t.equivalent(scanIt('qx/ls/'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('qx!ls!'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('`ls`'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
 function scanIt(src) {
     var s = new Scanner(src);
     var ret = [];

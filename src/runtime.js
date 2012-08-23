@@ -56,6 +56,7 @@
 
     var glob_cache;
     var fs_cache;
+    var system3_cache;
     global.Kuma.Core = {
         say: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
@@ -86,6 +87,14 @@
         },
         oct: function (s) {
             return parseInt(s, 8);
+        },
+        _qx: function (cmd) {
+            if (!system3_cache) { system3_cache = require('system3'); }
+            return system3_cache.qx(cmd);
+        },
+        system: function (cmd) {
+            if (!system3_cache) { system3_cache = require('system3'); }
+            return system3_cache.system(cmd);
         },
         fileTest: function (type, path) {
             if (!fs_cache) { fs_cache = require('fs'); }

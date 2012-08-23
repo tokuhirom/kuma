@@ -129,6 +129,7 @@
         case Parser.NODE_ITEM:
         case Parser.NODE_METHOD_CALL:
         case Parser.NODE_FILETEST:
+        case Parser.NODE_QX:
             return this.makeReturnNode(ast);
             // is not returnable
         case Parser.NODE_RETURN:
@@ -755,6 +756,11 @@
         case Parser.NODE_FILETEST:
             return (function () {
                 return 'Kuma.Core.fileTest("' + ast[ND_DATAS][0] +'",' + this._translate(ast[ND_DATAS][1]) + ')';
+            }).call(this);
+        case Parser.NODE_QX:
+            return (function () {
+            console.log("QX");
+                return 'Kuma.Core._qx("' + ast[ND_DATAS] + '")';
             }).call(this);
         default:
             console.log("Unknown ast node: " + ast[ND_TYPE]); // debug

@@ -19,7 +19,8 @@
     var BUILTIN_FUNCTIONS = [
         'say', 'open', 'p', 'exit',
         'getpid', 'sprintf', 'printf',
-        'print', 'int', 'glob', 'oct'
+        'print', 'int', 'glob', 'oct',
+        'system'
     ];
 
     function Parser(src, filename) {
@@ -908,7 +909,6 @@
         }
     };
     Parser.prototype.parseFileTest = function () {
-        console.log("FILETEST");
         var ft = this.getToken();
         var arg = this.parseExpression();
         return this.makeNode(
@@ -1190,6 +1190,13 @@
             return this.parseLambda();
         case Scanner.TOKEN_IDENT:
             return this.parseIdentifier();
+        case Scanner.TOKEN_QX:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_QX,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
         case Scanner.TOKEN_REGEXP:
             token = this.getToken();
             return this.makeNode(

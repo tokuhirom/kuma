@@ -123,6 +123,16 @@
         '/' : /^(\w+)|(\n)|(\s+)|(\/)/,
         '!' : /^(\w+)|(\n)|(\s+)|(!)/
     };
+    var QX_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '`' : /^(`)|([^`]+)/,
+        '!' : /^(!)|([^!]+)/
+    };
     var QR_MAP = {
         '@' : /^(@)|([^@]+)/,
         '(' : /^(\))|([^\)]+)/,
@@ -204,6 +214,14 @@
                 undefined,
                 this.lineno++
             ];
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qx
+        // ------------------------------------------------------------------------- 
+        var qxMatch = this.src.match(/^qx([{\[(!@<\/])/) || this.src.match(/^(`)/);
+        if (qxMatch) {
+            return this.scanQX(qxMatch);
         }
 
         // ------------------------------------------------------------------------- 
@@ -388,6 +406,30 @@
         return [
             Scanner.TOKEN_REGEXP,
             [regex, option],
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQX = function (qxMatch) {
+        var re = QX_MAP[qxMatch[1]];
+        this.src = this.src.substr(qxMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        return [
+            Scanner.TOKEN_QX,
+            str,
             this.lineno
         ];
     };
