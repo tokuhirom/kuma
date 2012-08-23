@@ -12,8 +12,6 @@ generic
     * do not return "use strict" in string
     * alias method
     * support operator overload?
-    * ``
-    * system() function
 
 One Liners
 ----------
