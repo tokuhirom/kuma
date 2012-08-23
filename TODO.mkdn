@@ -4,13 +4,27 @@ TODO list
 generic
 -------
 
-    * $1, $2, $3, ...
     * super()
     * (as == b) ? 0 : ((as < b) ? -1 : 1);
     * optional type checking for arguments
     * args[0]
     * alias method
     * support operator overload?
+
+Optimization
+------------
+
+    * rewrite scanner
+        * in C or C++?
+    * rewrite a VM in JS?
+    * rewrite a VM in C++?
+    * $1, $2, $3, ...
+        * assign to variable if it's needed.
+        * how can I detect "it's needed"?
+        * It's needed when $1 is used in following-sibling and these children.
+        * I can detect the number of parens in regex.
+        * I can optimize it after release...
+        * hmm................
 
 One Liners
 ----------
@@ -24,7 +38,6 @@ scanner
     * multiline comment support(should output to the js?)
     * better strings
     * better heredoc
-    * tune up
     * support #{} style
     * split statements by \n
     * //x
@@ -33,9 +46,6 @@ scanner
 parser
 ------
 
-    * parse list comprehention(is needed?)
-    * labels for 'for' statement
-    * labels for 'while' statement
 
 translator
 ----------

@@ -398,6 +398,13 @@ tap.test('heredoc', function (t) {
     t.end();
 });
 
+tap.test('$1', function (t) {
+    try {
+        t.equivalent(testit("'hoge' =~ /h(.)/; $1"), "o");
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

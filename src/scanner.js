@@ -273,7 +273,6 @@
         // ------------------------------------------------------------------------- 
         var heredocSQMatch = this.src.match(/^<<'([^']+)'/);
         if (heredocSQMatch) {
-        console.log("HEEEEEEEEEEER");
             this.src = this.src.substr(heredocSQMatch[0].length);
             return this.scanHeredocSQ(heredocSQMatch[1]);
         }

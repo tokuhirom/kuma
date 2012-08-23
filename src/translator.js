@@ -419,7 +419,15 @@
                 return ret;
             }).call(this);
         case Parser.NODE_IDENT:
-            return ast[ND_DATAS];
+            return (function () {
+                var ident = ast[ND_DATAS];
+                var m = ident.match(/^\$([1-9])$/);
+                if (m) { // magical variable
+                    return "Kuma.Core._regexpLastMatch(" + m[1] + ")";
+                } else {
+                    return ident;
+                }
+            }).call(this);
         case Parser.NODE_LT:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")<(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_LE:

@@ -54,10 +54,21 @@
         });
     }
 
+    // TODO: optimize
+    var origStringPrototypeMatch = String.prototype.match;
+    var lastMatch = [];
+    String.prototype.match = function () {
+        lastMatch = origStringPrototypeMatch.apply(this, Array.prototype.slice.call(arguments));
+        return lastMatch;
+    };
+
     var glob_cache;
     var fs_cache;
     var system3_cache;
     global.Kuma.Core = {
+        _initialize: function () {
+            lastMatch = undefined;
+        },
         say: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
         },
@@ -91,6 +102,9 @@
         _qx: function (cmd) {
             if (!system3_cache) { system3_cache = require('system3'); }
             return system3_cache.qx(cmd);
+        },
+        _regexpLastMatch: function (n) {
+            return lastMatch ? lastMatch[n] : undefined;
         },
         system: function (cmd) {
             if (!system3_cache) { system3_cache = require('system3'); }
