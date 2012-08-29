@@ -474,7 +474,7 @@
                 return ret;
             }).call(this);
         case Parser.NODE_REGEXP_MATCH:
-            return "((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + "))";
+            return "(Kuma.Runtime.match((" + this._translate(ast[ND_DATAS][0]) + "),(" + this._translate(ast[ND_DATAS][1]) + ")))";
         case Parser.NODE_REGEXP_NOT_MATCH:
             return "(!((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + ")))";
         case Parser.NODE_DOTDOTDOT:

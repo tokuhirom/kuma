@@ -55,11 +55,12 @@
     }
 
     // TODO: optimize
-    var origStringPrototypeMatch = String.prototype.match;
     var lastMatch = [];
-    String.prototype.match = function () {
-        lastMatch = origStringPrototypeMatch.apply(this, Array.prototype.slice.call(arguments));
-        return lastMatch;
+    global.Kuma.Runtime = {
+        match: function (str, re) {
+            lastMatch = str.match(re);
+            return lastMatch;
+        }
     };
 
     var glob_cache;
