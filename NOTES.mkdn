@@ -1,5 +1,8 @@
-JS' bad
-=======
+Notes
+=====
+
+JS' bad things
+--------------
 
     * there's only function scope
     * no '**' operator
@@ -7,4 +10,9 @@ JS' bad
     * no m{} expression
     * no =~ operator
     * no $1
+
+toras' features needs operations
+--------------------------------
+
+    * operator overload
 
