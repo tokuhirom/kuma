@@ -4,11 +4,13 @@
 var Translator = require("./src/translator.js").Kuma.Translator,
     Parser = require("./src/parser.js").Kuma.Parser,
     Scanner = require("./src/scanner.js").Kuma.Scanner,
-    Core = require("./src/runtime.js").Kuma.Core,
+    Builtins = require("./src/runtime.js").Kuma.Builtins,
+    Runtime = require("./src/runtime.js").Kuma.Runtime,
     fs = require('fs'),
     readline = require('readline'),
     Kuma = {
-        "Core": Core
+        "Builtins": Builtins,
+        "Runtime":Runtime
     };
 
 var optimist = require('optimist')

@@ -17,7 +17,7 @@ tap.test('ok', function (t) {
             ]
         ]
     );
-    t.equivalent(src, '"use strict";' + "\n(function () {"  + "\nreturn (" + 'Kuma.Core.say()' + ")\n})()");
+    t.equivalent(src, '"use strict";' + "\n(function () {"  + "\nreturn (" + 'Kuma.Builtins.say()' + ")\n})()");
     t.end();
 });
 

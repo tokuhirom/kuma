@@ -225,7 +225,7 @@
             return (function () {
                 var func = ast[ND_DATAS][0];
                 var args = ast[ND_DATAS][1];
-                var ret = 'Kuma.Core.' + this._translate(ast[ND_DATAS][0]) + '(';
+                var ret = 'Kuma.Builtins.' + this._translate(ast[ND_DATAS][0]) + '(';
                 for (var i=0, len=args.length; i<len; ++i) {
                     ret += this._translate(args[i]);
                     if (i!==len-1) {

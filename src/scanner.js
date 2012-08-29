@@ -50,7 +50,7 @@
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
         "is" : Scanner.TOKEN_IS,
-        "new" : Scanner.TOKEN_NEW,
+        // "new" : Scanner.TOKEN_NEW,
         "static": Scanner.TOKEN_STATIC
     };
 

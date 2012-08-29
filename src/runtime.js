@@ -54,6 +54,19 @@
         });
     }
 
+    if (!Object.prototype.bless) {
+        Object.defineProperty(Object.prototype, 'bless', {
+            enumerable: false,
+            value: function (stuff) {
+                var o = Object.create(this.prototype);
+                for (var n in stuff) {
+                    o[n] = stuff[n];
+                }
+                return o;
+            }
+        });
+    }
+
     // TODO: optimize
     var lastMatch = [];
     global.Kuma.Runtime = {

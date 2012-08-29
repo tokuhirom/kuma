@@ -237,6 +237,7 @@
         switch (nextToken[TK_TAG]) {
         case Scanner.TOKEN_EOF:
         case Scanner.TOKEN_RBRACE:
+        case Scanner.TOKEN_SUB:
             return stmt;
         case Scanner.TOKEN_LF:
         case Scanner.TOKEN_SEMICOLON:
