@@ -2,3 +2,4 @@ node_modules/
 kuma.sublime-project
 kuma.sublime-workspace
 log
+npm-debug.log
