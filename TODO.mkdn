@@ -10,6 +10,9 @@ generic
     * args[0]
     * alias method
     * support operator overload?
+    * BUILD, BUILDARGS?
+    * better 'new' method?
+      * http://blog.livedoor.jp/dankogai/archives/51760707.html
 
 Optimization
 ------------
@@ -39,7 +42,6 @@ scanner
     * better strings
     * better heredoc
     * support #{} style
-    * split statements by \n
     * //x
     * export keyword?
 
