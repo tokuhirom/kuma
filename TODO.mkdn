@@ -11,8 +11,7 @@ generic
     * alias method
     * support operator overload?
     * BUILD, BUILDARGS?
-    * better 'new' method?
-      * http://blog.livedoor.jp/dankogai/archives/51760707.html
+      * default argument?
 
 Optimization
 ------------
