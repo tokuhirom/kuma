@@ -1,12 +1,4 @@
-#!/usr/bin/env perl
-use strict;
-use warnings;
-use utf8;
-use 5.010000;
-use autodie;
-use JSON;
-
-my @tokens = qw(
+my tokens = qw(
     TOKEN_IDENT
     TOKEN_DOUBLE
     TOKEN_INTEGER
@@ -115,12 +107,17 @@ my @tokens = qw(
     TOKEN_NEW
     TOKEN_STATIC
     TOKEN_QX
-);
-my $i = 1;
-my %tokens = map { $_ => $i++ } @tokens;
-$tokens{'TOKEN_EOF'} = -1;
-print 'module.exports=' . encode_json({
-    name2id => \%tokens,
-    id2name => +{ reverse %tokens },
-}) . ';';
+)
+
+my i = 1
+my token_map = {}
+
+tokens.each(-> { token_map[$_] = i++ })
+token_map['TOKEN_EOF'] = -1
+
+my json = JSON.stringify({
+    "name2id": token_map,
+    "id2name": token_map.reverse()
+})
+printf("module.exports=%s;\n", json)
 

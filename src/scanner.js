@@ -6,13 +6,16 @@
 
     var token_map = require('./token-map.js');
 
+    // constructor
     function Scanner(src) {
         if (typeof src === 'undefined') { throw "Missing mandatory parameter: src"; }
         if (!src.charAt) { throw "src must be string"; }
+        this.heredocTokenQueue = [];
         this.src = src;
         this.lineno = 1;
     }
 
+    Scanner.id2name = token_map.id2name;
     for (var id in token_map.name2id) {
         if (!token_map.name2id.hasOwnProperty(id)) { continue; }
         Scanner[id] = token_map.name2id[id];
@@ -47,7 +50,8 @@
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
         "is" : Scanner.TOKEN_IS,
-        "__END__\n" : Scanner.TOKEN_END
+        "new" : Scanner.TOKEN_NEW,
+        "static": Scanner.TOKEN_STATIC
     };
 
     var ops = {
@@ -81,7 +85,6 @@
         '&=': Scanner.TOKEN_AND_ASSIGN,
         '&': Scanner.TOKEN_AND,
         '<<=': Scanner.TOKEN_LSHIFT_ASSIGN,
-        "<<'": Scanner.TOKEN_HEREDOC_SQ_START,
         '<<': Scanner.TOKEN_LSHIFT,
         '<=>': Scanner.TOKEN_CMP,
         '<=': Scanner.TOKEN_LE,
@@ -101,8 +104,6 @@
         '{': Scanner.TOKEN_LBRACE,
         '(': Scanner.TOKEN_LPAREN,
         ')': Scanner.TOKEN_RPAREN,
-        'qq': Scanner.TOKEN_STRING_QQ_START,
-        'q': Scanner.TOKEN_STRING_Q_START,
         '"': Scanner.TOKEN_STRING_DQ,
         "'": Scanner.TOKEN_STRING_SQ,
         '[': Scanner.TOKEN_LBRACKET,
@@ -115,15 +116,43 @@
         ';' : Scanner.TOKEN_SEMICOLON
     };
     var QW_MAP = {
-        '@' : /^(\w+)|(\s+)|(@)/,
-        '(' : /^(\w+)|(\s+)|(\))/,
-        '{' : /^(\w+)|(\s+)|(\})/,
-        '[' : /^(\w+)|(\s+)|(\])/,
-        '<' : /^(\w+)|(\s+)|(>)/,
-        '/' : /^(\w+)|(\s+)|(\/)/,
-        '!' : /^(\w+)|(\s+)|(!)/
+        '@' : /^(\w+)|(\n)|(\s+)|(@)/,
+        '(' : /^(\w+)|(\n)|(\s+)|(\))/,
+        '{' : /^(\w+)|(\n)|(\s+)|(\})/,
+        '[' : /^(\w+)|(\n)|(\s+)|(\])/,
+        '<' : /^(\w+)|(\n)|(\s+)|(>)/,
+        '/' : /^(\w+)|(\n)|(\s+)|(\/)/,
+        '!' : /^(\w+)|(\n)|(\s+)|(!)/
+    };
+    var QX_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '`' : /^(`)|([^`]+)/,
+        '!' : /^(!)|([^!]+)/
     };
     var QR_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '!' : /^(!)|([^!]+)/
+    };
+    var Q_MAP = {
+        '@' : /^(@)|([^@]+)/,
+        '(' : /^(\))|([^\)]+)/,
+        '{' : /^(\})|([^}]+)/,
+        '[' : /^(\])|([^\]]+)/,
+        '<' : /^(>)|([^>]+)/,
+        '/' : /^(\/)|([^\/]+)/,
+        '!' : /^(!)|([^!]+)/
+    };
+    var QQ_MAP = {
         '@' : /^(@)|([^@]+)/,
         '(' : /^(\))|([^\)]+)/,
         '{' : /^(\})|([^}]+)/,
@@ -135,10 +164,45 @@
     var OPS_KEYS = Object.keys(ops).sort(function (a,b) { return b.length - a.length; });
 
     Scanner.prototype.get = function () {
+        var retval = this._get();
+        if (retval[0] !== Scanner.TOKEN_LF) {
+            this.lastToken = retval[0];
+            this.lastTokenIsLF = false;
+        } else {
+            this.lastTokenIsLF = true;
+        }
+        return retval;
+    };
+    Scanner.prototype.divable = function (token_id) {
+        switch (token_id) {
+        case Scanner.TOKEN_IDENT:
+        case Scanner.TOKEN_DOUBLE:
+        case Scanner.TOKEN_INTEGER:
+        case Scanner.TOKEN_PLUSPLUS:
+        case Scanner.TOKEN_BYTES_DQ:
+        case Scanner.TOKEN_BYTES_SQ:
+        case Scanner.TOKEN_QW:
+        case Scanner.TOKEN_STRING_DQ:
+        case Scanner.TOKEN_STRING_SQ:
+        case Scanner.TOKEN_LBRACKET:
+        case Scanner.TOKEN_MINUSMINUS:
+        case Scanner.TOKEN_LAMBDA:
+        case Scanner.TOKEN_RPAREN:
+        case Scanner.TOKEN_RBRACKET:
+        case Scanner.TOKEN_REGEXP:
+        case Scanner.TOKEN_LPAREN:
+            return true;
+        default:
+            return false;
+        }
+    };
+    Scanner.prototype._get = function () {
         // ------------------------------------------------------------------------- 
-        // skip white spaces
+        // skip white space and comments
         // ------------------------------------------------------------------------- 
         this.src = this.src.replace(/^[ ]+/, '');
+        this.src = this.src.replace(/^#[^\n]+/, '');
+        this.src = this.src.replace(/^\n__END__\n[\s\S]+/, '');
 
         if (this.src.length === 0) {
             return [Scanner.TOKEN_EOF, undefined, this.lineno];
@@ -149,11 +213,21 @@
         // ------------------------------------------------------------------------- 
         if (this.src.charAt(0) === "\n") {
             this.src = this.src.substr(1);
-            return [
+            var token = [
                 Scanner.TOKEN_LF,
                 undefined,
                 this.lineno++
             ];
+            this.processHeredoc();
+            return token;
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qx
+        // ------------------------------------------------------------------------- 
+        var qxMatch = this.src.match(/^qx([{\[(!@<\/])/) || this.src.match(/^(`)/);
+        if (qxMatch) {
+            return this.scanQX(qxMatch);
         }
 
         // ------------------------------------------------------------------------- 
@@ -171,14 +245,48 @@
         if (qrMatch) {
             return this.scanQR(qrMatch);
         }
+        if (!this.divable(this.lastToken)) {
+            var reMatch = this.src.match(/^(\/)/);
+            if (reMatch) {
+                return this.scanQR(reMatch);
+            }
+        }
+
+        // ------------------------------------------------------------------------- 
+        // q
+        // ------------------------------------------------------------------------- 
+        var qMatch = this.src.match(/^q([{\[(!@<\/])/);
+        if (qMatch) {
+            return this.scanQ(qMatch);
+        }
+
+        // ------------------------------------------------------------------------- 
+        // qq
+        // ------------------------------------------------------------------------- 
+        var qqMatch = this.src.match(/^qq([{\[(!@<\/])/);
+        if (qqMatch) {
+            return this.scanQQ(qqMatch);
+        }
+
+        // ------------------------------------------------------------------------- 
+        // heredoc
+        // ------------------------------------------------------------------------- 
+        var heredocSQMatch = this.src.match(/^<<'([^']+)'/);
+        if (heredocSQMatch) {
+        console.log("HEEEEEEEEEEER");
+            this.src = this.src.substr(heredocSQMatch[0].length);
+            return this.scanHeredocSQ(heredocSQMatch[1]);
+        }
 
         // ------------------------------------------------------------------------- 
         // scan keywords
         // ------------------------------------------------------------------------- 
         for (var keyword in KEYWORDS) {
-            if (this.src.substr(0, keyword.length) == keyword) {
-                this.src = this.src.substr(keyword.length);
-                return [KEYWORDS[keyword], undefined, this.lineno];
+            if (KEYWORDS.hasOwnProperty(keyword)) {
+                if (this.src.match(new RegExp('^' + keyword + '([^a-zA-Z_]|$)'))) {
+                    this.src = this.src.substr(keyword.length);
+                    return [KEYWORDS[keyword], undefined, this.lineno];
+                }
             }
         }
 
@@ -192,17 +300,26 @@
         }
 
         // ------------------------------------------------------------------------- 
+        // filetest operator
+        // ------------------------------------------------------------------------- 
+        var ftmatched = this.src.match(/^-([xefd])([^a-zA-Z_]|$)/);
+        if (ftmatched) {
+            this.src = this.src.substr(ftmatched[0].length);
+            return [Scanner.TOKEN_FILETEST, ftmatched[1], this.lineno];
+        }
+
+        // ------------------------------------------------------------------------- 
         // handle number
         // ------------------------------------------------------------------------- 
-        var doublematched = this.src.match(/^[1-9][0-9]*(\.[0-9]+)/);
+        var doublematched = this.src.match(/^(?:[1-9][0-9]*|0)(\.[0-9]+)/);
         if (doublematched) {
             this.src = this.src.substr(doublematched[0].length);
-            return [Scanner.TOKEN_DOUBLE, 0+doublematched[0], this.lineno];
+            return [Scanner.TOKEN_DOUBLE, parseFloat(doublematched[0]), this.lineno];
         }
-        var matched = this.src.match(/^[1-9][0-9]*/);
+        var matched = this.src.match(/^[1-9][0-9_]*/);
         if (matched) {
             this.src = this.src.substr(matched[0].length);
-            return [Scanner.TOKEN_INTEGER, parseInt(matched[0], 10), this.lineno];
+            return [Scanner.TOKEN_INTEGER, parseInt(matched[0].replace(/_/g, ''), 10), this.lineno];
         }
         var hexmatched = this.src.match(/^0x[0-9a-fA-F]+/);
         if (hexmatched) {
@@ -260,16 +377,18 @@
         this.src = this.src.substr(qwMatch[0].length);
         var closed = false;
         var words = [];
-        var qwScanCallback = function (all, word, space, close) {
+        var qwScanCallback = function (all, word, lf, space, close) {
             if (word) {
                 words.push(word);
+            } else if (lf) {
+                this.lineno++;
             } else if (close) {
                 closed = true;
             }
             return '';
         };
         while (this.src.length!==0 && !closed) {
-            this.src = this.src.replace(re, qwScanCallback);
+            this.src = this.src.replace(re, qwScanCallback.bind(this));
         }
         return [
             Scanner.TOKEN_QW,
@@ -295,9 +414,92 @@
                 re, scanCallback
             );
         }
+        var option;
+        this.src = this.src.replace(/^[ismg]+/i, function (opt) {
+            option = opt;
+            return '';
+        });
         return [
             Scanner.TOKEN_REGEXP,
-            regex,
+            [regex, option],
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQX = function (qxMatch) {
+        var re = QX_MAP[qxMatch[1]];
+        this.src = this.src.substr(qxMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        return [
+            Scanner.TOKEN_QX,
+            str,
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQQ = function (qqMatch) {
+        // TODO: support #{ }
+        var re = QQ_MAP[qqMatch[1]];
+        this.src = this.src.substr(qqMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        return [
+            Scanner.TOKEN_STRING,
+            str,
+            this.lineno
+        ];
+    };
+    Scanner.prototype.scanQ = function (qMatch) {
+        var re = Q_MAP[qMatch[1]];
+        this.src = this.src.substr(qMatch[0].length);
+        var closed = false;
+        var str = '';
+        var scanCallback = function (all, close, word) {
+            if (word) {
+                str += word;
+            } else if (close) {
+                closed = true;
+            }
+            return '';
+        };
+        while (this.src.length!==0 && !closed) {
+            this.src = this.src.replace(
+                re, scanCallback
+            );
+        }
+        var option;
+        this.src = this.src.replace(/^[ism]+/i, function (opt) {
+            option = opt;
+            return '';
+        });
+        return [
+            Scanner.TOKEN_STRING,
+            str,
             this.lineno
         ];
     };
@@ -318,6 +520,40 @@
             ];
         } else {
             throw "Scanning error: Unexpected EOF in string.";
+        }
+    };
+    Scanner.prototype.scanHeredocSQ = function (marker) {
+        var token = [
+            Scanner.TOKEN_HEREDOC_SQ_START,
+            undefined,
+            this.lineno
+        ];
+        this.heredocTokenQueue.push([marker, token]);
+        return token;
+    };
+    Scanner.prototype.processHeredoc = function () {
+        while (this.heredocTokenQueue.length > 0) {
+            var h = this.heredocTokenQueue.shift();
+            var marker = h[0];
+            var token = h[1];
+            var buffer = '';
+            while (true) {
+                var m = this.src.match(/^(.*)(\n|$)/);
+                if (!m) {
+                    throw 'Unexpected EOF in heredoc.'; // TODO: better diag
+                }
+                this.src = this.src.substr(m[0].length);
+                this.lineno++;
+                if (m[1] === marker) {
+                    break;
+                }
+                buffer += m[0];
+                if (this.src.length === 0) {
+                    throw 'Unexpected EOF in heredoc.'; // TODO: better diag
+                }
+            }
+            token[0] = Scanner.TOKEN_STRING;
+            token[1] = buffer;
         }
     };
     global.Kuma.Scanner = Scanner;

@@ -656,7 +656,7 @@ tap.test('regexp', function (t) {
         t.equivalent(parse('qr/a/'), [
             Parser.NODE_REGEXP,
             1,
-            'a'
+            ['a', undefined]
         ]);
     }catch (e) { t.fail(e); }
     t.end();
@@ -770,6 +770,65 @@ tap.test('c-style for', function (t) {
                 [Parser.NODE_BLOCK,1, [Parser.NODE_STMTS, 1, []]]
             ]
         ]]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('regexp match', function (t) {
+    try {
+        t.equivalent(parse("s =~ qr//"), [
+            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
+        ]);
+        t.equivalent(parse("s !~ qr//"), [
+            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('array item', function (t) {
+    try {
+        t.equivalent(parse("sss[bababa]"), [
+            Parser.NODE_ITEM, 1, [ [ Parser.NODE_IDENT, 1, 'sss' ], [ Parser.NODE_IDENT, 1, 'bababa' ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('{}', function (t) {
+    try {
+        t.equivalent(parse("{}.foo"), [
+            Parser.NODE_GET_METHOD, 1, [ [ Parser.NODE_MAKE_HASH, 1, [] ], [ Parser.NODE_IDENT, 1, 'foo' ] ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('0.14', function (t) {
+    try {
+        t.equivalent(parse("0.14"), [
+            Parser.NODE_DOUBLE, 1, 0.14
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('file test', function (t) {
+    try {
+        t.equivalent(parse("-f $file"), [
+            Parser.NODE_FILETEST, 1, [
+                'f', [Parser.NODE_IDENT, 1, '$file']
+            ]
+        ]);
+    }catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('qx', function (t) {
+    try {
+        t.equivalent(parse("qx/ls/"), [
+            Parser.NODE_QX, 1, 'ls'
+        ]);
     }catch (e) { t.fail(e); }
     t.end();
 });

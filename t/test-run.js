@@ -1,4 +1,4 @@
-/*jslint node: true, es5: true */
+/*jslint node: true, es5: true, evil: true */
 "use strict";
 
 var tap = require('tap'),
@@ -18,7 +18,7 @@ tap.test('__LINE__', function (t) {
 
 tap.test('unless', function (t) {
     try {
-        t.equivalent(testit("8;unless 1 { 3 }"), 8);
+        t.equivalent(testit("8;unless 1 { 3 }"), undefined);
         t.equivalent(testit("unless 0 { 3 }"), 3);
     } catch (e) { t.fail(e); }
     t.end();
@@ -46,6 +46,7 @@ tap.test('literals', function (t) {
         t.equivalent(testit("true"), true);
         t.equivalent(testit("false"), false);
         t.equivalent(testit("undef"), undefined);
+        t.equivalent(testit('5_000'), 5000);
     } catch (e) {
         t.fail(e);
     }
@@ -114,8 +115,6 @@ tap.test('assignment', function (t) {
         t.equivalent(testit("my x = 255; x &= 3; x"), 3);
         t.equivalent(testit("my x = 1; x |= 8; x"), 9);
         t.equivalent(testit("my x = 1; x ^= 8; x"), 9);
- // Parser.NODE_POW_ASSIGN = 66;
- // Parser.NODE_OROR_ASSIGN = 70;
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -220,7 +219,7 @@ tap.test('--/++', function (t) {
 
 tap.test('for', function (t) {
     try {
-        t.equivalent(testit('my n=0; for (my i=0; i<=10; i++) { n += i }'), 55);
+        t.equivalent(testit('my $n=0; for (my $i=0; $i<=10; $i++) { $n += $i } $n'), 55);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -281,6 +280,124 @@ tap.test('last/next', function (t) {
     t.end();
 });
 
+tap.test('regexp match', function (t) {
+    try {
+        t.equivalent(testit("!!('hoge' =~ qr/o/)"), true);
+        t.equivalent(testit("!!('hoge' !~ qr/o/)"), false);
+        t.equivalent(testit("!!('hoge' =~ qr/O/)"), false);
+        t.equivalent(testit("!!('hoge' =~ qr/O/i)"), true);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('sprintf', function (t) {
+    try {
+        t.equivalent(testit("sprintf('%03d', 5)"), '005');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('int', function (t) {
+    try {
+        t.equivalent(testit("int('3')"), 3);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('Class', function (t) {
+    try {
+        t.equivalent(testit("class Foo { }; typeof(Foo)"), 'function');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('use', function (t) {
+    try {
+        t.equivalent(testit("use fs; fs"), require('fs'));
+        t.equivalent(testit("use fs qw/realpath/; realpath"), require('fs').realpath);
+        t.equivalent(testit("use fs {'watch': 'look'}; look"), require('fs').watch);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('oct', function (t) {
+    try {
+        t.equivalent(testit('oct("777")'), 511);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('hex', function (t) {
+    try {
+        t.equivalent(testit('0xdeadbeef'), 3735928559);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('labeled', function (t) {
+    try {
+        t.equivalent(testit('LOOP: while (1) { while (1) { last LOOP; } }; 4649'), 4649);
+        t.equivalent(testit('LOOP: for 1..1000 -> i { for 1..1000 -> { last LOOP; } }; 5963'), 5963);
+        t.equivalent(testit('LOOP: for (my i=0; i<10; i++) { for (my j=0; j<100000000000; j++) { last LOOP; } }; 5963'), 5963);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('sub', function (t) {
+    try {
+        t.equivalent(testit('"hoge".substr(1,2)'), 'og');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('cmp', function (t) {
+    try {
+        t.equivalent(testit('1 <=> 0'), 1);
+        t.equivalent(testit('0 <=> 0'), 0);
+        t.equivalent(testit('0 <=> 1'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('parsing', function (t) {
+    try {
+        t.equivalent(testit('my foo=1\n+2\nfoo'), 3);
+        t.equivalent(testit('my foo="foo".toUpperCase()\n.toLowerCase()\nfoo'), 'foo');
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+// same behaviour between perl
+tap.test('int', function (t) {
+    try {
+        t.equivalent(testit('int(0)'), 0);
+        t.equivalent(testit('int(0.1)'), 0);
+        t.equivalent(testit('int(0.9)'), 0);
+        t.equivalent(testit('int(1)'), 1);
+        t.equivalent(testit('int(-0.1)'), 0);
+        t.equivalent(testit('int(-0.9)'), 0);
+        t.equivalent(testit('int(-1)'), -1);
+        t.equivalent(testit('int(-1.1)'), -1);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('default arguments', function (t) {
+    try {
+        t.equivalent(testit('sub foo($n=3) { $n }; foo()'), 3);
+        t.equivalent(testit('sub foo($n=3) { $n }; foo(5)'), 5);
+        t.equivalent(testit('sub foo($n=3,$v=7) { $v }; foo()'), 7);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test('heredoc', function (t) {
+    try {
+        t.equivalent(testit("<<'...';\nhogehoge\nfugafuga\n..."), "hogehoge\nfugafuga\n");
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {
@@ -295,12 +412,14 @@ function testit(src) {
     var ast = parser.parse();
     var tra = new Translator();
     var jssrc = tra.translate(ast);
+
     if (0) {
         console.log("---");
         console.log(jssrc);
         console.log("---");
     }
-    var ret = vm.runInThisContext(jssrc);
+    var Kuma = require("../src/runtime.js").Kuma;
+    var ret = eval(jssrc);
     return ret;
 }
 

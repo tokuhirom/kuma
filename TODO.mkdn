@@ -1,25 +1,38 @@
 TODO list
 =========
 
+generic
+-------
+
+    * $1, $2, $3, ...
+    * super()
+    * (as == b) ? 0 : ((as < b) ? -1 : 1);
+    * optional type checking for arguments
+    * args[0]
+    * alias method
+    * support operator overload?
+
+One Liners
+----------
+
+    * -n option
+    * -p option
+
 scanner
 -------
 
-    * comment support(should output to the js?)
-    * scanner supports strings
-    * scanner supports heredoc or """
+    * multiline comment support(should output to the js?)
+    * better strings
+    * better heredoc
     * tune up
     * support #{} style
-    * scan regexp literal
-    * support comment
     * split statements by \n
-    * //i
     * //x
+    * export keyword?
 
 parser
 ------
 
-    * parse fileteest ops
-    * parse regexp literal
     * parse list comprehention(is needed?)
     * labels for 'for' statement
     * labels for 'while' statement
@@ -32,12 +45,13 @@ translator
 runtime
 -------
 
-    * sprintf
+    * ARGF
 
 milestone
 ---------
 
     * [done] fib
+    * export feature
     * class support
     * block scope
     * no paste site
@@ -45,7 +59,9 @@ milestone
     * publish node.js library
     * self-hosting
     * [done] fizzbuzz
+    * self support
     * run on browser
+    * Test::More
 
 END
 ===

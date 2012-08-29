@@ -1,0 +1,10 @@
+use express
+
+my app = express()
+
+app.get('/', -> req, res {
+    res.send("hello world\n")
+})
+app.listen(3000)
+say("curl http://localhost:3000/")
+

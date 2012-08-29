@@ -1,0 +1,7 @@
+sub fib(n) {
+    (n <= 2) ? 1 : fib(n-1) + fib(n-2)
+}
+
+my $n = ARGV[0] || 33
+say(fib($n))
+

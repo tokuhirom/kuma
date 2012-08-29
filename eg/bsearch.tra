@@ -1,0 +1,84 @@
+class BSearch {
+    static sub lower_boundary(ary, compare) {
+        my lower = -1
+        my upper = ary.length
+
+        while (lower + 1 != upper) {
+            my mid = int((lower + upper) / 2);
+            if (compare(ary[mid])<0) {
+                lower = mid
+            } else {
+                upper = mid
+            }
+        }
+        return upper
+    }
+
+    static sub search_first(ary, compare) {
+        my boundary = this.lower_boundary(ary, compare);
+        if (boundary >= ary.length || compare(ary[boundary]) != 0) {
+            return undef
+        } else {
+            return boundary
+        }
+    }
+
+    static sub search() {
+        self.search_first.apply(self, Array.prototype.slice(arguments));
+    }
+
+    static sub upper_boundary(ary, compare) {
+        my lower = -1;
+        my upper = ary.length;
+
+        while (lower + 1 != upper) {
+            my mid = Math.floor((lower+upper)/2)
+            if (compare(ary[mid]) <= 0) {
+                lower = mid;
+            } else {
+                upper = mid;
+            }
+        }
+        return lower + 1;
+    }
+
+    static sub search_last(ary, compare) {
+        my boundary = this.upper_boundary(ary, compare) - 1;
+        if (boundary <= -1 || compare(self[boundary]) != 0) {
+            return undef
+        } else {
+            return boundary
+        }
+    }
+
+    static sub search_range(ary, compare) {
+        my lower = this.bsearch_lower_boundary(ary, compare);
+        my upper = this.bsearch_upper_boundary(ary, compare);
+        return lower..upper
+    }
+}
+
+#                        *  *  *
+#         0  1  2  3  4  5  6  7  8  9
+my ary = [1, 2, 2, 3, 3, 4, 4, 4, 5, 5];
+my fn = -> { $_ <=> 4 };
+p(BSearch.lower_boundary(ary, fn));
+# => 5
+p(BSearch.upper_boundary(ary, fn));
+# => 8
+
+module.exports.BSearch = BSearch;
+
+__END__
+
+DESCRIPTION
+-----------
+
+Yet another binary search library for kuma.
+
+SEE ALSO
+--------
+
+  * http://coderepos.org/share/browser/lang/javascript/misc/bsearch.js?rev=18869
+  * http://0xcc.net/ruby-bsearch/
+

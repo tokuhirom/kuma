@@ -17,7 +17,10 @@
     var ND_DATAS  = 2;
 
     var BUILTIN_FUNCTIONS = [
-        'say', 'open', 'p'
+        'say', 'open', 'p', 'exit',
+        'getpid', 'sprintf', 'printf',
+        'print', 'int', 'glob', 'oct',
+        'system'
     ];
 
     function Parser(src, filename) {
@@ -40,6 +43,12 @@
         this.idx = 0;
     }
 
+    Parser.id2name = node_map.id2name;
+
+    function getNodeNameByType(type) {
+        return Parser.id2name[''+type];
+    }
+
     for (var id in node_map.name2id) {
         if (!node_map.name2id.hasOwnProperty(id)) { continue; }
         Parser[id] = node_map.name2id[id];
@@ -58,6 +67,9 @@
         }
         return this.tokens[this.idx++];
     };
+    Parser.prototype.getTokenName = function (token_id) {
+        return Scanner.id2name[''+token_id];
+    };
     Parser.prototype.lookToken = function (use_lf) {
         var idx = this.idx;
         if (!use_lf) {
@@ -66,10 +78,6 @@
             }
         }
         return this.tokens[idx];
-    };
-    Parser.prototype.ungetToken = function () {
-        if (this.idx === 0) { throw "Invalid index"; }
-        this.idx--;
     };
     Parser.prototype.getMark = function () {
         return this.idx;
@@ -106,8 +114,13 @@
 
             var rhs = upper.call(this);
             if (!rhs) {
-                // TODO better diag
-                throw "Syntax error after " + node_type + " at line " + this.lineno;
+                if (token[TK_TAG] === Scanner.TOKEN_MUL) {
+                    // '*' operator is used in non binary op syntax.
+                    // do not throw exception for 'use fs *'
+                    return;
+                } else {
+                    throw "Syntax error after " + this.getTokenName(token[TK_TAG]) + " at line " + this.lineno;
+                }
             }
 
             child = this.makeNode(
@@ -155,21 +168,71 @@
         } else if (token[TK_TAG] === Scanner.TOKEN_DO) {
             return this.parseDoStmt();
         } else if (token[TK_TAG] === Scanner.TOKEN_LBRACE) {
+            var mark = this.getMark();
             var hash = this.parseHashCreation();
             if (hash) {
-                return hash;
+                this.restoreMark(mark);
+                return this.parseNormalStatemnt();
             }
             return this.parseBlock();
         } else if (token[TK_TAG] === Scanner.TOKEN_FOR) {
-            console.log("FOR!!!!");
             return this.parseForStmt();
         } else {
+            var labeled = this.parseLabeledStatement();
+            if (labeled) {
+                return labeled;
+            }
             // normal statement
             return this.parseNormalStatemnt();
         }
     };
+    Parser.prototype.parseLabeledStatement = function () {
+        var mark = this.getMark();
+        var label = this.parseIdentifier();
+        if (!label) {
+            return;
+        }
+
+        if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_COLON) {
+            this.restoreMark(mark);
+            return;
+        }
+        this.getToken();
+
+        switch (this.lookToken()[TK_TAG]) {
+        case Scanner.TOKEN_FOR:
+            var forStmt = this.parseForStmt();
+            if (forStmt) {
+                return this.makeNode(
+                    Parser.NODE_LABELED,
+                    label[TK_LINENO],
+                    [label, forStmt]
+                );
+            }
+            this.restoreMark(mark);
+            return;
+        case Scanner.TOKEN_WHILE:
+            var whileStmt = this.parseWhileStmt();
+            if (whileStmt) {
+                return this.makeNode(
+                    Parser.NODE_LABELED,
+                    label[TK_LINENO],
+                    [label, whileStmt]
+                );
+            }
+            this.restoreMark(mark);
+            return;
+        default:
+            this.restoreMark(mark);
+            return;
+        }
+    };
     Parser.prototype.parseNormalStatemnt = function () {
         var stmt = this.parseJumpStatement();
+        if (!stmt) {
+            return;
+        }
+
         var nextToken = this.lookToken(true);
         switch (nextToken[TK_TAG]) {
         case Scanner.TOKEN_EOF:
@@ -223,7 +286,9 @@
                 [condWhile, stmt]
             );
         default:
-            throw "Unexpected token : " + nextToken[TK_TAG]  + " at line " + this.lookToken(true)[TK_LINENO];
+            console.log(stmt);
+            console.log(nextToken);
+            throw "Unexpected token after expression: " + this.getTokenName(nextToken[TK_TAG])  + " at line " + this.lookToken(true)[TK_LINENO];
         }
     };
     Parser.prototype.parseClassStmt = function () {
@@ -253,30 +318,39 @@
         );
     };
     Parser.prototype.parseUseStmt = function () {
-        // TODO
-        /*
-        } elsif ($token_id == TOKEN_USE) {
-            $c = substr($c, $used);
-            my ($used, $token_id, $klass) = _token_op($c);
-            my $op = +{
-                TOKEN_CLASS_NAME() => NODE_IDENT,
-                TOKEN_IDENT()      => NODE_IDENT,
-            }->{$token_id};
-            _err "class name is required after 'use' keyword"
-                unless $op;
-            $c = substr($c, $used);
-            my $type;
-            if ((my $c2) = match($c, '*')) {
-                $c = $c2;
-                $type = '*';
-            } elsif (my ($c3, $primary) = primary($c)) {
-                $c = $c3;
-                $type = $primary;
+        var token = this.getToken(); // TOKEN_USE
+        var module = this.parsePrimary();
+        if (!module) {
+            throw "Missing module name after use keyword at line " + token[TK_LINENO];
+        }
+
+        // use fs
+        // use fs *
+        // use fs qw//
+        // use fs { 'foo': 'bar'}
+        // use 'test/more.kuma'
+        var nextToken = this.lookToken(true);
+        var exportType;
+        if (nextToken[TK_TAG] === Scanner.TOKEN_MUL) {
+            this.getToken();
+            exportType = '*';
+        } else if (nextToken[TK_TAG] === Scanner.TOKEN_LF || nextToken[TK_TAG] === Scanner.TOKEN_SEMICOLON) {
+            // use fs\nmy ...
+            exportType = undefined;
+        } else {
+            var primary = this.parsePrimary();
+            if (primary) {
+                exportType = primary;
             } else {
-                $type = _node(NODE_UNDEF);
+                exportType = undefined;
             }
-            return ($c, _node2(NODE_USE, $START, _node($op, $klass), $type));
-            */
+        }
+
+        return this.makeNode(
+            Parser.NODE_USE,
+            token[TK_LINENO],
+            [module, exportType]
+        );
     };
     Parser.prototype.parseDoStmt = function () {
         var token = this.getToken(); // 'do'
@@ -484,42 +558,78 @@
         this.trace("Parsing expression : " + token[TK_TAG]);
         if (token[TK_TAG] === Scanner.TOKEN_LAST) {
             this.getToken();
+            var label = this.parseIdentifier();
             return this.makeNode(
                 Parser.NODE_LAST,
-                token[TK_LINENO]
+                token[TK_LINENO],
+                label
             );
         } else if (token[TK_TAG] === Scanner.TOKEN_NEXT) {
             this.getToken();
+            var nextLabel = this.parseIdentifier();
             return this.makeNode(
                                  Parser.NODE_NEXT,
-                                 token[TK_LINENO]
+                                 token[TK_LINENO],
+                                 nextLabel
                                  );
+        } else if (token[TK_TAG] === Scanner.TOKEN_STATIC) {
+            return this.parseStatic();
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
-            this.getToken();
-            // name is optional thing.
-            // you can use anon sub.
-            var name = this.parseIdentifier();
-            // and parameters are optional
-            var params = this.parseParameters();
-            var block = this.parseBlock();
-            if (!block) {
-                throw "Expected block after sub at line " + token[TK_LINENO];
-            }
-
-            return this.makeNode(
-                Parser.NODE_SUB,
-                token[TK_LINENO],
-                [name, params, block]
-            );
+            return this.parseSub();
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
-             // TODO: test
-        } else if (token[TK_TAG] === Scanner.TOKEN_THROW) {
-             // TODO: test
+             /*
+        // TODO try block
+            $c = substr($c, $used);
+            ($c, my $block) = block($c)
+                or _err "expected block after try keyword";
+            return ($c, _node2(NODE_TRY, $START, $block));
+            */
+        } else if (token[TK_TAG] === Scanner.TOKEN_DIE) {
+            return this.parseDie();
         } else {
             return this.parseStrOrExpression();
         }
     };
+    Parser.prototype.parseStatic = function () {
+        // static sub ...
+        var token = this.getToken();
+        var sub = this.parseSub();
+        if (!sub) {
+            throw "Cannot parse subroutine after 'static' keyword at line " + token[TK_LINENO];
+        }
+        return this.makeNode(
+            Parser.NODE_STATIC,
+            token[TK_LINENO],
+            [sub]
+        );
+    };
+    Parser.prototype.parseSub = function () {
+        var token = this.getToken();
+        // name is optional thing.
+        // you can use anon sub.
+        var name = this.parseIdentifier();
+        // and parameters are optional
+        var params = this.parseParameters();
+        var block = this.parseBlock();
+        if (!block) {
+            throw "Expected block after sub at line " + token[TK_LINENO];
+        }
 
+        return this.makeNode(
+            Parser.NODE_SUB,
+            token[TK_LINENO],
+            [name, params, block]
+        );
+    };
+    Parser.prototype.parseDie = function () {
+        var token = this.getToken(); // die
+        var exp = this.parseExpression(); // maybe undefined.
+        return this.makeNode(
+            Parser.NODE_DIE,
+            token[TK_LINENO],
+            exp
+        );
+    };
     Parser.prototype.parseIdentifier = function () {
         var token = this.lookToken();
         if (token[TK_TAG] == Scanner.TOKEN_IDENT) {
@@ -543,7 +653,7 @@
         var ret = this.parseParameterList();
 
         if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RPAREN) {
-            throw "You dont close paren in subroutine arguments at line " + this.lookToken()[TK_LINENO];
+            throw "You don't close paren in subroutine arguments but you give " + this.getTokenName(this.lookToken()[TK_TAG]) + " at line " + this.lookToken()[TK_LINENO];
         }
         this.getToken();
 
@@ -559,9 +669,21 @@
             if (!variable) {
                 break;
             }
-            ret.push(variable);
 
-            if (this.lookToken()[TK_TAG] == Scanner.TOKEN_COMMA) {
+            // default variable.
+            if (this.lookToken()[TK_TAG] === Scanner.TOKEN_ASSIGN) {
+                var token = this.getToken(); // =
+
+                var defval = this.parsePrimary();
+                if (!defval) {
+                    throw "Expected default value but " + this.getTokenName(this.lookToken()[TK_TAG]) + " at line " + token[TK_LINENO];
+                }
+                ret.push([variable, defval]);
+            } else {
+                ret.push([variable]);
+            }
+
+            if (this.lookToken()[TK_TAG] === Scanner.TOKEN_COMMA) {
                 this.getToken();
             } else {
                 break;
@@ -569,29 +691,6 @@
         }
         return ret;
     };
-
-    /*
-rule('expression', [
-    sub {
-        my $c = shift;
-        my ($used, $token_id) = _token_op($c);
-        } elsif ($token_id == TOKEN_TRY) {
-        // TODO
-            $c = substr($c, $used);
-            ($c, my $block) = block($c)
-                or _err "expected block after try keyword";
-            return ($c, _node2(NODE_TRY, $START, $block));
-        } elsif ($token_id == TOKEN_DIE) {
-        // TODO
-            $c = substr($c, $used);
-            ($c, my $block) = expression($c)
-                or die "expected expression after die keyword";
-            return ($c, _node2(NODE_DIE, $START, $block));
-        } else {
-            return str_or_expression($c);
-        }
-    },
-    */
 
     Parser.prototype.parseBlock = function () {
         var mark = this.getMark();
@@ -674,7 +773,7 @@ rule('expression', [
             this.getToken();
             var lhs = this.parseExpression();
             if (!lhs) {
-                throw "Cannot get expression after " + node_type;
+                throw "Cannot get expression after " + getNodeNameByType(node_type) + ' at line ' + token[TK_LINENO];
             }
             return this.makeNode(
                 node_type,
@@ -791,9 +890,11 @@ rule('expression', [
         return this.left_op(this.parseRegexpMatch, termMap);
     };
 
+    var regMatchMap = { };
+    regMatchMap[Scanner.TOKEN_REGEXP_MATCH]     = Parser.NODE_REGEXP_MATCH;
+    regMatchMap[Scanner.TOKEN_REGEXP_NOT_MATCH] = Parser.NODE_REGEXP_NOT_MATCH;
     Parser.prototype.parseRegexpMatch = function () {
-        // TODO: support =~, !~
-        return this.parseUnary();
+        return this.left_op(this.parseUnary, regMatchMap);
     };
 
     var UNARY_OPS = {};
@@ -803,16 +904,13 @@ rule('expression', [
     UNARY_OPS[Scanner.TOKEN_MINUS] = Parser.NODE_UNARY_MINUS;
     Parser.prototype.parseUnary = function (src) {
         var token = this.lookToken();
-        if (token[TK_TAG] === Scanner.NODE_FILETEST) {
-            this.getToken();
-            // TODO:
-            throw 'not implemented';
+        if (token[TK_TAG] === Scanner.TOKEN_FILETEST) {
+            return this.parseFileTest();
         } else if (token[TK_TAG] in UNARY_OPS) {
             this.getToken();
 
             var lhs = this.parseUnary();
-            // TODO: show token name
-            if (!lhs) { throw "Missing lhs for token number " + token[TK_TAG]; }
+            if (!lhs) { throw "Missing lhs for " + this.getTokenName(token[TK_TAG]) + ' at line ' + token[TK_LINENO]; }
             return this.makeNode(
                 UNARY_OPS[token[TK_TAG]],
                 token[TK_LINENO],
@@ -821,6 +919,15 @@ rule('expression', [
         } else {
             return this.parsePow();
         }
+    };
+    Parser.prototype.parseFileTest = function () {
+        var ft = this.getToken();
+        var arg = this.parseExpression();
+        return this.makeNode(
+            Parser.NODE_FILETEST,
+            ft[TK_LINENO],
+            [ft[TK_VALUE], arg]
+        );
     };
     Parser.prototype.parsePow = function () {
         // x**y
@@ -906,7 +1013,7 @@ rule('expression', [
     };
 
     Parser.prototype.parseMethodCall = function () {
-        var object = this.parseFuncall();
+        var object = this.parseNewExpression();
         if (!object) { return; }
         var ret = object;
         while (1) {
@@ -917,6 +1024,7 @@ rule('expression', [
 
             var identifier = this.parseIdentifier();
             if (!identifier) {
+                console.log(this.lookToken());
                 throw "There is no identifier after '.' operator in method call at line " + object[ND_LINENO];
             }
             var args = this.parseArguments();
@@ -935,6 +1043,23 @@ rule('expression', [
             }
         }
         return ret;
+    };
+
+    Parser.prototype.parseNewExpression = function () {
+        if (this.lookToken()[TK_TAG] === Scanner.TOKEN_NEW) {
+            var token = this.getToken();
+            var funcall = this.parseFuncall();
+            if (!funcall) {
+                throw "There is no funcall expression after 'new' operator at line " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_NEW,
+                token[TK_LINENO],
+                funcall
+            );
+        } else {
+            return this.parseFuncall();
+        }
     };
 
     Parser.prototype.parseArguments = function () {
@@ -999,6 +1124,25 @@ rule('expression', [
                 this.restoreMark(mark);
                 return;
             }
+        } else if (token[TK_TAG] === Scanner.TOKEN_LBRACKET) {
+            // $thing[$n]
+            this.getToken(); // [
+
+            var arg = this.parseExpression();
+            if (!arg) {
+                return;
+            }
+
+            if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACKET) {
+                throw "Unmatched bracket at line " + this.lookToken[TK_TAG];
+            }
+            this.getToken(); // ]
+
+            return this.makeNode(
+                Parser.NODE_ITEM,
+                token[TK_LINENO],
+                [primary, arg]
+            );
         } else {
             // It's primary token
             return primary;
@@ -1058,6 +1202,13 @@ rule('expression', [
             return this.parseLambda();
         case Scanner.TOKEN_IDENT:
             return this.parseIdentifier();
+        case Scanner.TOKEN_QX:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_QX,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
         case Scanner.TOKEN_REGEXP:
             token = this.getToken();
             return this.makeNode(
@@ -1083,10 +1234,23 @@ rule('expression', [
                 Parser.NODE_UNDEF,
                 token[TK_LINENO]
             );
+        case Scanner.TOKEN_SELF:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_SELF,
+                token[TK_LINENO]
+            );
         case Scanner.TOKEN_INTEGER:
             token = this.getToken();
             return this.makeNode(
                 Parser.NODE_INTEGER,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        case Scanner.TOKEN_DOUBLE:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_DOUBLE,
                 token[TK_LINENO],
                 token[TK_VALUE]
             );
@@ -1219,12 +1383,14 @@ rule('expression', [
             }
             this.getToken();
         }
+
         if (this.lookToken()[TK_TAG] !== Scanner.TOKEN_RBRACE) {
             this.trace("Not a right brace in hash: " + this.lookToken()[TK_TAG]);
             this.restoreMark(mark);
             return;
         }
         this.getToken();
+
         this.trace("Got a hash");
         return this.makeNode(
             Parser.NODE_MAKE_HASH,
@@ -1258,12 +1424,6 @@ rule('expression', [
         );
     };
     /*
-        } elsif ($token_id == TOKEN_STRING_Q_START) { # q{
-        TODO
-            return _sq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
-        } elsif ($token_id == TOKEN_STRING_QQ_START) { # qq{
-        TODO
-            return _dq_string(substr($c, $used), _closechar(substr($c, $used-1, 1)));
         } elsif ($token_id == TOKEN_DIV) { # /
         TODO
             return _regexp(substr($c, $used), q{/});
@@ -1283,11 +1443,28 @@ rule('expression', [
             return _bytes_sq(substr($c, $used), 0);
         } elsif ($token_id ==TOKEN_BYTES_DQ) { # b"
             return _bytes_dq(substr($c, $used), 0);
-        } elsif ($token_id == TOKEN_SELF) {
-        TODO
-            $c = substr($c, $used);
-            return ($c, _node(NODE_SELF, $LINENO));
             */
+
+    if (0) {
+        for (var k in Parser.prototype) {
+            var level = 0;
+            (function () {
+                var orig = Parser.prototype[k];
+                var key = k;
+                Parser.prototype[key] = function () {
+                    var buf = '';
+                    for (var i=0; i<level; i++) {
+                        buf += ' ';
+                    }
+                    console.log(buf + key);
+                    level++;
+                    var retval = orig.apply(this, Array.prototype.slice.call(arguments));
+                    level--;
+                    return retval;
+                };
+            }).call(this);
+        }
+    }
 
     global.Kuma.Parser = Parser;
 

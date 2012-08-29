@@ -1,12 +1,4 @@
-#!/usr/bin/env perl
-use strict;
-use warnings;
-use utf8;
-use 5.010000;
-use autodie;
-use JSON;
-
-my @nodes = qw(
+my nodes = qw(
     NODE_FUNCALL
     NODE_IDENT
     NODE_BUILTIN_FUNCALL
@@ -99,11 +91,16 @@ my @nodes = qw(
     NODE_STATIC
     NODE_FILETEST
     NODE_QX
-);
-my $i = 1;
-my %nodes = map { $_ => $i++ } @nodes;
-print 'module.exports=' . encode_json({
-    name2id => \%nodes,
-    id2name => +{ reverse %nodes },
-}) . ';';
+)
+
+my i = 1
+my node_map = {}
+nodes.each(-> { node_map[$_] = i++ })
+
+my json = JSON.stringify({
+    "name2id": node_map,
+    "id2name": node_map.reverse()
+})
+
+printf("module.exports=%s;\n", json)
 

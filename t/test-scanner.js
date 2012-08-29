@@ -63,6 +63,10 @@ tap.test("literal", function (t) {
         [Scanner.TOKEN_DOUBLE, 3.14, 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
+    t.equivalent(scanIt('0.14'), [
+        [Scanner.TOKEN_DOUBLE, 0.14, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
     t.equivalent(scanIt('"Hello"'), [
         [Scanner.TOKEN_STRING, "Hello",   1],
         [Scanner.TOKEN_EOF,    undefined, 1]
@@ -135,11 +139,11 @@ tap.test("qw()", function (t) {
 
 tap.test("qr()", function (t) {
     t.equivalent(scanIt('qr()'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr{}'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.end();
@@ -147,16 +151,130 @@ tap.test("qr()", function (t) {
 
 tap.test("qr()", function (t) {
     t.equivalent(scanIt('qr()'), [
-        [Scanner.TOKEN_REGEXP, '', 1],
+        [Scanner.TOKEN_REGEXP, ['', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr(^.)'), [
-        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_REGEXP, ['^.', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
     ]);
     t.equivalent(scanIt('qr/^./'), [
-        [Scanner.TOKEN_REGEXP, '^.', 1],
+        [Scanner.TOKEN_REGEXP, ['^.', undefined], 1],
         [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr/^./i'), [
+        [Scanner.TOKEN_REGEXP, ['^.', 'i'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('qr/^./g'), [
+        [Scanner.TOKEN_REGEXP, ['^.', 'g'], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+tap.test("comment", function (t) {
+    t.equivalent(scanIt('# foo\n...'), [
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_DOTDOTDOT, undefined, 2],
+        [Scanner.TOKEN_EOF,    undefined, 2]
+    ]);
+    t.equivalent(scanIt('  #foo\n...'), [
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_DOTDOTDOT, undefined, 2],
+        [Scanner.TOKEN_EOF,    undefined, 2]
+    ]);
+    t.end();
+});
+
+tap.test("q()", function (t) {
+    t.equivalent(scanIt('q(hoge)'), [
+        [Scanner.TOKEN_STRING, 'hoge', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+tap.test("qq()", function (t) {
+    t.equivalent(scanIt('qq(hoge)'), [
+        [Scanner.TOKEN_STRING, 'hoge', 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.end();
+});
+
+tap.test("divide or regexp", function (t) {
+    t.equivalent(scanIt('3/5'), [
+        [Scanner.TOKEN_INTEGER, 3, 1],
+        [Scanner.TOKEN_DIV, undefined, 1],
+        [Scanner.TOKEN_INTEGER, 5, 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('3 =~ /hoge/'), [
+        [Scanner.TOKEN_INTEGER, 3, 1],
+        [Scanner.TOKEN_REGEXP_MATCH, undefined, 1],
+        [Scanner.TOKEN_REGEXP, ['hoge', undefined], 1],
+        [Scanner.TOKEN_EOF,    undefined, 1]
+    ]);
+    t.equivalent(scanIt('(lower + upper) / 2'), [
+        [Scanner.TOKEN_LPAREN, undefined, 1],
+        [Scanner.TOKEN_IDENT, "lower", 1],
+        [Scanner.TOKEN_PLUS, undefined, 1],
+        [Scanner.TOKEN_IDENT, "upper", 1],
+        [Scanner.TOKEN_RPAREN, undefined, 1],
+        [Scanner.TOKEN_DIV, undefined, 1],
+        [Scanner.TOKEN_INTEGER, 2, 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
+tap.test("dividable", function (t) {
+    var scanner = new Scanner('');
+    try {
+        t.equal(scanner.divable(Scanner.TOKEN_IDENT), true);
+        t.equal(scanner.divable(Scanner.TOKEN_REGEXP_MATCH), false);
+        console.log(Scanner.TOKEN_LPAREN);
+        t.equal(scanner.divable(Scanner.TOKEN_LPAREN), true);
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
+tap.test("file test operator", function (t) {
+    t.equivalent(scanIt('-f'), [
+        [Scanner.TOKEN_FILETEST, 'f', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('-file'), [
+        [Scanner.TOKEN_MINUS, undefined, 1],
+        [Scanner.TOKEN_IDENT, 'file', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
+tap.test("qx", function (t) {
+    t.equivalent(scanIt('qx/ls/'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('qx!ls!'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.equivalent(scanIt('`ls`'), [
+        [Scanner.TOKEN_QX, 'ls', 1],
+        [Scanner.TOKEN_EOF, undefined, 1],
+    ]);
+    t.end();
+});
+
+tap.test("heredoc", function (t) {
+    t.equivalent(scanIt("<<'...';\nhogehoge\n..."), [
+        [Scanner.TOKEN_STRING, 'hogehoge\n', 1],
+        [Scanner.TOKEN_SEMICOLON, undefined, 1],
+        [Scanner.TOKEN_LF, undefined, 1],
+        [Scanner.TOKEN_EOF, undefined, 4],
     ]);
     t.end();
 });
