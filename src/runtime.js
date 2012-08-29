@@ -59,8 +59,10 @@
             enumerable: false,
             value: function (stuff) {
                 var o = Object.create(this.prototype);
-                for (var n in stuff) {
-                    o[n] = stuff[n];
+                if (stuff) {
+                    for (var n in stuff) {
+                        o[n] = stuff[n];
+                    }
                 }
                 return o;
             }
