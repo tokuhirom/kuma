@@ -16,3 +16,8 @@ toras' features needs operations
 
     * operator overload
 
+features depended on node.js
+----------------------------
+
+    * property accessor hooks
+
