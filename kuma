@@ -80,7 +80,7 @@ function evaluate(src) {
     if (argv.dump_js) {
         console.log(js);
     }
-    Kuma.Core._initialize();
+    Kuma.Runtime.initialize();
     return eval(js);
 }
 

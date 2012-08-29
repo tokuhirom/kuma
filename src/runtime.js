@@ -57,6 +57,34 @@
     // TODO: optimize
     var lastMatch = [];
     global.Kuma.Runtime = {
+        initialize: function () {
+            lastMatch = undefined;
+        },
+        regexpLastMatch: function (n) {
+            return lastMatch ? lastMatch[n] : undefined;
+        },
+        qx: function (cmd) {
+            if (!system3_cache) { system3_cache = require('system3'); }
+            return system3_cache.qx(cmd);
+        },
+        fileTest: function (type, path) {
+            if (!fs_cache) { fs_cache = require('fs'); }
+            var stat;
+            try {
+                stat = fs_cache.lstatSync(path);
+            } catch (e) { }
+            switch (type) {
+            case 'f':
+                return stat && stat.isFile();
+            case 'd':
+                return stat && stat.isDirectory();
+            case 'e':
+                return !!stat;
+            default:
+                throw "Unknown file test type: " + type;
+            }
+            return stat;
+        },
         match: function (str, re) {
             lastMatch = str.match(re);
             return lastMatch;
@@ -66,10 +94,7 @@
     var glob_cache;
     var fs_cache;
     var system3_cache;
-    global.Kuma.Core = {
-        _initialize: function () {
-            lastMatch = undefined;
-        },
+    global.Kuma.Builtins = {
         say: function () {
             console.log.apply(null, Array.prototype.slice.call(arguments));
         },
@@ -100,34 +125,9 @@
         oct: function (s) {
             return parseInt(s, 8);
         },
-        _qx: function (cmd) {
-            if (!system3_cache) { system3_cache = require('system3'); }
-            return system3_cache.qx(cmd);
-        },
-        _regexpLastMatch: function (n) {
-            return lastMatch ? lastMatch[n] : undefined;
-        },
         system: function (cmd) {
             if (!system3_cache) { system3_cache = require('system3'); }
             return system3_cache.system(cmd);
-        },
-        fileTest: function (type, path) {
-            if (!fs_cache) { fs_cache = require('fs'); }
-            var stat;
-            try {
-                stat = fs_cache.lstatSync(path);
-            } catch (e) { }
-            switch (type) {
-            case 'f':
-                return stat && stat.isFile();
-            case 'd':
-                return stat && stat.isDirectory();
-            case 'e':
-                return !!stat;
-            default:
-                throw "Unknown file test type: " + type;
-            }
-            return stat;
         },
         exit: function (status) {
             // http://nodejs.org/api/process.html#process_process_exit_code
