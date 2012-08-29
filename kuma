@@ -1,17 +1,10 @@
 #!/usr/bin/env node
 "use strict";
 
-var Translator = require("./src/translator.js").Kuma.Translator,
-    Parser = require("./src/parser.js").Kuma.Parser,
-    Scanner = require("./src/scanner.js").Kuma.Scanner,
-    Builtins = require("./src/runtime.js").Kuma.Builtins,
-    Runtime = require("./src/runtime.js").Kuma.Runtime,
-    fs = require('fs'),
+var fs = require('fs'),
     readline = require('readline'),
-    Kuma = {
-        "Builtins": Builtins,
-        "Runtime":Runtime
-    };
+    tty = require('tty'),
+    Runner = require('./src/runner.js');
 
 var optimist = require('optimist')
     .usage('Usage: $0 -e eval')
@@ -31,20 +24,23 @@ if (argv.h) {
     process.exit(0);
 }
 
+var runner = new Runner();
+    runner.dump_ast   = argv.dump_ast;
+    runner.dump_token = argv.dump_token;
+    runner.dump_js    = argv.dump_js;
+
 if (typeof argv.e !== 'undefined') {
     // -e  means eval mode
     var src = '' + argv.e;
     global.ARGV = argv._;
-    evaluate.call(this, src);
+    runner.runString(src);
 } else if (argv._.length > 0) {
     var fname = argv._[0];
-    var src = fs.readFileSync(fname, 'utf-8');
     global.ARGV = argv._.slice(1);
-    evaluate.call(this, src);
-} else {
+    runner.runFile(fname);
+} else if (tty.isatty(process.stdin.fd)) {
     global.ARGV = argv._;
 
-    // TODO: readline?
     var rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -54,35 +50,30 @@ if (typeof argv.e !== 'undefined') {
     rl.prompt();
     rl.on('line', function(src) {
         try {
-            console.log(evaluate.call(this, ''+src.trim()));
+            console.log(runner.runString(''+src.trim()));
         } catch (e) { console.log(e); }
         rl.prompt();
     }).on('close', function () {
         process.exit(0);
     });
-}
+} else {
+    (function () {
+        var fname = argv._[0];
+        global.ARGV = argv._;
+        var fs = require("fs");
 
-function evaluate(src) {
-    var parser = new Parser(src);
-    if (argv.dump_token) {
-        for (var i=0, l=parser.tokens.length; i<l; ++i) {
-            console.log([
-                Scanner.id2name[parser.tokens[i][0]],
-                parser.tokens[i][1],
-                parser.tokens[i][2]
-            ]);
+        var fd = process.stdin.fd;
+
+        var content = "";
+        var BUFFER_SIZE = 4096;
+        var buffer = new Buffer(BUFFER_SIZE);
+        var n;
+
+        while( (n = fs.readSync(fd, buffer, 0, BUFFER_SIZE)) > 0) {
+                content += buffer.slice(0, n).toString();
         }
-    }
-    var ast = parser.parse();
-    if (argv.dump_ast) {
-        console.log(JSON.stringify(ast));
-    }
-    var translator = new Translator();
-    var js = translator.translate(ast);
-    if (argv.dump_js) {
-        console.log(js);
-    }
-    Kuma.Runtime.initialize();
-    return eval(js);
+
+        runner.runString(content);
+    })();
 }
 

@@ -5,6 +5,7 @@ var tap = require('tap'),
 Translator = require("../src/translator.js").Kuma.Translator,
 Parser = require("../src/parser.js").Kuma.Parser,
 Core = require("../src/runtime.js").Kuma.Core,
+Runner = require("../src/runner.js"),
 vm = require('vm');
 
 tap.test('__LINE__', function (t) {
@@ -415,25 +416,7 @@ tap.test('class new', function (t) {
 // foreach statement have a bug. i
 
 function testit(src) {
-    if (0) {
-        console.log("+++++++++++++++");
-        console.log(src);
-    }
-    var parser = new Parser(src);
-    if (0) {
-        parser.TRACE_ON = true;
-    }
-    var ast = parser.parse();
-    var tra = new Translator();
-    var jssrc = tra.translate(ast);
-
-    if (0) {
-        console.log("---");
-        console.log(jssrc);
-        console.log("---");
-    }
-    var Kuma = require("../src/runtime.js").Kuma;
-    var ret = eval(jssrc);
-    return ret;
+    var runner = new Runner();
+    return runner.runString(src);
 }
 
