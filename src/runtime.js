@@ -5,6 +5,18 @@
 
     var sprintf = require('sprintf').sprintf;
     var sys = require('sys');
+    var runner;
+
+    require.extensions['.tra'] = function (module, filename) {
+        console.log("YAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        // var src = require('fs').readFileSync(filename, 'utf8');
+        if (!runner) {
+            var Runner = require('./runner.js');
+            runner = new Runner();
+        }
+        runner.runFile(filename);
+        module.exports = runner.exports;
+    };
 
     if (!Array.prototype.grep) {
         Object.defineProperty(Array.prototype, 'grep', {

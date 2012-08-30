@@ -51,7 +51,9 @@ Runner.prototype.runFile = function (fname) {
         return Module._load(path, sandbox_module, true);
     };
     var js = this.compile(src);
-    return eval(js);
+    var ret = eval(js);
+    this.exports = module.exports;
+    return ret;
 };
 
 module.exports = Runner;
