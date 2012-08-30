@@ -1484,6 +1484,7 @@
             */
 
     if (0) {
+        /*
         for (var k in Parser.prototype) {
             var level = 0;
             (function () {
@@ -1502,6 +1503,7 @@
                 };
             }).call(this);
         }
+        */
     }
 
     global.Kuma.Parser = Parser;

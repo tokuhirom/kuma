@@ -502,7 +502,7 @@
                 // [name, params, block]
                 // name can be null
                 // params can be null
-                var ret = '';
+                var ret = '', i, len;
                 if (this.className) {
                     if (!ast[ND_DATAS][0]) {
                         throw "[Translation Error] function name is required for instance method at line " + ast[ND_LINENO];
@@ -520,7 +520,7 @@
                 }
                     ret += '(';
                 if (ast[ND_DATAS][1]) { // arguments
-                    for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
+                    for (i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
                         ret += this._translate(ast[ND_DATAS][1][i][0]);
                         if (i!==len-1) {
                             ret += ', ';
@@ -529,7 +529,7 @@
                 }
                     ret += ') { var KV$$self = this;';
                 if (ast[ND_DATAS][1]) { // arguments
-                    for (var i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
+                    for (i=0, len=ast[ND_DATAS][1].length; i<len; i++) {
                         if (ast[ND_DATAS][1][i][1]) {
                             ret += 'if (arguments.length<=' + i + ') {\n';
                             ret += this._translate(ast[ND_DATAS][1][i][0]);
