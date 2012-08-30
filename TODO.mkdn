@@ -10,6 +10,7 @@ generic
     * args[0]
     * alias method
     * support operator overload?
+    * ARGF
     * BUILD, BUILDARGS?
       * default argument?
 
