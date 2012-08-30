@@ -575,6 +575,8 @@
                                  );
         } else if (token[TK_TAG] === Scanner.TOKEN_STATIC) {
             return this.parseStatic();
+        } else if (token[TK_TAG] === Scanner.TOKEN_EXPORT) {
+            return this.parseExport();
         } else if (token[TK_TAG] === Scanner.TOKEN_SUB) {
             return this.parseSub();
         } else if (token[TK_TAG] === Scanner.TOKEN_TRY) {
@@ -589,6 +591,34 @@
             return this.parseDie();
         } else {
             return this.parseStrOrExpression();
+        }
+    };
+    Parser.prototype.parseExport = function () {
+        // static sub ...
+        var token = this.getToken(); // export
+        switch (this.lookToken()[TK_TAG]) {
+        case Scanner.TOKEN_SUB:
+            var sub = this.parseSub();
+            if (!sub) {
+                throw "Cannot parse subroutine after 'export' keyword at line " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_EXPORT,
+                token[TK_LINENO],
+                [sub]
+            );
+        case Scanner.TOKEN_CLASS:
+            var klass = this.parseSub();
+            if (!klass) {
+                throw "Cannot parse class after 'export' keyword at line " + token[TK_LINENO];
+            }
+            return this.makeNode(
+                Parser.NODE_EXPORT,
+                token[TK_LINENO],
+                [klass]
+            );
+        default:
+            throw "class or sub is expected after 'export' keyword at line " + token[TK_LINENO];
         }
     };
     Parser.prototype.parseStatic = function () {
@@ -639,6 +669,13 @@
                 Parser.NODE_IDENT,
                 token[TK_LINENO],
                 token[TK_VALUE]
+            );
+        } else if (token[TK_TAG] == Scanner.TOKEN_IS) {
+            this.getToken();
+            return this.makeNode(
+                Parser.NODE_IDENT,
+                token[TK_LINENO],
+                'is'
             );
         } else {
             return;

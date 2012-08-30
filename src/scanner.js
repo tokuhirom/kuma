@@ -47,6 +47,7 @@
         "true" : Scanner.TOKEN_TRUE,
         "false" : Scanner.TOKEN_FALSE,
         "self" : Scanner.TOKEN_SELF,
+        "export" : Scanner.TOKEN_EXPORT,
         "__FILE__" : Scanner.TOKEN_FILE,
         "__LINE__" : Scanner.TOKEN_LINE,
         "is" : Scanner.TOKEN_IS,

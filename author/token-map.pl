@@ -115,6 +115,7 @@ my @tokens = qw(
     TOKEN_NEW
     TOKEN_STATIC
     TOKEN_QX
+    TOKEN_EXPORT
 );
 my $i = 1;
 my %tokens = map { $_ => $i++ } @tokens;

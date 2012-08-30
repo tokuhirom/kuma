@@ -163,6 +163,7 @@
             return this._injectReturn(ast[ND_DATAS]);
         case Parser.NODE_GET_METHOD:
         case Parser.NODE_STATIC:
+        case Parser.NODE_EXPORT:
         case Parser.NODE_ASSIGN: // XXX This should be returnable, but it's not accepted by JS syntax..
             return ast;
         default:
@@ -479,6 +480,21 @@
             return "(!((" + this._translate(ast[ND_DATAS][0]) + ").match(" + this._translate(ast[ND_DATAS][1]) + ")))";
         case Parser.NODE_DOTDOTDOT:
             return 'throw "Unimplemented";';
+        case Parser.NODE_EXPORT:
+            return (function () {
+                var name = (function () {
+                    switch (ast[ND_DATAS][0][ND_TYPE]) {
+                    case Parser.NODE_SUB:
+                        return ast[ND_DATAS][0][ND_DATAS][0][2];
+                    case Parser.NODE_CLASS:
+                        return ast[ND_DATAS][0][ND_DATAS][0];
+                    default:
+                        throw "Is not exportable";
+                    }
+                })();
+                console.log(name);
+                return 'module.exports.' + name + " = " + this._translate(ast[ND_DATAS][0]);
+            }).call(this);
         case Parser.NODE_STATIC:
             return this._translate(ast[ND_DATAS][0], {static: true});
         case Parser.NODE_SUB:
