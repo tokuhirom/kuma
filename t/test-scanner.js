@@ -235,7 +235,7 @@ tap.test("dividable", function (t) {
         t.equal(scanner.divable(Scanner.TOKEN_IDENT), true);
         t.equal(scanner.divable(Scanner.TOKEN_REGEXP_MATCH), false);
         console.log(Scanner.TOKEN_LPAREN);
-        t.equal(scanner.divable(Scanner.TOKEN_LPAREN), true);
+        t.equal(scanner.divable(Scanner.TOKEN_RPAREN), true);
     } catch (e) { t.fail(e); }
     t.end();
 });
