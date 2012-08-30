@@ -14,7 +14,7 @@ var Parser = require("./parser.js").Kuma.Parser,
 
 function Runner() {
 }
-Runner.prototype.runString = function (src) {
+Runner.prototype.compile = function (src) {
     var parser = new Parser(src);
     if (this.dump_token) {
         for (var i=0, l=parser.tokens.length; i<l; ++i) {
@@ -35,11 +35,16 @@ Runner.prototype.runString = function (src) {
         console.log(js);
     }
     Kuma.Runtime.initialize();
+    return js;
+};
+Runner.prototype.runString = function (src) {
+    var js = this.compile(src);
     return eval(js);
 };
 Runner.prototype.runFile = function (fname) {
     var src = fs.readFileSync(fname, 'utf-8');
-    return this.runString(src);
+    var js = this.compile(src);
+    return eval(js);
 };
 
 module.exports = Runner;
