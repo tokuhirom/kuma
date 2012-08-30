@@ -413,6 +413,13 @@ tap.test('class new', function (t) {
     t.end();
 });
 
+tap.test('inheritance', function (t) {
+    try {
+        t.equivalent(testit("class Foo { static sub new() { self.bless({}) } sub yay() { 'YAY' } } Foo.new().yay()"), "YAY");
+    } catch (e) { t.fail(e); }
+    t.end();
+});
+
 // foreach statement have a bug. i
 
 function testit(src) {

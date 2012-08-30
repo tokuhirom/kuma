@@ -12,6 +12,8 @@ generic
     * support operator overload?
     * ARGF
     * inheritance
+        * util.inheritance?
+    * require tora files
     * BUILD, BUILDARGS?
       * default argument?
 

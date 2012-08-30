@@ -6,6 +6,7 @@ var Parser = require("./parser.js").Kuma.Parser,
     Translator = require("./translator.js").Kuma.Translator,
     Builtins = require("./runtime.js").Kuma.Builtins,
     Runtime = require("./runtime.js").Kuma.Runtime,
+    Module = require('module'),
     fs = require('fs'),
     Kuma = {
         "Builtins": Builtins,
@@ -43,6 +44,12 @@ Runner.prototype.runString = function (src) {
 };
 Runner.prototype.runFile = function (fname) {
     var src = fs.readFileSync(fname, 'utf-8');
+
+    // replace require. It makes base point for require is .tra file.
+    var sandbox_module = new Module(fname);
+    var require = function (path) {
+        return Module._load(path, sandbox_module, true);
+    };
     var js = this.compile(src);
     return eval(js);
 };
