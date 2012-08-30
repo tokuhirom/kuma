@@ -190,7 +190,6 @@
         case Scanner.TOKEN_RPAREN:
         case Scanner.TOKEN_RBRACKET:
         case Scanner.TOKEN_REGEXP:
-        case Scanner.TOKEN_LPAREN:
             return true;
         default:
             return false;

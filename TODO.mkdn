@@ -11,6 +11,7 @@ generic
     * alias method
     * support operator overload?
     * ARGF
+    * inheritance
     * BUILD, BUILDARGS?
       * default argument?
 
