@@ -9,6 +9,7 @@
     "sprintf": "~0.1.1",
     "system3": "~1.0.1",
     "glob": "~3.1.12",
+    "jshint-tap-simple":"~1.0.2",
     "optimist": "0"
   },
   "scripts": {
