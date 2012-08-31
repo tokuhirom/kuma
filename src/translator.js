@@ -354,7 +354,9 @@
                     this.requireExtend = true;
                 }
 
-                var ret  = 'var ' + className + ' = (function (_super) {';
+                var ret  = '';
+                    ret += 'var ' + className + ' = ';
+                    ret += '(function (_super) {';
                     if (parent) {
                     ret += "    KF$$extends(" + className + ', _super);';
                     }
@@ -487,13 +489,13 @@
                     case Parser.NODE_SUB:
                         return ast[ND_DATAS][0][ND_DATAS][0][2];
                     case Parser.NODE_CLASS:
-                        return ast[ND_DATAS][0][ND_DATAS][0];
+                        return ast[ND_DATAS][0][ND_DATAS][0][2];
                     default:
                         throw "Is not exportable";
                     }
                 })();
-                console.log(name);
-                return 'module.exports.' + name + " = " + this._translate(ast[ND_DATAS][0]);
+                var ret = this._translate(ast[ND_DATAS][0]);
+                return ret + ';\nmodule.exports.' + name + " = " + name + ";\n";
             }).call(this);
         case Parser.NODE_STATIC:
             return this._translate(ast[ND_DATAS][0], {static: true});

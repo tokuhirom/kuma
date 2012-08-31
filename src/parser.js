@@ -608,7 +608,7 @@
                 [sub]
             );
         case Scanner.TOKEN_CLASS:
-            var klass = this.parseSub();
+            var klass = this.parseClassStmt();
             if (!klass) {
                 throw "Cannot parse class after 'export' keyword at line " + token[TK_LINENO];
             }

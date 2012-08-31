@@ -40,6 +40,18 @@ Runner.prototype.compile = function (src) {
 };
 Runner.prototype.runString = function (src) {
     var js = this.compile(src);
+    var name = (function () {
+        // see http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+        var orig = Error.prepareStackTrace;
+        Error.prepareStackTrace = function (error, stack) { return stack; };
+        var ret = new Error().stack;
+        Error.prepareStackTrace = orig;
+        return ret[1].getFileName();
+    }).call(this);
+    var sandbox_module = new Module(name);
+    var require = function (path) {
+        return Module._load(path, sandbox_module, true);
+    };
     return eval(js);
 };
 Runner.prototype.runFile = function (fname) {
