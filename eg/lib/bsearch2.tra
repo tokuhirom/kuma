@@ -1,0 +1,75 @@
+class BSearch {
+    static sub lower_boundary(ary, compare) {
+        my lower = -1
+        my upper = ary.length
+
+        while (lower + 1 != upper) {
+            my mid = int((lower + upper) / 2);
+            if (compare(ary[mid])<0) {
+                lower = mid
+            } else {
+                upper = mid
+            }
+        }
+        return upper
+    }
+
+    static sub search_first(ary, compare) {
+        my boundary = this.lower_boundary(ary, compare);
+        if (boundary >= ary.length || compare(ary[boundary]) != 0) {
+            return undef
+        } else {
+            return boundary
+        }
+    }
+
+    static sub search() {
+        self.search_first.apply(self, Array.prototype.slice(arguments));
+    }
+
+    static sub upper_boundary(ary, compare) {
+        my lower = -1;
+        my upper = ary.length;
+
+        while (lower + 1 != upper) {
+            my mid = Math.floor((lower+upper)/2)
+            if (compare(ary[mid]) <= 0) {
+                lower = mid;
+            } else {
+                upper = mid;
+            }
+        }
+        return lower + 1;
+    }
+
+    static sub search_last(ary, compare) {
+        my boundary = this.upper_boundary(ary, compare) - 1;
+        if (boundary <= -1 || compare(self[boundary]) != 0) {
+            return undef
+        } else {
+            return boundary
+        }
+    }
+
+    static sub search_range(ary, compare) {
+        my lower = self.lower_boundary(ary, compare);
+        my upper = self.upper_boundary(ary, compare);
+        return lower..upper
+    }
+}
+
+module.exports.BSearch = BSearch;
+
+__END__
+
+DESCRIPTION
+-----------
+
+Yet another binary search library for kuma.
+
+SEE ALSO
+--------
+
+  * http://coderepos.org/share/browser/lang/javascript/misc/bsearch.js?rev=18869
+  * http://0xcc.net/ruby-bsearch/
+

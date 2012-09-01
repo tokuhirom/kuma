@@ -1,0 +1,12 @@
+use './eg/lib/bsearch2' qw/BSearch/;
+
+#                        *  *  *
+#         0  1  2  3  4  5  6  7  8  9
+my ary = [1, 2, 2, 3, 3, 4, 4, 4, 5, 5];
+my fn = -> { $_ <=> 4 };
+p(BSearch.lower_boundary(ary, fn));
+# => 5
+p(BSearch.upper_boundary(ary, fn));
+# => 8
+p(BSearch.search_range(ary, fn));
+# => 5,6,7,8
