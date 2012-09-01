@@ -709,7 +709,7 @@
                             ret += this._translate(ary[i]);
                         }
                             ret += ' = ';
-                            ret += this._translate(module);
+                            ret += moduleName;
                             ret += '.';
                         if (ary[i][ND_TYPE] === Parser.NODE_STRING) {
                             ret += ary[i][ND_DATAS];

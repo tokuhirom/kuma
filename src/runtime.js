@@ -8,7 +8,6 @@
     var runner;
 
     require.extensions['.tra'] = function (module, filename) {
-        console.log("YAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         // var src = require('fs').readFileSync(filename, 'utf8');
         if (!runner) {
             var Runner = require('./runner.js');
