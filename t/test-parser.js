@@ -397,25 +397,25 @@ tap.test('pow', function (t) {
 
 tap.test('incdec', function (t) {
     try {
-        t.equivalent(parse("i++"), [
+        t.equivalent(parse("$i++"), [
             Parser.NODE_POST_INC,
             1,
-            [Parser.NODE_IDENT,1,"i"]
+            [Parser.NODE_VARIABLE,1,"$i"]
         ]);
-        t.equivalent(parse("++i"), [
+        t.equivalent(parse("++$i"), [
             Parser.NODE_PRE_INC,
             1,
-            [Parser.NODE_IDENT,1,"i"]
+            [Parser.NODE_VARIABLE,1,"$i"]
         ]);
-        t.equivalent(parse("--i"), [
+        t.equivalent(parse("--$i"), [
             Parser.NODE_PRE_DEC,
             1,
-            [Parser.NODE_IDENT,1,"i"]
+            [Parser.NODE_VARIABLE,1,"$i"]
         ]);
-        t.equivalent(parse("i--"), [
+        t.equivalent(parse("$i--"), [
             Parser.NODE_POST_DEC,
             1,
-            [Parser.NODE_IDENT,1,"i"]
+            [Parser.NODE_VARIABLE,1,"$i"]
         ]);
     } catch (e) { t.fail(e); }
 
@@ -568,13 +568,13 @@ tap.test('foreach', function (t) {
                 ]]
             ]
         ]);
-        t.equivalent(parse('for [] -> x { }'), [
+        t.equivalent(parse('for [] -> $x { }'), [
             Parser.NODE_FOREACH,
             1,
             [
                 [Parser.NODE_MAKE_ARRAY,1,[]],
                 [
-                    [Parser.NODE_IDENT, 1, 'x']
+                    [Parser.NODE_VARIABLE, 1, '$x']
                 ],
                 [Parser.NODE_BLOCK,1,[
                     Parser.NODE_STMTS,
@@ -776,11 +776,11 @@ tap.test('c-style for', function (t) {
 
 tap.test('regexp match', function (t) {
     try {
-        t.equivalent(parse("s =~ qr//"), [
-            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
+        t.equivalent(parse("$s =~ qr//"), [
+            Parser.NODE_REGEXP_MATCH, 1, [ [ Parser.NODE_VARIABLE, 1, '$s' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
         ]);
-        t.equivalent(parse("s !~ qr//"), [
-            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_IDENT, 1, 's' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
+        t.equivalent(parse("$s !~ qr//"), [
+            Parser.NODE_REGEXP_NOT_MATCH, 1, [ [ Parser.NODE_VARIABLE, 1, '$s' ], [ Parser.NODE_REGEXP, 1, ['', undefined] ] ]
         ]);
     }catch (e) { t.fail(e); }
     t.end();
@@ -788,8 +788,8 @@ tap.test('regexp match', function (t) {
 
 tap.test('array item', function (t) {
     try {
-        t.equivalent(parse("sss[bababa]"), [
-            Parser.NODE_ITEM, 1, [ [ Parser.NODE_IDENT, 1, 'sss' ], [ Parser.NODE_IDENT, 1, 'bababa' ] ]
+        t.equivalent(parse("$sss[$bababa]"), [
+            Parser.NODE_ITEM, 1, [ [ Parser.NODE_VARIABLE, 1, '$sss' ], [ Parser.NODE_VARIABLE, 1, '$bababa' ] ]
         ]);
     }catch (e) { t.fail(e); }
     t.end();
@@ -817,7 +817,7 @@ tap.test('file test', function (t) {
     try {
         t.equivalent(parse("-f $file"), [
             Parser.NODE_FILETEST, 1, [
-                'f', [Parser.NODE_IDENT, 1, '$file']
+                'f', [Parser.NODE_VARIABLE, 1, '$file']
             ]
         ]);
     }catch (e) { t.fail(e); }

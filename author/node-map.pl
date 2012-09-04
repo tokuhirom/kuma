@@ -100,6 +100,7 @@ my @nodes = qw(
     NODE_FILETEST
     NODE_QX
     NODE_EXPORT
+    NODE_VARIABLE
 );
 my $i = 1;
 my %nodes = map { $_ => $i++ } @nodes;

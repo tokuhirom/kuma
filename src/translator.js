@@ -60,6 +60,7 @@
             return ast;
         case Parser.NODE_INTEGER:
         case Parser.NODE_IDENT:
+        case Parser.NODE_VARIABLE:
         case Parser.NODE_BUILTIN_FUNCALL:
         case Parser.NODE_STRING:
         case Parser.NODE_PRE_INC:
@@ -421,16 +422,18 @@
                 ret += '}';
                 return ret;
             }).call(this);
-        case Parser.NODE_IDENT:
+        case Parser.NODE_VARIABLE:
             return (function () {
-                var ident = ast[ND_DATAS];
-                var m = ident.match(/^\$([1-9])$/);
+                var variable = ast[ND_DATAS];
+                var m = variable.match(/^\$([1-9])$/);
                 if (m) { // magical variable
                     return "Kuma.Runtime.regexpLastMatch(" + m[1] + ")";
                 } else {
-                    return ident;
+                    return variable;
                 }
             }).call(this);
+        case Parser.NODE_IDENT:
+            return ast[ND_DATAS];
         case Parser.NODE_LT:
             return "(" + this._translate(ast[ND_DATAS][0]) + ")<(" + this._translate(ast[ND_DATAS][1]) + ")";
         case Parser.NODE_LE:

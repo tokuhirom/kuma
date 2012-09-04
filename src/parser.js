@@ -388,7 +388,7 @@
 
         var vars;
         while (1) {
-            var ident = this.parseIdentifier();
+            var ident = this.parseVariable();
             if (!ident) { break; }
             if (!vars) { vars = []; }
             vars.push(ident);
@@ -702,7 +702,7 @@
         var ret = [];
 
         while (1) {
-            var variable = this.parseIdentifier();
+            var variable = this.parseVariable();
             // TODO: default value support
             if (!variable) {
                 break;
@@ -728,6 +728,17 @@
             }
         }
         return ret;
+    };
+
+    Parser.prototype.parseVariable = function () {
+        if (this.lookToken()[TK_TAG] == Scanner.TOKEN_VARIABLE) {
+            var token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_VARIABLE,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
+        }
     };
 
     Parser.prototype.parseBlock = function () {
@@ -1238,6 +1249,13 @@
         switch (this.lookToken()[TK_TAG]) {
         case Scanner.TOKEN_LAMBDA:
             return this.parseLambda();
+        case Scanner.TOKEN_VARIABLE:
+            token = this.getToken();
+            return this.makeNode(
+                Parser.NODE_VARIABLE,
+                token[TK_LINENO],
+                token[TK_VALUE]
+            );
         case Scanner.TOKEN_IDENT:
             return this.parseIdentifier();
         case Scanner.TOKEN_QX:
@@ -1344,7 +1362,7 @@
                 // TODO my (x,y) = 3;
                 this.getToken();
                 throw "Not implemented yet";
-            } else if (lhs[TK_TAG] == Scanner.TOKEN_IDENT) {
+            } else if (lhs[TK_TAG] == Scanner.TOKEN_VARIABLE) {
                 this.getToken();
                 return this.makeNode(
                     Parser.NODE_MY,
@@ -1352,7 +1370,7 @@
                     this.makeNode(Parser.NODE_IDENT, token[TK_LINENO], lhs[TK_VALUE])
                 );
             } else  {
-                throw "This type of token is not allowed after my: " + lhs[TK_TAG] + " at line " + lhs[TK_LINENO];
+                throw "This type of token is not allowed after my: " + this.getTokenName(lhs[TK_TAG]) + " at line " + lhs[TK_LINENO];
             }
             throw "Should not reach here.";
         case Scanner.TOKEN_QW:
@@ -1376,7 +1394,7 @@
         var token = this.getToken(); // ->
         var params;
         while (1) {
-            var variable = this.parseIdentifier();
+            var variable = this.parseVariable();
             if (!variable) { break; }
             if (!params) { params = []; }
             params.push(variable);

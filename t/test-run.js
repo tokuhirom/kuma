@@ -88,41 +88,41 @@ tap.test('binary ops', function (t) {
 
 tap.test('assign', function (t) {
     try {
-        t.equivalent(testit("my i=8; i"), 8);
+        t.equivalent(testit("my $i=8; $i"), 8);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('func', function (t) {
     try {
-        t.equivalent(testit("my x = sub { return 3; }; x()"), 3);
+        t.equivalent(testit("my $x = sub { return 3; }; $x()"), 3);
         t.equivalent(testit("sub y { return 8; }; y()"), 8);
         t.equivalent(testit("sub y() { return 8; }; y()"), 8);
-        t.equivalent(testit("sub y(n) { return n*8; }; y(3)"), 24);
-        t.equivalent(testit("sub y(n) { return n**8; }; y(3)"), 6561);
+        t.equivalent(testit("sub y($n) { return $n*8; }; y(3)"), 24);
+        t.equivalent(testit("sub y($n) { return $n**8; }; y(3)"), 6561);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('assignment', function (t) {
     try {
-        t.equivalent(testit("my x = 5; x += 3; x"), 8);
-        t.equivalent(testit("my x = 5; x *= 3; x"), 15);
-        t.equivalent(testit("my x = 4; x /= 2; x"), 2);
-        t.equivalent(testit("my x = 4; x -= 2; x"), 2);
-        t.equivalent(testit("my x = 4; x %= 2; x"), 0);
-        t.equivalent(testit("my x = 4; x <<= 2; x"), 16);
-        t.equivalent(testit("my x = 4; x >>= 1; x"), 2);
-        t.equivalent(testit("my x = 255; x &= 3; x"), 3);
-        t.equivalent(testit("my x = 1; x |= 8; x"), 9);
-        t.equivalent(testit("my x = 1; x ^= 8; x"), 9);
+        t.equivalent(testit("my $x = 5; $x += 3; $x"), 8);
+        t.equivalent(testit("my $x = 5; $x *= 3; $x"), 15);
+        t.equivalent(testit("my $x = 4; $x /= 2; $x"), 2);
+        t.equivalent(testit("my $x = 4; $x -= 2; $x"), 2);
+        t.equivalent(testit("my $x = 4; $x %= 2; $x"), 0);
+        t.equivalent(testit("my $x = 4; $x <<= 2; $x"), 16);
+        t.equivalent(testit("my $x = 4; $x >>= 1; $x"), 2);
+        t.equivalent(testit("my $x = 255; $x &= 3; $x"), 3);
+        t.equivalent(testit("my $x = 1; $x |= 8; $x"), 9);
+        t.equivalent(testit("my $x = 1; $x ^= 8; $x"), 9);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('kuma', function (t) {
     try {
-    t.equivalent(testit("my i=0; my n= 0;while i<10 { n+=i; i++; }; n"), 45);
+    t.equivalent(testit("my $i=0; my $n= 0;while $i<10 { $n+=$i; $i++; }; $n"), 45);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -136,8 +136,8 @@ tap.test('make array', function (t) {
 
 tap.test('make hash', function (t) {
     try {
-        t.equivalent(testit("my x = {1:2}; x"), {1:2});
-        t.equivalent(testit("my x = {}; x"), {});
+        t.equivalent(testit("my $x = {1:2}; $x"), {1:2});
+        t.equivalent(testit("my $x = {}; $x"), {});
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -205,15 +205,15 @@ tap.test('qw', function (t) {
 
 tap.test('--/++', function (t) {
     try {
-        t.equivalent(testit('my i=0; i++'), 0);
-        t.equivalent(testit('my i=0; i++; i'), 1);
-        t.equivalent(testit('my i=0; ++i'), 1);
-        t.equivalent(testit('my i=0; ++i; i'), 1);
+        t.equivalent(testit('my $i=0; $i++'), 0);
+        t.equivalent(testit('my $i=0; $i++; $i'), 1);
+        t.equivalent(testit('my $i=0; ++$i'), 1);
+        t.equivalent(testit('my $i=0; ++$i; $i'), 1);
 
-        t.equivalent(testit('my i=0; i--'), 0);
-        t.equivalent(testit('my i=0; i--; i'), -1);
-        t.equivalent(testit('my i=0; --i'), -1);
-        t.equivalent(testit('my i=0; --i; i'), -1);
+        t.equivalent(testit('my $i=0; $i--'), 0);
+        t.equivalent(testit('my $i=0; $i--; $i'), -1);
+        t.equivalent(testit('my $i=0; --$i'), -1);
+        t.equivalent(testit('my $i=0; --$i; $i'), -1);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -227,7 +227,7 @@ tap.test('for', function (t) {
 
 tap.test('square', function (t) {
     try {
-        t.equivalent(testit("sub square(x) { return x**2 }; square(5)"), 25);
+        t.equivalent(testit("sub square($x) { return $x**2 }; square(5)"), 25);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -241,42 +241,42 @@ tap.test('euler', function (t) {
 
 tap.test('postfix if/unless', function (t) {
     try {
-        t.equivalent(testit("my i=0; i++ unless 1; i"), 0);
-        t.equivalent(testit("my i=0; i++ unless 0; i"), 1);
-        t.equivalent(testit("my i=0; i++ if 1; i"), 1);
-        t.equivalent(testit("my i=0; i++ if 0; i"), 0);
+        t.equivalent(testit("my $i=0; $i++ unless 1; $i"), 0);
+        t.equivalent(testit("my $i=0; $i++ unless 0; $i"), 1);
+        t.equivalent(testit("my $i=0; $i++ if 1; $i"), 1);
+        t.equivalent(testit("my $i=0; $i++ if 0; $i"), 0);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('postfix while', function (t) {
     try {
-        t.equivalent(testit("my i=10; i-- while i>0; i"), 0);
+        t.equivalent(testit("my $i=10; $i-- while $i>0; $i"), 0);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('postfix for', function (t) {
     try {
-        t.equivalent(testit("my i=0; i += $_ for 1..10; i"), 55);
+        t.equivalent(testit("my $i=0; $i += $_ for 1..10; $i"), 55);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('foreach', function (t) {
     try {
-        t.equivalent(testit("my i=0; for 1..10 -> $_ { i+= $_ } i"), 55);
+        t.equivalent(testit("my $i=0; for 1..10 -> $_ { $i+= $_ } $i"), 55);
         t.equivalent(testit("(1..10).sum()"), 55);
-        t.equivalent(testit("my r=[]; for {a:1, b:2} -> k, v { r.push(k) } r"), ['a', 'b']);
-        t.equivalent(testit("my r=[]; for {a:1, b:2} -> k, v { r.push(v) } r"), [1, 2]);
+        t.equivalent(testit("my $r=[]; for {a:1, b:2} -> $k, $v { $r.push($k) } $r"), ['a', 'b']);
+        t.equivalent(testit("my $r=[]; for {a:1, b:2} -> $k, $v { $r.push($v) } $r"), [1, 2]);
     } catch (e) { t.fail(e); }
     t.end();
 });
 
 tap.test('last/next', function (t) {
     try {
-        t.equivalent(testit("my i=0; for 1..10 -> $_ { i += $_; last if $_>5 } i"), 21);
-        t.equivalent(testit("my i=0; for 1..10 -> $_ { next if $_ % 2; i+= $_ } i"), 30);
+        t.equivalent(testit("my $i=0; for 1..10 -> $_ { $i += $_; last if $_>5 } $i"), 21);
+        t.equivalent(testit("my $i=0; for 1..10 -> $_ { next if $_ % 2; $i+= $_ } $i"), 30);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -338,8 +338,8 @@ tap.test('hex', function (t) {
 tap.test('labeled', function (t) {
     try {
         t.equivalent(testit('LOOP: while (1) { while (1) { last LOOP; } }; 4649'), 4649);
-        t.equivalent(testit('LOOP: for 1..1000 -> i { for 1..1000 -> { last LOOP; } }; 5963'), 5963);
-        t.equivalent(testit('LOOP: for (my i=0; i<10; i++) { for (my j=0; j<100000000000; j++) { last LOOP; } }; 5963'), 5963);
+        t.equivalent(testit('LOOP: for 1..1000 -> $i { for 1..1000 -> { last LOOP; } }; 5963'), 5963);
+        t.equivalent(testit('LOOP: for (my $i=0; $i<10; $i++) { for (my $j=0; $j<100000000000; $j++) { last LOOP; } }; 5963'), 5963);
     } catch (e) { t.fail(e); }
     t.end();
 });
@@ -362,8 +362,8 @@ tap.test('cmp', function (t) {
 
 tap.test('parsing', function (t) {
     try {
-        t.equivalent(testit('my foo=1\n+2\nfoo'), 3);
-        t.equivalent(testit('my foo="foo".toUpperCase()\n.toLowerCase()\nfoo'), 'foo');
+        t.equivalent(testit('my $foo=1\n+2\n$foo'), 3);
+        t.equivalent(testit('my $foo="foo".toUpperCase()\n.toLowerCase()\n$foo'), 'foo');
     } catch (e) { t.fail(e); }
     t.end();
 });

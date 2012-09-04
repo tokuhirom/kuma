@@ -191,6 +191,7 @@
         case Scanner.TOKEN_RPAREN:
         case Scanner.TOKEN_RBRACKET:
         case Scanner.TOKEN_REGEXP:
+        case Scanner.TOKEN_VARIABLE:
             return true;
         default:
             return false;
@@ -292,10 +293,16 @@
         // ------------------------------------------------------------------------- 
         // handle ident.
         // ------------------------------------------------------------------------- 
-        var m = this.src.match(/^[$A-Za-z_][$A-Za-z0-9_]*/);
+        var m = this.src.match(/^[A-Za-z_][$A-Za-z0-9_]*/);
         if (m) {
             this.src = this.src.substr(m[0].length);
             return [Scanner.TOKEN_IDENT, m[0], this.lineno];
+        }
+
+        var m2 = this.src.match(/^\$([A-Za-z_][$A-Za-z0-9_]*|[1-9])/);
+        if (m2) {
+            this.src = this.src.substr(m2[0].length);
+            return [Scanner.TOKEN_VARIABLE, m2[0], this.lineno];
         }
 
         // ------------------------------------------------------------------------- 
