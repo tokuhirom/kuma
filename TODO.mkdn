@@ -8,7 +8,9 @@ generic
     * (as == b) ? 0 : ((as < b) ? -1 : 1);
     * optional type checking for arguments
     * args[0]
+      * what's this?
     * alias method
+    * better use...
     * support operator overload?
     * ARGF
     * BUILD, BUILDARGS?
