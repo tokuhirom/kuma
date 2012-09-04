@@ -44,7 +44,6 @@ scanner
     * better heredoc
     * support #{} style
     * //x
-    * export keyword?
 
 parser
 ------
